@@ -9,16 +9,16 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Type {
 
-	String name() default "";
-	
-	boolean create() default false;
+    String name() default "";
+    
+    boolean create() default false;
 
-	boolean update() default false;
+    boolean update() default false;
 
-	boolean list() default true;
+    boolean list() default true;
 
-	boolean delete() default false;
+    boolean delete() default false;
 
-	boolean byId() default true;
+    boolean byId() default true;
 
 }

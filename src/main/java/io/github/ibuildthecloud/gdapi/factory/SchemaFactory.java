@@ -4,7 +4,7 @@ import io.github.ibuildthecloud.gdapi.model.Schema;
 
 public interface SchemaFactory {
 
-	Schema getSchema(Class<?> clz);
+    Schema getSchema(Class<?> clz);
 
     Schema registerSchema(Class<?> clz);
 
