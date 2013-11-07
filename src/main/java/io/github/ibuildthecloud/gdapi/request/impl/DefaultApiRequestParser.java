@@ -8,17 +8,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.fileupload.util.LimitedInputStream;
 
 public class DefaultApiRequestParser implements ApiRequestParser {
 
@@ -55,16 +52,16 @@ public class DefaultApiRequestParser implements ApiRequestParser {
     }
     
     @SuppressWarnings("unchecked")
-    protected Map<String,Object> getParams(final ApiRequest apiRequest, final HttpServletRequest request) {
-        try {
+    protected Map<String,Object> getParams(final ApiRequest apiRequest, final HttpServletRequest request) throws IOException {
+//        try {
             Map<String,Object> multiPart = parseMultipart(request);
 
             return multiPart == null ? request.getParameterMap() : multiPart; 
-        } catch ( IOException e ) {
-            if ( e.getCause() instanceof FileUploadBase.SizeLimitExceededException )
-                throw new RequestEntityTooLargeException();
-            return new HashMap<String, Object>();
-        }
+//        } catch ( IOException e ) {
+//            if ( e.getCause() instanceof FileUploadBase.SizeLimitExceededException )
+//                throw new RequestEntityTooLargeException();
+//            return new HashMap<String, Object>();
+//        }
     }
 
     protected Map<String, Object> parseMultipart(HttpServletRequest request) throws IOException {
