@@ -1,5 +1,6 @@
 package io.github.ibuildthecloud.gdapi.request.impl;
 
+import io.github.ibuildthecloud.gdapi.exception.RequestEntityTooLargeException;
 import io.github.ibuildthecloud.gdapi.request.ApiRequestParser;
 import io.github.ibuildthecloud.gdapi.server.model.ApiRequest;
 
@@ -13,6 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -53,15 +55,15 @@ public class DefaultApiRequestParser implements ApiRequestParser {
     
     @SuppressWarnings("unchecked")
     protected Map<String,Object> getParams(final ApiRequest apiRequest, final HttpServletRequest request) throws IOException {
-//        try {
+        try {
             Map<String,Object> multiPart = parseMultipart(request);
 
             return multiPart == null ? request.getParameterMap() : multiPart; 
-//        } catch ( IOException e ) {
-//            if ( e.getCause() instanceof FileUploadBase.SizeLimitExceededException )
-//                throw new RequestEntityTooLargeException();
-//            return new HashMap<String, Object>();
-//        }
+        } catch ( IOException e ) {
+            if ( e.getCause() instanceof FileUploadBase.SizeLimitExceededException )
+                throw new RequestEntityTooLargeException();
+            throw e;
+        }
     }
 
     protected Map<String, Object> parseMultipart(HttpServletRequest request) throws IOException {
@@ -71,7 +73,6 @@ public class DefaultApiRequestParser implements ApiRequestParser {
         Map<String,List<String>> params = new HashMap<String, List<String>>();
 
         try {
-            @SuppressWarnings("unchecked")
             List<FileItem> items = servletFileUpload.parseRequest(request);
 
             for ( FileItem item : items ) {
