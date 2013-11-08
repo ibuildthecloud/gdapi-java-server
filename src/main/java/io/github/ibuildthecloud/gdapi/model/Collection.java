@@ -7,19 +7,19 @@ import java.util.Map;
 public interface Collection {
 
     String getType();
-    
+
     String getResourceType();
-    
+
     Map<String,URL> getLinks();
-    
+
     List<Resource> getData();
-    
+
     Map<String,URL> getCreateTypes();
-    
+
     Map<String,URL> getActions();
-    
-    Pagination getPagination();
-    
-    Sort getSort();
+
+//    Pagination getPagination();
+//
+//    Sort getSort();
 
 }

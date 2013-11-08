@@ -1,32 +1,34 @@
 package io.github.ibuildthecloud.model.impl;
 
+import io.github.ibuildthecloud.gdapi.context.ApiContext;
 import io.github.ibuildthecloud.gdapi.model.Action;
 import io.github.ibuildthecloud.gdapi.model.Field;
 import io.github.ibuildthecloud.gdapi.model.Filter;
 import io.github.ibuildthecloud.gdapi.model.Schema;
+import io.github.ibuildthecloud.gdapi.util.TypeUtils;
+import io.github.ibuildthecloud.url.UrlBuilder;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SchemaImpl implements Schema {
+import javax.xml.bind.annotation.XmlTransient;
+
+public class SchemaImpl extends ResourceImpl implements Schema {
 
     String name;
-    String type = "schema";
+    String type = "schema", pluralName;
     boolean create, update, list = true, deletable, byId = true;
     Map<String, Field> resourceFields;
 
+    public SchemaImpl() {
+        setType("schema");
+    }
+
     public String getId() {
         return name;
-    }
-    
-    public String getType() {
-        return type;
-    }
-    
-    public void setType(String type) {
-        this.type = type;
     }
     
     public Map<String, Field> getResourceFields() {
@@ -41,6 +43,7 @@ public class SchemaImpl implements Schema {
         this.name = name;
     }
 
+    @XmlTransient
     public boolean isCreate() {
         return create;
     }
@@ -49,6 +52,7 @@ public class SchemaImpl implements Schema {
         this.create = create;
     }
 
+    @XmlTransient
     public boolean isUpdate() {
         return update;
     }
@@ -57,6 +61,7 @@ public class SchemaImpl implements Schema {
         this.update = update;
     }
 
+    @XmlTransient
     public boolean isList() {
         return list;
     }
@@ -69,10 +74,12 @@ public class SchemaImpl implements Schema {
         return deletable;
     }
 
+    @XmlTransient
     public void setDeletable(boolean deletable) {
         this.deletable = deletable;
     }
 
+    @XmlTransient
     public boolean isById() {
         return byId;
     }
@@ -115,45 +122,54 @@ public class SchemaImpl implements Schema {
 
     @Override
     public Map<String, URL> getLinks() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+        Map<String,URL> result = null;
+        if ( ! links.containsKey(UrlBuilder.SELF) ) {
+            result = new HashMap<String, URL>(links);
+            result.put(UrlBuilder.SELF, ApiContext.getUrlBuilder().resourceLink(this));
+        }
 
-    @Override
-    public Map<String, URL> getActions() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+        if ( list && ! result.containsKey(UrlBuilder.COLLECTION) ) {
+            result = result == null ? new HashMap<String, URL>(links) : result;
+            result.put(UrlBuilder.COLLECTION, ApiContext.getUrlBuilder().resourceCollection(getId()));
+        }
 
-    @Override
-    public Map<String, Object> getAttributes() {
-        // TODO Auto-generated method stub
-        return null;
+        return result == null ? links : result;
     }
 
     @Override
     public Map<String, Action> getResourceActions() {
         // TODO Auto-generated method stub
-        return null;
+        return new HashMap<String, Action>();
     }
 
     @Override
     public Map<String, Action> getCollectionActions() {
         // TODO Auto-generated method stub
-        return null;
+        return new HashMap<String, Action>();
     }
 
     @Override
     public Map<String, Field> getCollectionFields() {
         // TODO Auto-generated method stub
-        return null;
+        return new HashMap<String, Field>();
     }
 
     @Override
     public Map<String, Filter> getCollectionFilters() {
         // TODO Auto-generated method stub
-        return null;
+        return new HashMap<String, Filter>();
     }
 
+    @Override
+    @XmlTransient
+    public String getPluralName() {
+        if ( pluralName == null )
+            return TypeUtils.guessPluralName(name);
+        return pluralName;
+    }
+
+    public void setPluralName(String pluralName) {
+        this.pluralName = pluralName;
+    }
 
 }

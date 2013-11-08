@@ -1,10 +1,11 @@
 package io.github.ibuildthecloud.gdapi.servlet;
 
-import io.github.ibuildthecloud.gdapi.auth.ApiAuthenticator;
-import io.github.ibuildthecloud.gdapi.request.ApiRequestHandler;
-import io.github.ibuildthecloud.gdapi.request.ApiRequestParser;
-import io.github.ibuildthecloud.gdapi.server.model.ApiRequest;
-import io.github.ibuildthecloud.gdapi.server.model.ServletContext;
+import io.github.ibuildthecloud.gdapi.context.ApiContext;
+import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
+import io.github.ibuildthecloud.gdapi.request.ApiRequest;
+import io.github.ibuildthecloud.gdapi.request.handler.ApiRequestHandler;
+import io.github.ibuildthecloud.gdapi.request.parser.ApiRequestParser;
+import io.github.ibuildthecloud.gdapi.server.model.RequestServletContext;
 import io.github.ibuildthecloud.gdapi.util.ExceptionUtils;
 
 import java.io.IOException;
@@ -26,9 +27,10 @@ public class ApiRequestFilterDelegate  {
     private static final Logger log = LoggerFactory.getLogger(ApiRequestFilterDelegate.class);
 
     ApiRequestParser parser;
-    ApiAuthenticator authenticator;
     List<ApiRequestHandler> handlers;
     boolean throwErrors = false;
+    String version = "v1";
+    SchemaFactory schemaFactory;
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
@@ -41,9 +43,13 @@ public class ApiRequestFilterDelegate  {
         HttpServletRequest httpRequest = (HttpServletRequest)request;
         HttpServletResponse httpResponse = (HttpServletResponse)response;
 
-        ApiRequest apiRequest = new ApiRequest();
-        apiRequest.setServletContext(new ServletContext(httpRequest, httpResponse, chain));
+        ApiRequest apiRequest = new ApiRequest(version, new RequestServletContext(httpRequest, httpResponse, chain));
+
         try {
+            ApiContext context = ApiContext.newContext();
+            context.setApiRequest(apiRequest);
+            context.setSchemaFactory(schemaFactory);
+
             if ( ! parser.parse(apiRequest) ) {
                 chain.doFilter(httpRequest, httpResponse);
                 return;
@@ -70,6 +76,9 @@ public class ApiRequestFilterDelegate  {
                     }
                 }
             }
+        } finally {
+            apiRequest.commit();
+            ApiContext.remove();
         }
     }
 
@@ -80,15 +89,6 @@ public class ApiRequestFilterDelegate  {
     @Inject
     public void setParser(ApiRequestParser parser) {
         this.parser = parser;
-    }
-
-    public ApiAuthenticator getAuthenticator() {
-        return authenticator;
-    }
-
-    @Inject
-    public void setAuthenticator(ApiAuthenticator authenticator) {
-        this.authenticator = authenticator;
     }
 
     public boolean isThrowErrors() {
@@ -106,6 +106,23 @@ public class ApiRequestFilterDelegate  {
     @Inject
     public void setHandlers(List<ApiRequestHandler> handlers) {
         this.handlers = handlers;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public SchemaFactory getSchemaFactory() {
+        return schemaFactory;
+    }
+
+    @Inject
+    public void setSchemaFactory(SchemaFactory schemaFactory) {
+        this.schemaFactory = schemaFactory;
     }
 
 }

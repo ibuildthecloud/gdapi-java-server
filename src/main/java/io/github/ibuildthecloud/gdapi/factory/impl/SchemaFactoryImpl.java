@@ -2,8 +2,9 @@ package io.github.ibuildthecloud.gdapi.factory.impl;
 
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.model.Field;
-import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.model.Field.Type;
+import io.github.ibuildthecloud.gdapi.model.Schema;
+import io.github.ibuildthecloud.gdapi.util.TypeUtils;
 import io.github.ibuildthecloud.model.impl.FieldImpl;
 import io.github.ibuildthecloud.model.impl.SchemaImpl;
 
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,21 +28,26 @@ public class SchemaFactoryImpl implements SchemaFactory {
 
     final io.github.ibuildthecloud.gdapi.annotation.Field defaultField;
     final io.github.ibuildthecloud.gdapi.annotation.Type defaultType;
-    
+
     Map<String, SchemaImpl> schemasByName = new TreeMap<String, SchemaImpl>();
     Map<Class<?>, SchemaImpl> schemas = new HashMap<Class<?>, SchemaImpl>();
-    
+    Map<String, String> typeToPluralName = new HashMap<String, String>();
+    Map<String, String> pluralNameToType = new HashMap<String, String>();
+    Map<String, Class<?>> typeToClass = new HashMap<String, Class<?>>();
+    List<Class<?>> types = new ArrayList<Class<?>>();
+    List<Schema> schemasList = new ArrayList<Schema>();
+
     public SchemaFactoryImpl() {
         try {
             defaultField = PropertyUtils.getPropertyDescriptor(this, "defaultField")
                     .getReadMethod().getAnnotation(io.github.ibuildthecloud.gdapi.annotation.Field.class);
-            
+
             defaultType = this.getClass().getAnnotation(io.github.ibuildthecloud.gdapi.annotation.Type.class);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
-    
+
     @io.github.ibuildthecloud.gdapi.annotation.Field
     public Object getDefaultField() {
         return null;
@@ -48,24 +56,36 @@ public class SchemaFactoryImpl implements SchemaFactory {
     @Override
     public Schema registerSchema(Class<?> clz) {
         SchemaImpl schema = getSchemaName(clz);
-        
+
+        /* Register in the multitude of maps */
+        typeToClass.put(schema.getId(), clz);
         schemas.put(clz, schema);
+        for ( Class<?> iface : clz.getInterfaces() ) {
+            schemas.put(iface, schema);
+        }
         schemasByName.put(schema.getId(), schema);
-        
+        schemasByName.put(schema.getPluralName(), schema);
+        typeToPluralName.put(schema.getId(), schema.getPluralName());
+        pluralNameToType.put(schema.getPluralName(), schema.getId());
+        pluralNameToType.put(schema.getPluralName().toLowerCase(), schema.getId());
+
+        schemasList.add(schema);
+
         return schema;
     }
 
     public Schema getSchema(Class<?> clz) {
+        return schemas.get(clz);
+    }
+    
+    protected Schema parseSchema(Class<?> clz) {
         SchemaImpl schema = readSchema(clz);
-        
+
         List<FieldImpl> fields = getFields(clz);
         Map<String,Field> resourceFields = sortFields(fields);
-        
+
         schema.setResourceFields(resourceFields);
 
-        schemas.put(clz, schema);
-        schemasByName.put(schema.getId(), schema);
-        
         return schema;
     }
 
@@ -80,6 +100,12 @@ public class SchemaFactoryImpl implements SchemaFactory {
             schema.setName(type.name());
         } else {
             schema.setName(StringUtils.uncapitalize(clz.getSimpleName()));
+        }
+        
+        if ( type.pluralName().length() == 0 ) {
+            schema.setPluralName(TypeUtils.guessPluralName(schema.getId()));
+        } else {
+            schema.setPluralName(type.pluralName());
         }
 
         return schema;
@@ -145,9 +171,12 @@ public class SchemaFactoryImpl implements SchemaFactory {
 
     protected FieldImpl getField(Class<?> clz, PropertyDescriptor prop) {
         FieldImpl field = new FieldImpl();
-        
+
         Method readMethod = prop.getReadMethod();
         Method writeMethod = prop.getWriteMethod();
+        if ( readMethod == null && writeMethod == null )
+            return null;
+
         io.github.ibuildthecloud.gdapi.annotation.Field f = getFieldAnnotation(prop);
 
         if ( ! f.include() )
@@ -360,14 +389,67 @@ public class SchemaFactoryImpl implements SchemaFactory {
 
         if ( f == null ) {
             f = defaultField; 
-        }                
+        }
 
         return f;
     }
 
-    @Override
+    @PostConstruct
     public void init() {
-        for ( Class<?> clz : schemas.keySet() )
-            getSchema(clz);
+        registerSchema(Schema.class);
+
+        for ( Class<?> clz : types ) {
+            registerSchema(clz);
+        }
+
+        for ( Class<?> clz : schemas.keySet() ) {
+            parseSchema(clz);
+        }
     }
+
+    @Override
+    public List<Schema> listSchemas() {
+        return schemasList;
+    }
+
+    @Override
+    public Schema getSchema(String type) {
+        return schemasByName.get(type);
+    }
+
+    @Override
+    public String getPluralName(String type) {
+        return typeToPluralName.get(type);
+    }
+
+    @Override
+    public Class<?> getSchemaClass(String type) {
+        return typeToClass.get(type);
+    }
+
+    @Override
+    public String getSingularName(String type) {
+        return pluralNameToType.get(type);
+    }
+
+    @Override
+    public boolean typeStringMatches(Class<?> clz, String type) {
+        if ( type == null || clz == null )
+            return false;
+
+        Schema schema = schemas.get(clz);
+        if ( schema == null )
+            return false;
+
+        return schema == schemasByName.get(type);
+    }
+
+    public List<Class<?>> getTypes() {
+        return types;
+    }
+
+    public void setTypes(List<Class<?>> types) {
+        this.types = types;
+    }
+
 }

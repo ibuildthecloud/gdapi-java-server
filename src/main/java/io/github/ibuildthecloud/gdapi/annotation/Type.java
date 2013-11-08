@@ -10,7 +10,9 @@ import java.lang.annotation.Target;
 public @interface Type {
 
     String name() default "";
-    
+
+    String pluralName() default "";
+
     boolean create() default false;
 
     boolean update() default false;

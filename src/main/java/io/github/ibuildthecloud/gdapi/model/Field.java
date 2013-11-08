@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 public interface Field {
 
     public enum Type {
@@ -40,7 +42,8 @@ public interface Field {
     }
 
     String getType();
-    
+
+    @XmlTransient
     @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
     Type getTypeEnum();
     
@@ -70,17 +73,21 @@ public interface Field {
     
     String getInvalidChars();
 
+    @XmlTransient
     @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
     boolean isIncludeInList();
 
     Object getValue(Object object);
     
+    @XmlTransient
     @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
     Class<?> getTypeClass();
     
+    @XmlTransient
     @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
     Class<?> getSubTypeClass();
     
+    @XmlTransient
     @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
     Type getSubTypeEnum();
 

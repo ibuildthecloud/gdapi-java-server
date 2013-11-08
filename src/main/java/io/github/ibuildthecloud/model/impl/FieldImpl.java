@@ -6,6 +6,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 public class FieldImpl implements Field {
     
     String name, type, validChars, invalidChars;
@@ -18,10 +20,11 @@ public class FieldImpl implements Field {
     Method readMethod;
     Class<?> typeClass, subTypeClass;
 
+    @Override
     public Object getValue(Object object) {
         if ( readMethod == null || object == null )
             return null;
-        
+
         try {
             return readMethod.invoke(object);
         } catch (IllegalAccessException e) {
@@ -33,6 +36,7 @@ public class FieldImpl implements Field {
         }
     }
 
+    @XmlTransient
     public String getName() {
         return name;
     }
@@ -41,6 +45,7 @@ public class FieldImpl implements Field {
         this.name = name;
     }
 
+    @XmlTransient
     public Integer getDisplayIndex() {
         return displayIndex;
     }
@@ -49,6 +54,7 @@ public class FieldImpl implements Field {
         this.displayIndex = displayIndex;
     }
 
+    @Override
     public boolean isCreate() {
         return create;
     }
@@ -57,6 +63,7 @@ public class FieldImpl implements Field {
         this.create = create;
     }
 
+    @Override
     public boolean isUpdate() {
         return update;
     }
@@ -65,6 +72,7 @@ public class FieldImpl implements Field {
         this.update = update;
     }
 
+    @Override
     public boolean isIncludeInList() {
         return includeInList;
     }
@@ -73,6 +81,7 @@ public class FieldImpl implements Field {
         this.includeInList = includeInList;
     }
 
+    @Override
     public String getType() {
         if ( type == null && typeEnum != null ) {
             type = typeEnum.getExternalType();
@@ -88,6 +97,7 @@ public class FieldImpl implements Field {
         this.type = type;
     }
 
+    @Override
     public boolean isNullable() {
         return nullable;
     }
@@ -96,6 +106,7 @@ public class FieldImpl implements Field {
         this.nullable = nullable;
     }
 
+    @Override
     public Type getTypeEnum() {
         return typeEnum;
     }
@@ -104,6 +115,7 @@ public class FieldImpl implements Field {
         this.typeEnum = typeEnum;
     }
 
+    @Override
     public Long getMin() {
         return min;
     }
@@ -112,6 +124,7 @@ public class FieldImpl implements Field {
         this.min = min;
     }
 
+    @Override
     public Long getMax() {
         return max;
     }
@@ -120,6 +133,7 @@ public class FieldImpl implements Field {
         this.max = max;
     }
 
+    @Override
     public Long getMinLength() {
         return minLength;
     }
@@ -128,6 +142,7 @@ public class FieldImpl implements Field {
         this.minLength = minLength;
     }
 
+    @Override
     public Long getMaxLength() {
         return maxLength;
     }
@@ -136,6 +151,7 @@ public class FieldImpl implements Field {
         this.maxLength = maxLength;
     }
 
+    @Override
     public String getDefault() {
         return defaultValue;
     }
@@ -144,6 +160,7 @@ public class FieldImpl implements Field {
         this.defaultValue = defaultValue;
     }
 
+    @Override
     public List<String> getOptions() {
         return options;
     }
@@ -152,6 +169,7 @@ public class FieldImpl implements Field {
         this.options = options;
     }
 
+    @XmlTransient
     public Method getReadMethod() {
         return readMethod;
     }
@@ -160,6 +178,7 @@ public class FieldImpl implements Field {
         this.readMethod = readMethod;
     }
 
+    @Override
     public boolean isUnique() {
         return unique;
     }
@@ -168,6 +187,7 @@ public class FieldImpl implements Field {
         this.unique = unique;
     }
 
+    @Override
     public boolean isRequired() {
         return required;
     }
@@ -176,6 +196,7 @@ public class FieldImpl implements Field {
         this.required = required;
     }
 
+    @Override
     public String getValidChars() {
         return validChars;
     }
@@ -184,6 +205,7 @@ public class FieldImpl implements Field {
         this.validChars = validChars;
     }
 
+    @Override
     public String getInvalidChars() {
         return invalidChars;
     }
@@ -196,14 +218,7 @@ public class FieldImpl implements Field {
         return name;
     }
 
-    public String getDefaultValue() {
-        return defaultValue;
-    }
-
-    public void setDefaultValue(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
+    @Override
     public Class<?> getTypeClass() {
         return typeClass;
     }
@@ -212,6 +227,7 @@ public class FieldImpl implements Field {
         this.typeClass = typeClass;
     }
 
+    @Override
     public Class<?> getSubTypeClass() {
         return subTypeClass;
     }
@@ -220,6 +236,7 @@ public class FieldImpl implements Field {
         this.subTypeClass = subTypeClass;
     }
 
+    @Override
     public Type getSubTypeEnum() {
         return subTypeEnum;
     }

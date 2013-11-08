@@ -27,7 +27,7 @@ public class SchemaFactoryImplTest {
     
     @Test
     public void testOrdering() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
 
         Iterator<String> fields = schema.getResourceFields().keySet().iterator();
         
@@ -38,7 +38,7 @@ public class SchemaFactoryImplTest {
 
     @Test
     public void testOnlyWriteable() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
 
         Iterator<String> fields = schema.getResourceFields().keySet().iterator();
         
@@ -49,7 +49,7 @@ public class SchemaFactoryImplTest {
 
     @Test
     public void testName() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
         
         assertEquals("testType", schema.getId());
         assertEquals("schema", schema.getType());
@@ -57,7 +57,7 @@ public class SchemaFactoryImplTest {
     
     @Test
     public void testRename() {
-        Schema schema = factory.getSchema(TestTypeRename.class);
+        Schema schema = factory.parseSchema(TestTypeRename.class);
         
         assertEquals("Renamed", schema.getId());
         assertEquals("schema", schema.getType());
@@ -65,7 +65,7 @@ public class SchemaFactoryImplTest {
 
     @Test
     public void testSimpleTypes() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
         
@@ -114,9 +114,9 @@ public class SchemaFactoryImplTest {
     
     @Test
     public void testComplexType() {
-        factory.getSchema(TestTypeCRUD.class);
-        factory.getSchema(TestTypeRename.class);
-        Schema schema = factory.getSchema(TestType.class);
+        factory.parseSchema(TestTypeCRUD.class);
+        factory.parseSchema(TestTypeRename.class);
+        Schema schema = factory.parseSchema(TestType.class);
         
         Map<String,Field> fields = schema.getResourceFields();
         
@@ -129,7 +129,7 @@ public class SchemaFactoryImplTest {
     
     @Test
     public void testDefaults() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
         
@@ -139,7 +139,7 @@ public class SchemaFactoryImplTest {
 
     @Test
     public void testNullable() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
         
@@ -149,7 +149,7 @@ public class SchemaFactoryImplTest {
     
     @Test
     public void testUnique() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
         
@@ -159,7 +159,7 @@ public class SchemaFactoryImplTest {
 
     @Test
     public void testValidChars() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
         
@@ -169,7 +169,7 @@ public class SchemaFactoryImplTest {
 
     @Test
     public void testInvalidChars() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
         
@@ -179,7 +179,7 @@ public class SchemaFactoryImplTest {
 
     @Test
     public void testRequired() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
         
@@ -189,7 +189,7 @@ public class SchemaFactoryImplTest {
 
     @Test
     public void testCreateUpdate() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
         
@@ -203,7 +203,7 @@ public class SchemaFactoryImplTest {
 
     @Test
     public void testNameOverride() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
         
@@ -213,7 +213,7 @@ public class SchemaFactoryImplTest {
     
     @Test
     public void testLengths() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
 
@@ -230,7 +230,7 @@ public class SchemaFactoryImplTest {
     
     @Test
     public void testOptions() {
-        Schema schema = factory.getSchema(TestType.class);
+        Schema schema = factory.parseSchema(TestType.class);
         Map<String,Field> fields = schema.getResourceFields();
 
         assertNull(fields.get("defaultSettings").getOptions());
@@ -244,8 +244,8 @@ public class SchemaFactoryImplTest {
     
     @Test
     public void testTypeCRUD() {
-        List<String> resourceMethods = factory.getSchema(TestType.class).getResourceMethods();
-        List<String> collectionMethods = factory.getSchema(TestType.class).getCollectionMethods(); 
+        List<String> resourceMethods = factory.parseSchema(TestType.class).getResourceMethods();
+        List<String> collectionMethods = factory.parseSchema(TestType.class).getCollectionMethods(); 
 
         assertEquals(1, resourceMethods.size());
         assertEquals(1, collectionMethods.size());
@@ -253,8 +253,8 @@ public class SchemaFactoryImplTest {
         assertEquals("GET", resourceMethods.get(0));
         assertEquals("GET", collectionMethods.get(0));
 
-        resourceMethods = factory.getSchema(TestTypeCRUD.class).getResourceMethods();
-        collectionMethods = factory.getSchema(TestTypeCRUD.class).getCollectionMethods();
+        resourceMethods = factory.parseSchema(TestTypeCRUD.class).getResourceMethods();
+        collectionMethods = factory.parseSchema(TestTypeCRUD.class).getCollectionMethods();
 
         assertEquals(2, resourceMethods.size());
         assertTrue(resourceMethods.contains("DELETE"));
