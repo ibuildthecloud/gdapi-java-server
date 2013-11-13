@@ -26,6 +26,7 @@ import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang3.StringUtils;
 
 public class DefaultApiRequestParser implements ApiRequestParser {
 
@@ -242,26 +243,35 @@ public class DefaultApiRequestParser implements ApiRequestParser {
         if ( parts.length > 4 )
             return;
 
-        if ( parts.length > 1 && parts[1].trim().length() > 0 ) {
-            String typeName = schemaFactory.getSingularName(parts[1].trim());
-            if ( typeName == null )
-                return;
+        String typeName = indexValue(parts, 1);
+        String id = indexValue(parts, 2);
+        String link = indexValue(parts, 3);
+
+        if ( StringUtils.isBlank(typeName) ) {
+            return;
+        } else {
             apiRequest.setType(typeName);
-        } else {
-            return;
         }
 
-        if ( parts.length > 2 && parts[2].trim().length() > 0 ) {
-            apiRequest.setId(parts[2].trim());
-        } else {
+        if ( StringUtils.isBlank(id) ) {
             return;
+        } else {
+            apiRequest.setId(id);
         }
 
-        if ( parts.length > 3 && parts[3].trim().length() > 0 ) {
-            apiRequest.setLink(parts[3].trim());
-        } else {
+        if ( StringUtils.isBlank(link) ) {
             return;
+        } else {
+            apiRequest.setLink(link);
         }
+    }
+
+    protected String indexValue(String[] array, int index) {
+        if ( array.length <= index ) {
+            return null;
+        }
+        String value = array[index];
+        return value == null ? value : value.trim();
     }
 
     @PostConstruct

@@ -9,7 +9,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlTransient;
 
 public class FieldImpl implements Field {
-    
+
     String name, type, validChars, invalidChars;
     Integer displayIndex;
     boolean create, update, includeInList = true, nullable, unique, required;

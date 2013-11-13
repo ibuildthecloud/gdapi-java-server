@@ -45,7 +45,7 @@ public final class DefaultUrlBuilder implements UrlBuilder {
         }
 
         try {
-            return new URL(builder.toString());
+            return new URL(builder.toString().toLowerCase());
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
         } 

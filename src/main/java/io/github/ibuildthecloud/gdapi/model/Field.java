@@ -24,7 +24,7 @@ public interface Field {
         TYPE(Object.class),
         RESOURCE(Object.class),
         NONE;
-        
+
         Class<?>[] clzs;
 
         private Type(Class<?>... clzs) {

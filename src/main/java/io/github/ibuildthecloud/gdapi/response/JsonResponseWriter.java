@@ -73,6 +73,9 @@ public class JsonResponseWriter extends AbstractApiRequestHandler {
     }
 
     protected Resource createResource(Object obj) {
+        if ( obj == null )
+            return null;
+
         if ( obj instanceof Resource )
             return (Resource)obj;
 

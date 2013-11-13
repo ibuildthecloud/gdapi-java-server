@@ -19,7 +19,7 @@ import javax.xml.bind.annotation.XmlTransient;
 public class SchemaImpl extends ResourceImpl implements Schema {
 
     String name;
-    String type = "schema", pluralName;
+    String pluralName;
     boolean create, update, list = true, deletable, byId = true;
     Map<String, Field> resourceFields;
 
@@ -30,7 +30,11 @@ public class SchemaImpl extends ResourceImpl implements Schema {
     public String getId() {
         return name;
     }
-    
+
+    public void setId(String name) {
+        this.name = name;
+    }
+
     public Map<String, Field> getResourceFields() {
         return resourceFields;
     }
@@ -88,41 +92,65 @@ public class SchemaImpl extends ResourceImpl implements Schema {
         this.byId = byId;
     }
 
+    public void setResourceMethods(List<String> resourceMethods) {
+        if ( resourceMethods == null ) {
+            byId = false;
+            update = false;
+            deletable = false;
+            return;
+        }
+
+        byId = resourceMethods.contains(Method.GET.toString());
+        update = resourceMethods.contains(Method.PUT.toString());
+        deletable = resourceMethods.contains(Method.DELETE.toString());
+    }
+
     public List<String> getResourceMethods() {
         List<String> methods = new ArrayList<String>();
-        
+
         if ( byId ) {
             methods.add(Method.GET.toString());
         }
-        
+
         if ( update ) {
             methods.add(Method.PUT.toString());
         }
-        
+
         if ( deletable ) {
             methods.add(Method.DELETE.toString());
         }
-        
+
         return methods;
     }
-    
+
+    public void setCollectionMethods(List<String> collectionMethods) {
+        if ( collectionMethods == null ) {
+            list = false;
+            create = false;
+            return;
+        }
+
+        list = collectionMethods.contains(Method.GET.toString());
+        create = collectionMethods.contains(Method.POST.toString()); 
+    }
+
     public List<String> getCollectionMethods() {
         List<String> methods = new ArrayList<String>();
 
         if ( list ) {
             methods.add(Method.GET.toString());
         }
-        
+
         if ( create ) {
             methods.add(Method.POST.toString());
         }
-        
+
         return methods;
     }
 
     @Override
     public Map<String, URL> getLinks() {
-        Map<String,URL> result = null;
+        Map<String,URL> result = links;
         if ( ! links.containsKey(UrlBuilder.SELF) ) {
             result = new HashMap<String, URL>(links);
             result.put(UrlBuilder.SELF, ApiContext.getUrlBuilder().resourceLink(this));
@@ -170,6 +198,11 @@ public class SchemaImpl extends ResourceImpl implements Schema {
 
     public void setPluralName(String pluralName) {
         this.pluralName = pluralName;
+    }
+
+    @XmlTransient
+    public String getRawPluralName() {
+        return pluralName;
     }
 
 }

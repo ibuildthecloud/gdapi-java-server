@@ -18,7 +18,7 @@ public interface SchemaFactory {
 
     String getSingularName(String type);
 
-    Schema registerSchema(Class<?> clz);
+    Schema registerSchema(Object obj);
 
     void init();
 

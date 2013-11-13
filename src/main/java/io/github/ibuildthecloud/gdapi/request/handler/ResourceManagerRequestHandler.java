@@ -1,5 +1,6 @@
 package io.github.ibuildthecloud.gdapi.request.handler;
 
+import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.request.resource.ResourceManager;
 
@@ -13,13 +14,20 @@ import javax.inject.Inject;
 
 public class ResourceManagerRequestHandler extends AbstractResponseGenerator {
 
+    SchemaFactory schemaFactory;
     List<ResourceManager> resourceManager;
     ResourceManager defaultResourceManager;
     Map<String,ResourceManager> resourceManagerByType = new HashMap<String, ResourceManager>();
+    Map<Class<?>,ResourceManager> resourceManagerByClass = new HashMap<Class<?>, ResourceManager>();
 
     @Override
     protected void generate(ApiRequest request) throws IOException {
         ResourceManager manager = resourceManagerByType.get(request.getType());
+
+        if ( manager == null ) {
+            Class<?> schemaCls = schemaFactory.getSchemaClass(request.getType());
+            manager = resourceManagerByClass.get(schemaCls);
+        }
 
         if ( manager == null ) {
             manager = defaultResourceManager; 
@@ -41,6 +49,9 @@ public class ResourceManagerRequestHandler extends AbstractResponseGenerator {
         for ( ResourceManager rm : resourceManager ) {
             for ( String type : rm.getTypes() ) {
                 resourceManagerByType.put(type, rm);
+            }
+            for ( Class<?> clz : rm.getTypeClasses() ) {
+                resourceManagerByClass.put(clz, rm);
             }
         }
     }
