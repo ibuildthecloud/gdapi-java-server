@@ -469,7 +469,11 @@ public class SchemaFactoryImpl implements SchemaFactory {
 
     @Override
     public String getSingularName(String type) {
-        return pluralNameToType.get(lower(type));
+        String result = pluralNameToType.get(lower(type));
+        if ( result == null && typeToPluralName.containsKey(type) ) {
+            return type;
+        }
+        return result;
     }
 
     protected String lower(String type) {

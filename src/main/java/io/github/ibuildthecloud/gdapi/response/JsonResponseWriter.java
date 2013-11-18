@@ -53,19 +53,23 @@ public class JsonResponseWriter extends AbstractApiRequestHandler {
         Object object = request.getResponseObject();
 
         if ( object instanceof List ) {
-            return createCollection((List<?>)object);
+            return createCollection((List<?>)object, request);
         }
 
         return createResource(object);
     }
 
-    protected Collection createCollection(List<?> list) {
+    protected Collection createCollection(List<?> list, ApiRequest request) {
         CollectionImpl collection = new CollectionImpl();
+        collection.setResourceType(request.getType());
+
         for ( Object obj : list ) {
             Resource resource = createResource(obj);
             if ( resource != null ) {
                 collection.getData().add(resource);
-                collection.setResourceType(resource.getType());
+                if ( collection.getResourceType() == null ) {
+                    collection.setResourceType(resource.getType());
+                }
             }
         }
 

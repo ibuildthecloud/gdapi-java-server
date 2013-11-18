@@ -1,6 +1,7 @@
 package io.github.ibuildthecloud.gdapi.request.handler;
 
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
+import io.github.ibuildthecloud.gdapi.model.Schema.Method;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.request.resource.ResourceManager;
 
@@ -37,11 +38,17 @@ public class ResourceManagerRequestHandler extends AbstractResponseGenerator {
             return;
         }
 
-        if ( request.getId() != null ) {
-            request.setResponseObject(manager.getById(request.getId(), request));
-        } else if ( request.getType() != null ) {
-            request.setResponseObject(manager.list(request.getType(), request));
+        Object response = null;
+        if ( Method.POST.isMethod(request.getMethod()) ) {
+            response = manager.create(request.getType(), request);
+        } else if ( Method.GET.isMethod(request.getMethod()) ){ 
+            if ( request.getId() != null ) {
+                response = manager.getById(request.getId(), request);
+            } else if ( request.getType() != null ) {
+                response = manager.list(request.getType(), request);
+            }
         }
+        request.setResponseObject(response);
     }
 
     @PostConstruct
@@ -71,6 +78,15 @@ public class ResourceManagerRequestHandler extends AbstractResponseGenerator {
 
     public void setDefaultResourceManager(ResourceManager defaultResourceManager) {
         this.defaultResourceManager = defaultResourceManager;
+    }
+
+    public SchemaFactory getSchemaFactory() {
+        return schemaFactory;
+    }
+
+    @Inject
+    public void setSchemaFactory(SchemaFactory schemaFactory) {
+        this.schemaFactory = schemaFactory;
     }
 
 }

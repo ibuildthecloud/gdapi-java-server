@@ -12,4 +12,6 @@ public interface ResourceManager {
 
     Object list(String type, ApiRequest request);
 
+    Object create(String type, ApiRequest request);
+
 }

@@ -8,7 +8,11 @@ import javax.xml.bind.annotation.XmlTransient;
 public interface Schema extends Resource {
 
     public enum Method {
-        GET, PUT, DELETE, POST
+        GET, PUT, DELETE, POST;
+
+        public boolean isMethod(String value) {
+            return this.toString().equals(value);
+        }
     }
 
     @XmlTransient

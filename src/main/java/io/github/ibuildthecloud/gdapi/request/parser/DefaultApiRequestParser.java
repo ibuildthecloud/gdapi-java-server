@@ -250,7 +250,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
         if ( StringUtils.isBlank(typeName) ) {
             return;
         } else {
-            apiRequest.setType(typeName);
+            apiRequest.setType(schemaFactory.getSingularName(typeName));
         }
 
         if ( StringUtils.isBlank(id) ) {
