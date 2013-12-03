@@ -9,7 +9,9 @@ public interface UrlBuilder {
     public static final String SELF = "self";
     public static final String COLLECTION = "collection";
 
-    URL resourceLink(Resource resource);
+    URL resourceReferenceLink(Resource resource);
+
+    URL resourceLink(Resource resource, String name);
 
     URL resourceCollection(Class<?> type);
 

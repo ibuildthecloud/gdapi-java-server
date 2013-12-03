@@ -8,7 +8,7 @@ import io.github.ibuildthecloud.url.UrlBuilder;
 public class NullUrlBuilder implements UrlBuilder {
 
     @Override
-    public URL resourceLink(Resource resource) {
+    public URL resourceReferenceLink(Resource resource) {
         return null;
     }
 
@@ -19,6 +19,11 @@ public class NullUrlBuilder implements UrlBuilder {
 
     @Override
     public URL resourceCollection(String type) {
+        return null;
+    }
+
+    @Override
+    public URL resourceLink(Resource resource, String name) {
         return null;
     }
 

@@ -28,7 +28,7 @@ public class ResourceImpl implements Resource {
     @Override
     public Map<String, URL> getLinks() {
         if ( ! links.containsKey(UrlBuilder.SELF) ) {
-            links.put(UrlBuilder.SELF, ApiContext.getUrlBuilder().resourceLink(this));
+            links.put(UrlBuilder.SELF, ApiContext.getUrlBuilder().resourceReferenceLink(this));
         }
         return links;
     }

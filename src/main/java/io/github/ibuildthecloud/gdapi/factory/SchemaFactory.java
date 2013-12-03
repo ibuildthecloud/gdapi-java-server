@@ -2,11 +2,18 @@ package io.github.ibuildthecloud.gdapi.factory;
 
 import java.util.List;
 
+import io.github.ibuildthecloud.gdapi.factory.impl.SchemaPostProcessor;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 
 public interface SchemaFactory {
 
+    String getId();
+
     List<Schema> listSchemas();
+
+    String getSchemaName(Class<?> clz);
+
+    String getSchemaName(String type);
 
     Schema getSchema(Class<?> clz);
 
@@ -14,14 +21,20 @@ public interface SchemaFactory {
 
     Class<?> getSchemaClass(String type);
 
+    Class<?> getSchemaClass(Class<?> type);
+
     String getPluralName(String type);
 
     String getSingularName(String type);
 
     Schema registerSchema(Object obj);
 
+    Schema parseSchema(String name);
+
     void init();
 
     boolean typeStringMatches(Class<?> clz, String type);
+
+    void addPostProcessor(SchemaPostProcessor postProcessor);
 
 }

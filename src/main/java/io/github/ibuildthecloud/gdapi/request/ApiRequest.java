@@ -1,11 +1,13 @@
 package io.github.ibuildthecloud.gdapi.request;
 
+import io.github.ibuildthecloud.gdapi.condition.Condition;
 import io.github.ibuildthecloud.gdapi.server.model.RequestServletContext;
 import io.github.ibuildthecloud.url.UrlBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +37,7 @@ public class ApiRequest {
     String responseContentType;
     long startTime = System.currentTimeMillis();
     UrlBuilder urlBuilder;
+    Map<String,Condition> conditions = new LinkedHashMap<String, Condition>();
 
     public ApiRequest(String apiVersion, RequestServletContext requestServletContext) {
         super();
@@ -241,6 +244,14 @@ public class ApiRequest {
 
     public void setApiVersion(String apiVersion) {
         this.apiVersion = apiVersion;
+    }
+
+    public Map<String, Condition> getConditions() {
+        return conditions;
+    }
+
+    public void setConditions(Map<String, Condition> conditions) {
+        this.conditions = conditions;
     }
 
 }

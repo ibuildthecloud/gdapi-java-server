@@ -33,7 +33,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
     public static final String DEFAULT_OVERRIDE_URL_HEADER = "X-API-request-url";
     public static final String DEFAULT_OVERRIDE_CLIENT_IP_HEADER = "X-API-request-url";
     public static final String FORWARDED_HEADER = "X-Forwarded-For";
-    
+
     public static final String HTML = "html";
     public static final String JSON = "json";
 
@@ -60,6 +60,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
         apiRequest.setQueryString(parseQueryString(apiRequest, request));
 
         parsePath(apiRequest, request);
+
         return true;
     }
 
@@ -88,7 +89,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
         try {
             Map<String,Object> multiPart = parseMultipart(request);
 
-            return multiPart == null ? request.getParameterMap() : multiPart; 
+            return multiPart == null ? request.getParameterMap() : multiPart;
         } catch ( IOException e ) {
             if ( e.getCause() instanceof FileUploadBase.SizeLimitExceededException )
                 throw new RequestEntityTooLargeException();
@@ -193,7 +194,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
         if ( ! servletPath.startsWith("/") || servletPath.length() < 2 )
             return null;
 
-        return servletPath.split("/")[1]; 
+        return servletPath.split("/")[1];
     }
 
     protected String parseResponseType(ApiRequest apiRequest, HttpServletRequest request) {
@@ -218,7 +219,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
         accepts = accepts.toLowerCase();
 
         // User agent has Mozilla and browser accepts */*
-        if ( userAgent != null && userAgent.toLowerCase().indexOf("mozilla") != -1 && 
+        if ( userAgent != null && userAgent.toLowerCase().indexOf("mozilla") != -1 &&
                 accepts.indexOf("*/*") != -1 ) {
             return HTML;
         }

@@ -153,7 +153,7 @@ public class SchemaImpl extends ResourceImpl implements Schema {
         Map<String,URL> result = links;
         if ( ! links.containsKey(UrlBuilder.SELF) ) {
             result = new HashMap<String, URL>(links);
-            result.put(UrlBuilder.SELF, ApiContext.getUrlBuilder().resourceLink(this));
+            result.put(UrlBuilder.SELF, ApiContext.getUrlBuilder().resourceReferenceLink(this));
         }
 
         if ( list && ! result.containsKey(UrlBuilder.COLLECTION) ) {

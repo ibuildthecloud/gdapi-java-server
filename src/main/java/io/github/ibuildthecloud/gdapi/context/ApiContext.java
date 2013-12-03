@@ -12,6 +12,7 @@ public class ApiContext {
 
     ApiRequest apiRequest;
     SchemaFactory schemaFactory;
+    Object policy;
 
     protected ApiContext() {
         super();
@@ -58,6 +59,14 @@ public class ApiContext {
 
     public void setSchemaFactory(SchemaFactory schemaFactory) {
         this.schemaFactory = schemaFactory;
+    }
+
+    public Object getPolicy() {
+        return policy;
+    }
+
+    public void setPolicy(Object policy) {
+        this.policy = policy;
     }
 
 }

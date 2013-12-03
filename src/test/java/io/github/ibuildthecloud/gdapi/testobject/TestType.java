@@ -13,7 +13,7 @@ public class TestType {
     private enum TestEnum {
         FIRST, SECOND
     }
-    
+
     String gonnaBeNameOverride;
     String defaultSettings;
     String first, second, a;
@@ -39,6 +39,7 @@ public class TestType {
     String[] typeArray;
     List<Map<String,String>> typeList;
     Map<String, String> typeMap;
+    List<TestTypeCRUD> typeListCrud;
     IdRef<TestType> typeReference;
     Long lengths;
     String createUpdate;
@@ -48,7 +49,7 @@ public class TestType {
     String invalidChars;
     IdRef<TestTypeCRUD> testTypeCrudId;
     TestTypeCRUD testTypeCrud;
-    
+
     public void setOnlyWriteable(String onlyWriteable) {
         this.onlyWriteable = onlyWriteable;
     }
@@ -344,5 +345,13 @@ public class TestType {
     public void setTypeList(List<Map<String, String>> typeList) {
         this.typeList = typeList;
     }
-    
+
+    public List<TestTypeCRUD> getTypeListCrud() {
+        return typeListCrud;
+    }
+
+    public void setTypeListCrud(List<TestTypeCRUD> typeListCrud) {
+        this.typeListCrud = typeListCrud;
+    }
+
 }

@@ -2,6 +2,7 @@ package io.github.ibuildthecloud.gdapi.servlet;
 
 import io.github.ibuildthecloud.gdapi.context.ApiContext;
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
+import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.request.handler.ApiRequestHandler;
 import io.github.ibuildthecloud.gdapi.request.parser.ApiRequestParser;
@@ -9,6 +10,7 @@ import io.github.ibuildthecloud.gdapi.server.model.RequestServletContext;
 import io.github.ibuildthecloud.gdapi.util.ExceptionUtils;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -23,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ApiRequestFilterDelegate  {
+
+    public static final String SCHEMAS_HEADER = "X-API-Schemas";
 
     private static final Logger log = LoggerFactory.getLogger(ApiRequestFilterDelegate.class);
 
@@ -53,6 +57,11 @@ public class ApiRequestFilterDelegate  {
             if ( ! parser.parse(apiRequest) ) {
                 chain.doFilter(httpRequest, httpResponse);
                 return;
+            }
+
+            URL schemaUrl = ApiContext.getUrlBuilder().resourceCollection(Schema.class);
+            if ( schemaUrl != null ) {
+                httpResponse.setHeader(SCHEMAS_HEADER, schemaUrl.toExternalForm());
             }
 
             for ( ApiRequestHandler handler : handlers ) {

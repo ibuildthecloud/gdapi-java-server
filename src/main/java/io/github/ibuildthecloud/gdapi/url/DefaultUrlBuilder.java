@@ -20,7 +20,7 @@ public final class DefaultUrlBuilder implements UrlBuilder {
     }
 
     @Override
-    public URL resourceLink(Resource resource) {
+    public URL resourceReferenceLink(Resource resource) {
         return constructBasicUrl(getPluralName(resource), resource.getId());
     }
 
@@ -48,7 +48,7 @@ public final class DefaultUrlBuilder implements UrlBuilder {
             return new URL(builder.toString().toLowerCase());
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
-        } 
+        }
     }
 
     @Override
@@ -61,6 +61,14 @@ public final class DefaultUrlBuilder implements UrlBuilder {
     public URL resourceCollection(String type) {
         String plural = getPluralName(type);
         return plural == null ? null : constructBasicUrl(getPluralName(type));
+    }
+
+    @Override
+    public URL resourceLink(Resource resource, String name) {
+        if ( name == null )
+            return null;
+
+        return constructBasicUrl(getPluralName(resource), resource.getId(), name.toLowerCase());
     }
 
 }

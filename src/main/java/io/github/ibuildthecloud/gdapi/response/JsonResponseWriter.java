@@ -10,6 +10,7 @@ import io.github.ibuildthecloud.gdapi.model.impl.WrappedResource;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.request.handler.AbstractApiRequestHandler;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
@@ -20,6 +21,7 @@ public class JsonResponseWriter extends AbstractApiRequestHandler {
 
     JsonMapper jsonMapper;
     SchemaFactory schemaFactory;
+    boolean chunked = false;
 
     @Override
     public void handle(ApiRequest request) throws IOException {
@@ -38,7 +40,15 @@ public class JsonResponseWriter extends AbstractApiRequestHandler {
         request.setResponseContentType(getContentType());
 
         OutputStream os = request.getOutputStream();
-        writeJson(os, responseObject, request);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        writeJson(chunked ? os : baos, responseObject, request);
+
+        if ( ! chunked ) {
+            byte[] bytes = baos.toByteArray();
+            request.getRequestServletContext().getResponse().setContentLength(bytes.length);
+            os.write(bytes);
+            os.flush();
+        }
     }
 
     protected String getContentType() {
@@ -54,6 +64,8 @@ public class JsonResponseWriter extends AbstractApiRequestHandler {
 
         if ( object instanceof List ) {
             return createCollection((List<?>)object, request);
+        } else if ( object instanceof Collection ) {
+            return object;
         }
 
         return createResource(object);
@@ -107,6 +119,14 @@ public class JsonResponseWriter extends AbstractApiRequestHandler {
     @Inject
     public void setSchemaFactory(SchemaFactory schemaFactory) {
         this.schemaFactory = schemaFactory;
+    }
+
+    public boolean isChunked() {
+        return chunked;
+    }
+
+    public void setChunked(boolean chunked) {
+        this.chunked = chunked;
     }
 
 }

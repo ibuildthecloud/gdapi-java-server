@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 public class FieldImpl implements Field {
 
-    String name, type, validChars, invalidChars;
+    String name, type, subType, validChars, invalidChars;
     Integer displayIndex;
     boolean create, update, includeInList = true, nullable, unique, required;
     Type typeEnum, subTypeEnum;
@@ -85,16 +85,26 @@ public class FieldImpl implements Field {
     public String getType() {
         if ( type == null && typeEnum != null ) {
             type = typeEnum.getExternalType();
-            
+
             if ( subTypeEnum != null ) {
                 type += "[" + subTypeEnum.getExternalType() + "]";
+            } else if ( subType != null ) {
+                type += "[" + subType + "]";
             }
         }
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setType(String typeName) {
+        if ( typeName != null ) {
+            for ( Type type : Type.values() ) {
+                if ( typeName.startsWith(type.getExternalType()) ) {
+                    typeEnum = type;
+                    break;
+                }
+            }
+        }
+        this.type = typeName;
     }
 
     @Override
@@ -214,6 +224,7 @@ public class FieldImpl implements Field {
         this.invalidChars = invalidChars;
     }
 
+    @Override
     public String toString() {
         return name;
     }
@@ -243,6 +254,15 @@ public class FieldImpl implements Field {
 
     public void setSubTypeEnum(Type subTypeEnum) {
         this.subTypeEnum = subTypeEnum;
+    }
+
+    @Override
+    public String getSubType() {
+        return subType;
+    }
+
+    public void setSubType(String subType) {
+        this.subType = subType;
     }
 
 }

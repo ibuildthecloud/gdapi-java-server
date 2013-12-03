@@ -19,7 +19,7 @@ import org.junit.Test;
 public class SchemaFactoryImplTest {
 
     SchemaFactoryImpl factory;
-    
+
     @Before
     public void setUp() {
         factory = new SchemaFactoryImpl();
@@ -35,7 +35,7 @@ public class SchemaFactoryImplTest {
         Schema schema = parseSchema(TestType.class);
 
         Iterator<String> fields = schema.getResourceFields().keySet().iterator();
-        
+
         assertEquals("first", fields.next());
         assertEquals("second", fields.next());
         assertEquals("a", fields.next());
@@ -46,7 +46,7 @@ public class SchemaFactoryImplTest {
         Schema schema = parseSchema(TestType.class);
 
         Iterator<String> fields = schema.getResourceFields().keySet().iterator();
-        
+
         assertEquals("first", fields.next());
         assertEquals("second", fields.next());
         assertEquals("a", fields.next());
@@ -55,15 +55,15 @@ public class SchemaFactoryImplTest {
     @Test
     public void testName() {
         Schema schema = parseSchema(TestType.class);
-        
+
         assertEquals("testType", schema.getId());
         assertEquals("schema", schema.getType());
     }
-    
+
     @Test
     public void testRename() {
         Schema schema = parseSchema(TestTypeRename.class);
-        
+
         assertEquals("Renamed", schema.getId());
         assertEquals("schema", schema.getType());
     }
@@ -73,73 +73,83 @@ public class SchemaFactoryImplTest {
         Schema schema = parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
-        
+
         assertEquals("blob", fields.get("typeBlob").getType());
         assertEquals("date", fields.get("typeDate").getType());
         assertEquals("enum", fields.get("typeEnum").getType());
-        
+
         assertEquals("boolean", fields.get("typeBool").getType());
         assertTrue(!fields.get("typeBool").isNullable());
         assertEquals("boolean", fields.get("typeBoolean").getType());
         assertTrue(fields.get("typeBoolean").isNullable());
-        
+
         assertEquals("float", fields.get("typeFloat").getType());
         assertTrue(!fields.get("typeFloat").isNullable());
         assertEquals("float", fields.get("typeFloatObject").getType());
         assertTrue(fields.get("typeFloatObject").isNullable());
-        
+
         assertEquals("float", fields.get("typeDouble").getType());
         assertTrue(!fields.get("typeDouble").isNullable());
         assertEquals("float", fields.get("typeDoubleObject").getType());
         assertTrue(fields.get("typeDoubleObject").isNullable());
-        
+
         assertEquals("int", fields.get("typeInt").getType());
         assertTrue(!fields.get("typeInt").isNullable());
         assertEquals("int", fields.get("typeInteger").getType());
         assertTrue(fields.get("typeInteger").isNullable());
-        
+
         assertEquals("int", fields.get("typeLong").getType());
         assertTrue(!fields.get("typeLong").isNullable());
         assertEquals("int", fields.get("typeLongObject").getType());
         assertTrue(fields.get("typeLongObject").isNullable());
-        
+
         assertEquals(Field.Type.PASSWORD.getExternalType(), fields.get("typePassword").getType());
         assertEquals(Field.Type.STRING.getExternalType(), fields.get("typeString").getType());
-        
+
         assertEquals(Type.MAP, fields.get("typeMap").getTypeEnum());
         assertEquals(Type.REFERENCE, fields.get("typeReference").getTypeEnum());
         assertEquals(Type.ARRAY, fields.get("typeArray").getTypeEnum());
-        assertEquals(Type.ARRAY, fields.get("typeList").getTypeEnum());        
+        assertEquals(Type.ARRAY, fields.get("typeList").getTypeEnum());
     }
-    
+
     @Test
     @Ignore
     public void testDefaultValue() {
         fail();
     }
-    
+
     @Test
     @Ignore
+    public void testComplexType_Reference_Type() {
+        parseSchema(TestTypeCRUD.class);
+        parseSchema(TestTypeRename.class);
+        Schema schema = parseSchema(TestType.class);
+
+        Map<String,Field> fields = schema.getResourceFields();
+
+        assertEquals("reference[testTypeCRUD]", fields.get("testTypeCrudId").getType());
+        assertEquals("type[testTypeCRUD]", fields.get("testTypeCrud").getType());
+    }
+
+    @Test
     public void testComplexType() {
         parseSchema(TestTypeCRUD.class);
         parseSchema(TestTypeRename.class);
         Schema schema = parseSchema(TestType.class);
-        
+
         Map<String,Field> fields = schema.getResourceFields();
-        
+
         assertEquals("array[map]", fields.get("typeList").getType());
         assertEquals("array[string]", fields.get("typeArray").getType());
-
-        assertEquals("reference[testTypeCrud]", fields.get("testTypeCrudId").getType());
-        assertEquals("type[testTypeCrud]", fields.get("testTypeCrud").getType());
+        assertEquals("array[testTypeCRUD]", fields.get("typeListCrud").getType());
     }
-    
+
     @Test
     public void testDefaults() {
         Schema schema = parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
-        
+
         assertNull(fields.get("defaultSettings").getDefault());
         assertEquals("DEFAULT", fields.get("defaultValue").getDefault());
     }
@@ -149,17 +159,17 @@ public class SchemaFactoryImplTest {
         Schema schema = parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
-        
+
         assertTrue(!fields.get("defaultSettings").isNullable());
         assertTrue(fields.get("nullable").isNullable());
     }
-    
+
     @Test
     public void testUnique() {
         Schema schema = parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
-        
+
         assertTrue(!fields.get("defaultSettings").isUnique());
         assertTrue(fields.get("unique").isUnique());
     }
@@ -169,7 +179,7 @@ public class SchemaFactoryImplTest {
         Schema schema = parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
-        
+
         assertNull(fields.get("defaultSettings").getValidChars());
         assertEquals("valid", fields.get("validChars").getValidChars());
     }
@@ -179,7 +189,7 @@ public class SchemaFactoryImplTest {
         Schema schema = parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
-        
+
         assertNull(fields.get("defaultSettings").getInvalidChars());
         assertEquals("invalid", fields.get("invalidChars").getInvalidChars());
     }
@@ -189,7 +199,7 @@ public class SchemaFactoryImplTest {
         Schema schema = parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
-        
+
         assertTrue(!fields.get("defaultSettings").isRequired());
         assertTrue(fields.get("required").isRequired());
     }
@@ -199,10 +209,10 @@ public class SchemaFactoryImplTest {
         Schema schema = parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
-        
+
         assertTrue(!fields.get("defaultSettings").isCreate());
         assertTrue(!fields.get("defaultSettings").isUpdate());
-        
+
         assertTrue(fields.get("createUpdate").isCreate());
         assertTrue(fields.get("createUpdate").isUpdate());
 
@@ -213,11 +223,11 @@ public class SchemaFactoryImplTest {
         Schema schema = parseSchema(TestType.class);
 
         Map<String,Field> fields = schema.getResourceFields();
-        
+
         assertNull(fields.get("gonnaBeNameOverride"));
         assertNotNull(fields.get("nameOverride"));
     }
-    
+
     @Test
     public void testLengths() {
         Schema schema = parseSchema(TestType.class);
@@ -228,13 +238,13 @@ public class SchemaFactoryImplTest {
         assertNull(fields.get("defaultSettings").getMaxLength());
         assertNull(fields.get("defaultSettings").getMin());
         assertNull(fields.get("defaultSettings").getMax());
-        
+
         assertEquals(new Long(142), fields.get("lengths").getMinLength());
         assertEquals(new Long(242), fields.get("lengths").getMaxLength());
         assertEquals(new Long(342), fields.get("lengths").getMin());
         assertEquals(new Long(442), fields.get("lengths").getMax());
     }
-    
+
     @Test
     public void testOptions() {
         Schema schema = parseSchema(TestType.class);
@@ -243,20 +253,20 @@ public class SchemaFactoryImplTest {
         assertNull(fields.get("defaultSettings").getOptions());
 
         List<String> options = fields.get("typeEnum").getOptions();
-        
+
         assertEquals(2, options.size());
         assertEquals("FIRST", options.get(0));
         assertEquals("SECOND", options.get(1));
     }
-    
+
     @Test
     public void testTypeCRUD() {
         List<String> resourceMethods = parseSchema(TestType.class).getResourceMethods();
-        List<String> collectionMethods = parseSchema(TestType.class).getCollectionMethods(); 
+        List<String> collectionMethods = parseSchema(TestType.class).getCollectionMethods();
 
         assertEquals(1, resourceMethods.size());
         assertEquals(1, collectionMethods.size());
-        
+
         assertEquals("GET", resourceMethods.get(0));
         assertEquals("GET", collectionMethods.get(0));
 
@@ -266,7 +276,7 @@ public class SchemaFactoryImplTest {
         assertEquals(2, resourceMethods.size());
         assertTrue(resourceMethods.contains("DELETE"));
         assertTrue(resourceMethods.contains("PUT"));
-        
+
         assertEquals(0, collectionMethods.size());
     }
 
