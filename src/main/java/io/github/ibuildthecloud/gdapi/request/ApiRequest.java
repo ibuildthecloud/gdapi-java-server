@@ -1,19 +1,26 @@
 package io.github.ibuildthecloud.gdapi.request;
 
 import io.github.ibuildthecloud.gdapi.condition.Condition;
+import io.github.ibuildthecloud.gdapi.model.Include;
+import io.github.ibuildthecloud.gdapi.model.Sort;
 import io.github.ibuildthecloud.gdapi.server.model.RequestServletContext;
+import io.github.ibuildthecloud.model.Pagination;
 import io.github.ibuildthecloud.url.UrlBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
 public class ApiRequest {
 
+    Locale locale;
     String type;
     String id;
     String link;
@@ -37,12 +44,17 @@ public class ApiRequest {
     String responseContentType;
     long startTime = System.currentTimeMillis();
     UrlBuilder urlBuilder;
-    Map<String,Condition> conditions = new LinkedHashMap<String, Condition>();
+    Map<String,List<Condition>> conditions = new LinkedHashMap<String, List<Condition>>();
+    Sort sort;
+    Pagination pagination;
+    Include include;
+    Map<Object,Object> attributes = new HashMap<Object, Object>();
 
     public ApiRequest(String apiVersion, RequestServletContext requestServletContext) {
         super();
         this.apiVersion = apiVersion;
         this.requestServletContext = requestServletContext;
+        this.locale = requestServletContext.getRequest().getLocale();
     }
 
     public InputStream getInputStream() throws IOException {
@@ -246,12 +258,51 @@ public class ApiRequest {
         this.apiVersion = apiVersion;
     }
 
-    public Map<String, Condition> getConditions() {
+    public Map<String, List<Condition>> getConditions() {
         return conditions;
     }
 
-    public void setConditions(Map<String, Condition> conditions) {
+    public void setConditions(Map<String, List<Condition>> conditions) {
         this.conditions = conditions;
     }
 
+    public Sort getSort() {
+        return sort;
+    }
+
+    public void setSort(Sort sort) {
+        this.sort = sort;
+    }
+
+    public Pagination getPagination() {
+        return pagination;
+    }
+
+    public void setPagination(Pagination pagination) {
+        this.pagination = pagination;
+    }
+
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+    }
+
+    public Include getInclude() {
+        return include;
+    }
+
+    public void setInclude(Include include) {
+        this.include = include;
+    }
+
+    public Object getAttribute(Object object) {
+        return this.attributes.get(object);
+    }
+
+    public void setAttribute(Object key, Object value) {
+        this.attributes.put(key, value);
+    }
 }

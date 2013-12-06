@@ -2,6 +2,7 @@ package io.github.ibuildthecloud.gdapi.servlet;
 
 import io.github.ibuildthecloud.gdapi.context.ApiContext;
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
+import io.github.ibuildthecloud.gdapi.id.IdFormatter;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.request.handler.ApiRequestHandler;
@@ -33,13 +34,20 @@ public class ApiRequestFilterDelegate  {
     ApiRequestParser parser;
     List<ApiRequestHandler> handlers;
     boolean throwErrors = false;
-    String version = "v1";
+    String version;
     SchemaFactory schemaFactory;
+    IdFormatter idFormatter;
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
 
         if ( ! (request instanceof HttpServletRequest) || ! (response instanceof HttpServletResponse) ) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        if ( version == null ) {
+            log.error("No version set");
             chain.doFilter(request, response);
             return;
         }
@@ -53,6 +61,9 @@ public class ApiRequestFilterDelegate  {
             ApiContext context = ApiContext.newContext();
             context.setApiRequest(apiRequest);
             context.setSchemaFactory(schemaFactory);
+            if ( idFormatter != null ) {
+                context.setIdFormatter(idFormatter);
+            }
 
             if ( ! parser.parse(apiRequest) ) {
                 chain.doFilter(httpRequest, httpResponse);
@@ -64,25 +75,33 @@ public class ApiRequestFilterDelegate  {
                 httpResponse.setHeader(SCHEMAS_HEADER, schemaUrl.toExternalForm());
             }
 
+            Throwable currentError = null;
             for ( ApiRequestHandler handler : handlers ) {
-                handler.handle(apiRequest);
+                try {
+                    if ( currentError == null ) {
+                        handler.handle(apiRequest);
+                    } else {
+                        if ( handler.handleException(apiRequest, currentError) ) {
+                            currentError = null;
+                        }
+                    }
+                } catch ( Throwable t ) {
+                    currentError = t;
+                }
+            }
+            if ( currentError != null ) {
+                throw currentError;
             }
         } catch ( Throwable t ) {
-            boolean handled = false;
-            for ( ApiRequestHandler handler : handlers ) {
-                handled |= handler.handleException(apiRequest, t);
-            }
-            if ( ! handled ) {
-                log.error("Unhandled exception in API for request [{}]", apiRequest, t);
-                if ( throwErrors ) {
-                    ExceptionUtils.rethrowRuntime(t);
-                    ExceptionUtils.rethrow(t, IOException.class);
-                    ExceptionUtils.rethrow(t, ServletException.class);
-                    throw new ServletException(t);
-                } else {
-                    if ( ! apiRequest.isCommited() ) {
-                        apiRequest.setResponseCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    }
+            log.error("Unhandled exception in API for request [{}]", apiRequest, t);
+            if ( throwErrors ) {
+                ExceptionUtils.rethrowRuntime(t);
+                ExceptionUtils.rethrow(t, IOException.class);
+                ExceptionUtils.rethrow(t, ServletException.class);
+                throw new ServletException(t);
+            } else {
+                if ( ! httpResponse.isCommitted() ) {
+                    httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             }
         } finally {
@@ -121,6 +140,7 @@ public class ApiRequestFilterDelegate  {
         return version;
     }
 
+    @Inject
     public void setVersion(String version) {
         this.version = version;
     }
@@ -132,6 +152,14 @@ public class ApiRequestFilterDelegate  {
     @Inject
     public void setSchemaFactory(SchemaFactory schemaFactory) {
         this.schemaFactory = schemaFactory;
+    }
+
+    public IdFormatter getIdFormatter() {
+        return idFormatter;
+    }
+
+    public void setIdFormatter(IdFormatter idFormatter) {
+        this.idFormatter = idFormatter;
     }
 
 }

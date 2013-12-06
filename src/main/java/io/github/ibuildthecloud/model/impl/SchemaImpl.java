@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -22,19 +23,24 @@ public class SchemaImpl extends ResourceImpl implements Schema {
     String pluralName;
     boolean create, update, list = true, deletable, byId = true;
     Map<String, Field> resourceFields;
+    Map<String, Filter> collectionFilters = new TreeMap<String, Filter>();
+    List<String> includeableLinks = new ArrayList<String>();
 
     public SchemaImpl() {
         setType("schema");
     }
 
+    @Override
     public String getId() {
         return name;
     }
 
+    @Override
     public void setId(String name) {
         this.name = name;
     }
 
+    @Override
     public Map<String, Field> getResourceFields() {
         return resourceFields;
     }
@@ -105,6 +111,7 @@ public class SchemaImpl extends ResourceImpl implements Schema {
         deletable = resourceMethods.contains(Method.DELETE.toString());
     }
 
+    @Override
     public List<String> getResourceMethods() {
         List<String> methods = new ArrayList<String>();
 
@@ -131,9 +138,10 @@ public class SchemaImpl extends ResourceImpl implements Schema {
         }
 
         list = collectionMethods.contains(Method.GET.toString());
-        create = collectionMethods.contains(Method.POST.toString()); 
+        create = collectionMethods.contains(Method.POST.toString());
     }
 
+    @Override
     public List<String> getCollectionMethods() {
         List<String> methods = new ArrayList<String>();
 
@@ -184,8 +192,7 @@ public class SchemaImpl extends ResourceImpl implements Schema {
 
     @Override
     public Map<String, Filter> getCollectionFilters() {
-        // TODO Auto-generated method stub
-        return new HashMap<String, Filter>();
+        return collectionFilters;
     }
 
     @Override
@@ -203,6 +210,15 @@ public class SchemaImpl extends ResourceImpl implements Schema {
     @XmlTransient
     public String getRawPluralName() {
         return pluralName;
+    }
+
+    @Override
+    public List<String> getIncludeableLinks() {
+        return includeableLinks;
+    }
+
+    public void setIncludeableLinks(List<String> includeableLinks) {
+        this.includeableLinks = includeableLinks;
     }
 
 }

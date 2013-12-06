@@ -1,8 +1,13 @@
 package io.github.ibuildthecloud.gdapi.factory.impl;
 
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
+import io.github.ibuildthecloud.gdapi.model.ApiError;
+import io.github.ibuildthecloud.gdapi.model.ApiVersion;
+import io.github.ibuildthecloud.gdapi.model.Collection;
 import io.github.ibuildthecloud.gdapi.model.Field;
-import io.github.ibuildthecloud.gdapi.model.Field.Type;
+import io.github.ibuildthecloud.gdapi.model.FieldType;
+import io.github.ibuildthecloud.gdapi.model.FieldType.TypeAndName;
+import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.model.impl.FieldImpl;
 import io.github.ibuildthecloud.model.impl.SchemaImpl;
@@ -30,6 +35,7 @@ public class SchemaFactoryImpl implements SchemaFactory {
     final io.github.ibuildthecloud.gdapi.annotation.Type defaultType;
 
     String id = UUID.randomUUID().toString();
+    boolean includeDefaultTypes = true;
     Map<String, SchemaImpl> schemasByName = new TreeMap<String, SchemaImpl>();
     Map<Class<?>, SchemaImpl> schemas = new HashMap<Class<?>, SchemaImpl>();
     Map<String, String> typeToPluralName = new HashMap<String, String>();
@@ -313,88 +319,103 @@ public class SchemaFactoryImpl implements SchemaFactory {
     }
 
     protected void assignType(PropertyDescriptor prop, FieldImpl field, io.github.ibuildthecloud.gdapi.annotation.Field f) {
-        if ( f.type() != Type.NONE ) {
+        if ( f.type() != FieldType.NONE ) {
             field.setTypeEnum(f.type());
-            if ( ! StringUtils.isEmpty(f.typeString()) ) {
-                field.setType(f.typeString());
-            }
+        }
+
+        if ( ! StringUtils.isEmpty(f.typeString()) ) {
+            field.setType(f.typeString());
         }
 
         assignSimpleType(prop.getPropertyType(), field);
-        assignComplexType(prop.getPropertyType(), field);
+
+        List<TypeAndName> types = new ArrayList<FieldType.TypeAndName>();
+        Method readMethod = prop.getReadMethod();
+        if ( readMethod != null ) {
+            getTypes(readMethod.getGenericReturnType(), types);
+        }
+
+        if ( types.size() == 1 ) {
+            field.setType(types.get(0).getName());
+        } else if ( types.size() > 1 ) {
+            types.remove(0);
+            field.setSubTypes(types);
+        }
 
         if ( f.password() )
-            field.setTypeEnum(Type.PASSWORD);
+            field.setTypeEnum(FieldType.PASSWORD);
     }
 
-    protected void assignComplexType(Class<?> clzType, FieldImpl field) {
-        Method readMethod = field.getReadMethod();
-        Class<?> subTypeCls = null;
+    protected void getTypes(java.lang.reflect.Type type, List<TypeAndName> types) {
+        Class<?> clz = null;
+        if ( type instanceof Class<?> ) {
+            clz = (Class<?>)type;
+        }
 
-        if ( readMethod == null )
-            return;
+        if ( type instanceof ParameterizedType ) {
+            java.lang.reflect.Type rawType = ((ParameterizedType)type).getRawType();
+            if ( rawType instanceof Class<?> )
+                clz = (Class<?>)rawType;
+        }
 
-        switch (field.getTypeEnum()) {
+        if ( clz == null ) {
+            throw new IllegalArgumentException("Failed to find class for type [" + type + "]");
+        }
+
+        FieldType fieldType = assignSimpleType(clz, null);
+        String name = fieldType.getExternalType();
+        if ( fieldType == FieldType.TYPE ) {
+            Schema subSchema = getSchema(clz);
+            if ( subSchema != null ) {
+                name = subSchema.getId();
+            }
+        }
+
+        types.add(new TypeAndName(fieldType, name));
+
+        java.lang.reflect.Type subType = null;
+        switch (fieldType) {
         case ARRAY:
-            if ( clzType.isArray() ) {
-                subTypeCls = clzType.getComponentType();
+            if ( clz.isArray() ) {
+                subType = clz.getComponentType();
             } else {
-                subTypeCls = getGenericType(List.class, readMethod, 0);
+                subType = getGenericType(type, 0);
             }
             break;
         case MAP:
+            subType = getGenericType(type, 1);
             break;
         case REFERENCE:
+            subType = getGenericType(type, 0);
             break;
         case TYPE:
-            break;
+            return;
         default:
             break;
         }
 
-        if ( subTypeCls != null ) {
-            field.setSubTypeClass(subTypeCls);
-            Type subType = assignSimpleType(field.getSubTypeClass(), null);
-            if ( subType == Type.TYPE ) {
-                Schema subSchema = getSchema(subTypeCls);
-                if ( subSchema == null ) {
-                    field.setSubTypeEnum(Type.RESOURCE);
-                } else {
-                    field.setSubType(subSchema.getId());
-                }
-            } else {
-                field.setSubTypeEnum(subType);
-            }
+        if ( subType != null ) {
+            getTypes(subType, types);
         }
     }
 
-    protected Class<?> getGenericType(Class<?> iface, Method m, int index) {
-        java.lang.reflect.Type t = m.getGenericReturnType();
 
+    protected java.lang.reflect.Type getGenericType(java.lang.reflect.Type t, int index) {
         if ( t instanceof ParameterizedType && ((ParameterizedType)t).getActualTypeArguments().length == index + 1) {
-            java.lang.reflect.Type argType = ((ParameterizedType)t).getActualTypeArguments()[index];
-            if ( argType instanceof Class<?> ) {
-                return (Class<?>)argType;
-            }
-
-            if ( argType instanceof ParameterizedType ) {
-                java.lang.reflect.Type rawType = ((ParameterizedType)argType).getRawType();
-                if ( rawType instanceof Class<?> )
-                    return (Class<?>)rawType;
-            }
+            return ((ParameterizedType)t).getActualTypeArguments()[index];
         }
 
         return Object.class;
     }
 
-    protected Type assignSimpleType(Class<?> clzType, FieldImpl field) {
-        Type result = null;
+    protected FieldType assignSimpleType(Class<?> clzType, FieldImpl field) {
+        FieldType result = null;
 
         if ( clzType.isEnum() ) {
-            result = Type.ENUM;
+            result = FieldType.ENUM;
         } else {
             outer:
-            for ( Field.Type type : Field.Type.values() ) {
+            for ( FieldType type : FieldType.values() ) {
                 Class<?>[] clzs = type.getClasses();
 
                 if ( clzs == null )
@@ -447,7 +468,13 @@ public class SchemaFactoryImpl implements SchemaFactory {
     @Override
     @PostConstruct
     public void init() {
-        registerSchema(Schema.class);
+        if ( includeDefaultTypes ) {
+            registerSchema(Schema.class);
+            registerSchema(ApiVersion.class);
+            registerSchema(ApiError.class);
+            registerSchema(Collection.class);
+            registerSchema(Resource.class);
+        }
 
         for ( Class<?> clz : types ) {
             registerSchema(clz);
@@ -492,7 +519,7 @@ public class SchemaFactoryImpl implements SchemaFactory {
     }
 
     protected String lower(String type) {
-        return type == null ? null : type.toLowerCase();
+        return type == null ? "" : type.toLowerCase();
     }
 
     @Override
@@ -552,6 +579,14 @@ public class SchemaFactoryImpl implements SchemaFactory {
 
     public void setTypeNames(List<String> typeNames) {
         this.typeNames = typeNames;
+    }
+
+    public boolean isIncludeDefaultTypes() {
+        return includeDefaultTypes;
+    }
+
+    public void setIncludeDefaultTypes(boolean includeDefaultTypes) {
+        this.includeDefaultTypes = includeDefaultTypes;
     }
 
 }

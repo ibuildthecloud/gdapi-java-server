@@ -16,6 +16,7 @@ public interface Schema extends Resource {
     }
 
     @XmlTransient
+    @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
     String getPluralName();
 
     List<String> getResourceMethods();
@@ -31,5 +32,7 @@ public interface Schema extends Resource {
     Map<String, Field> getCollectionFields();
 
     Map<String, Filter> getCollectionFilters();
+
+    List<String> getIncludeableLinks();
 
 }

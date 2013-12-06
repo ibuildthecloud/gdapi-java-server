@@ -15,6 +15,28 @@ public enum ConditionType {
     IN(true),
     OR(true);
 
+    public static final ConditionType[] NUMBER_MODS = new ConditionType[] {
+        ConditionType.EQ,
+        ConditionType.NE,
+        ConditionType.LT,
+        ConditionType.LTE,
+        ConditionType.GT,
+        ConditionType.GTE
+    };
+
+    public static final ConditionType[] STRING_MODS = new ConditionType[] {
+        ConditionType.EQ,
+        ConditionType.NE,
+        ConditionType.PREFIX,
+        ConditionType.LIKE,
+        ConditionType.NOTLIKE
+    };
+
+    public static final ConditionType[] VALUE_MODS = new ConditionType[] {
+        ConditionType.EQ,
+        ConditionType.NE,
+    };
+
     private String externalForm;
     private boolean internal = false;
 

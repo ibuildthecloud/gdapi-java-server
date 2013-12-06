@@ -1,6 +1,7 @@
 package io.github.ibuildthecloud.gdapi.request.resource;
 
 import io.github.ibuildthecloud.gdapi.model.Collection;
+import io.github.ibuildthecloud.gdapi.model.ListOptions;
 import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 
@@ -13,15 +14,17 @@ public interface ResourceManager {
 
     Class<?>[] getTypeClasses();
 
-    Object getById(String type, String id);
+    Object getById(String type, String id, ListOptions options);
 
     Object getLink(String type, String id, String link, ApiRequest request);
 
     Object list(String type, ApiRequest request);
 
-    Object list(String type, Map<Object,Object> criteria);
+    Object list(String type, Map<Object,Object> criteria, ListOptions options);
 
     Object create(String type, ApiRequest request);
+
+    Object update(String type, String id, ApiRequest request);
 
     Collection convertResponse(List<?> object, ApiRequest request);
 

@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 public class Condition {
 
     List<Object> values;
@@ -17,13 +19,11 @@ public class Condition {
     }
 
     public Condition(ConditionType conditionType, List<Object> values) {
-        super();
         this.values = values;
         this.conditionType = conditionType;
     }
 
     public Condition(ConditionType conditionType, Object value) {
-        super();
         this.values = Arrays.asList(value);
         this.conditionType = conditionType;
     }
@@ -34,6 +34,7 @@ public class Condition {
         this.conditionType = conditionType;
     }
 
+    @XmlTransient
     public List<Object> getValues() {
         return values;
     }
@@ -42,14 +43,21 @@ public class Condition {
         return values.size() == 0 ? null : values.get(0);
     }
 
+    @XmlTransient
     public ConditionType getConditionType() {
         return conditionType;
     }
 
+    public String getModifier() {
+        return conditionType.getExternalForm();
+    }
+
+    @XmlTransient
     public Condition getLeft() {
         return left;
     }
 
+    @XmlTransient
     public Condition getRight() {
         return right;
     }

@@ -1,5 +1,4 @@
 package io.github.ibuildthecloud.gdapi.model;
 
-public interface Pagination {
-
+public interface ApiVersion extends Resource {
 }

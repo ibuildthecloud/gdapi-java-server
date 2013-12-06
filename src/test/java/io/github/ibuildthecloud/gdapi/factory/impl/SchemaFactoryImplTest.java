@@ -2,7 +2,7 @@ package io.github.ibuildthecloud.gdapi.factory.impl;
 
 import static org.junit.Assert.*;
 import io.github.ibuildthecloud.gdapi.model.Field;
-import io.github.ibuildthecloud.gdapi.model.Field.Type;
+import io.github.ibuildthecloud.gdapi.model.FieldType;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.testobject.TestType;
 import io.github.ibuildthecloud.gdapi.testobject.TestTypeCRUD;
@@ -103,13 +103,13 @@ public class SchemaFactoryImplTest {
         assertEquals("int", fields.get("typeLongObject").getType());
         assertTrue(fields.get("typeLongObject").isNullable());
 
-        assertEquals(Field.Type.PASSWORD.getExternalType(), fields.get("typePassword").getType());
-        assertEquals(Field.Type.STRING.getExternalType(), fields.get("typeString").getType());
+        assertEquals(FieldType.PASSWORD.getExternalType(), fields.get("typePassword").getType());
+        assertEquals(FieldType.STRING.getExternalType(), fields.get("typeString").getType());
 
-        assertEquals(Type.MAP, fields.get("typeMap").getTypeEnum());
-        assertEquals(Type.REFERENCE, fields.get("typeReference").getTypeEnum());
-        assertEquals(Type.ARRAY, fields.get("typeArray").getTypeEnum());
-        assertEquals(Type.ARRAY, fields.get("typeList").getTypeEnum());
+        assertEquals(FieldType.MAP, fields.get("typeMap").getTypeEnum());
+        assertEquals(FieldType.REFERENCE, fields.get("typeReference").getTypeEnum());
+        assertEquals(FieldType.ARRAY, fields.get("typeArray").getTypeEnum());
+        assertEquals(FieldType.ARRAY, fields.get("typeList").getTypeEnum());
     }
 
     @Test
@@ -119,7 +119,6 @@ public class SchemaFactoryImplTest {
     }
 
     @Test
-    @Ignore
     public void testComplexType_Reference_Type() {
         parseSchema(TestTypeCRUD.class);
         parseSchema(TestTypeRename.class);
@@ -128,7 +127,7 @@ public class SchemaFactoryImplTest {
         Map<String,Field> fields = schema.getResourceFields();
 
         assertEquals("reference[testTypeCRUD]", fields.get("testTypeCrudId").getType());
-        assertEquals("type[testTypeCRUD]", fields.get("testTypeCrud").getType());
+        assertEquals("testTypeCRUD", fields.get("testTypeCrud").getType());
     }
 
     @Test
@@ -139,7 +138,7 @@ public class SchemaFactoryImplTest {
 
         Map<String,Field> fields = schema.getResourceFields();
 
-        assertEquals("array[map]", fields.get("typeList").getType());
+        assertEquals("array[map[string]]", fields.get("typeList").getType());
         assertEquals("array[string]", fields.get("typeArray").getType());
         assertEquals("array[testTypeCRUD]", fields.get("typeListCrud").getType());
     }

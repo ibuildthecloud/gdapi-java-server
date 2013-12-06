@@ -3,7 +3,7 @@ package io.github.ibuildthecloud.gdapi.testobject;
 import io.github.ibuildthecloud.gdapi.annotation.Field;
 import io.github.ibuildthecloud.gdapi.model.IdRef;
 
-import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +21,7 @@ public class TestType {
     String onlyWriteable;
     String defaultValue;
     String nullable;
-    FileOutputStream typeBlob;
+    FileInputStream typeBlob;
     Date typeDate;
     TestEnum typeEnum;
     boolean typeBool;
@@ -88,11 +88,11 @@ public class TestType {
         this.a = a;
     }
 
-    public FileOutputStream getTypeBlob() {
+    public FileInputStream getTypeBlob() {
         return typeBlob;
     }
 
-    public void setTypeBlob(FileOutputStream typeBlob) {
+    public void setTypeBlob(FileInputStream typeBlob) {
         this.typeBlob = typeBlob;
     }
 

@@ -1,24 +1,30 @@
 package io.github.ibuildthecloud.model.impl;
 
 import io.github.ibuildthecloud.gdapi.model.Field;
+import io.github.ibuildthecloud.gdapi.model.FieldType;
+import io.github.ibuildthecloud.gdapi.model.FieldType.TypeAndName;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlTransient;
 
 public class FieldImpl implements Field {
 
-    String name, type, subType, validChars, invalidChars;
+    String name, type, validChars, invalidChars;
     Integer displayIndex;
     boolean create, update, includeInList = true, nullable, unique, required;
-    Type typeEnum, subTypeEnum;
+    FieldType typeEnum;
+    List<FieldType> subTypeEnums;
+    List<String> subTypes;
     Long min, max, minLength, maxLength;
     String defaultValue;
     List<String> options;
     Method readMethod;
-    Class<?> typeClass, subTypeClass;
+//    Class<?> typeClass, subTypeClass;
 
     @Override
     public Object getValue(Object object) {
@@ -84,27 +90,27 @@ public class FieldImpl implements Field {
     @Override
     public String getType() {
         if ( type == null && typeEnum != null ) {
-            type = typeEnum.getExternalType();
-
-            if ( subTypeEnum != null ) {
-                type += "[" + subTypeEnum.getExternalType() + "]";
-            } else if ( subType != null ) {
-                type += "[" + subType + "]";
-            }
+            type = FieldType.toString(type, typeEnum, subTypes);
         }
         return type;
     }
 
     public void setType(String typeName) {
-        if ( typeName != null ) {
-            for ( Type type : Type.values() ) {
-                if ( typeName.startsWith(type.getExternalType()) ) {
-                    typeEnum = type;
-                    break;
-                }
+        if ( typeName == null ) {
+            type = null;
+        } else {
+            List<TypeAndName> parts = FieldType.parse(typeName);
+            if ( parts.size() == 0 ) {
+                throw new IllegalArgumentException("Failed to parse type [" + typeName + "]");
             }
+
+            TypeAndName part = parts.get(0);
+            this.type = part.getName();
+            this.typeEnum = part.getType();
+
+            parts.remove(0);
+            setSubTypes(parts);
         }
-        this.type = typeName;
     }
 
     @Override
@@ -117,12 +123,15 @@ public class FieldImpl implements Field {
     }
 
     @Override
-    public Type getTypeEnum() {
+    public FieldType getTypeEnum() {
         return typeEnum;
     }
 
-    public void setTypeEnum(Type typeEnum) {
+    public void setTypeEnum(FieldType typeEnum) {
         this.typeEnum = typeEnum;
+        this.type = null;
+        this.subTypeEnums = Collections.emptyList();
+        this.subTypes = Collections.emptyList();
     }
 
     @Override
@@ -229,40 +238,46 @@ public class FieldImpl implements Field {
         return name;
     }
 
-    @Override
-    public Class<?> getTypeClass() {
-        return typeClass;
-    }
+    public void setSubTypes(List<TypeAndName> subTypes) {
+        this.subTypes = new ArrayList<String>(subTypes.size());
+        this.subTypeEnums = new ArrayList<FieldType>(subTypes.size());
 
-    public void setTypeClass(Class<?> typeClass) {
-        this.typeClass = typeClass;
-    }
+        for ( TypeAndName typeAndName : subTypes ) {
+            this.subTypes.add(typeAndName.getName());
+            this.subTypeEnums.add(typeAndName.getType());
+        }
 
-    @Override
-    public Class<?> getSubTypeClass() {
-        return subTypeClass;
-    }
-
-    public void setSubTypeClass(Class<?> subTypeClass) {
-        this.subTypeClass = subTypeClass;
+        this.type = FieldType.toString(type, typeEnum, this.subTypes);
     }
 
     @Override
-    public Type getSubTypeEnum() {
-        return subTypeEnum;
-    }
-
-    public void setSubTypeEnum(Type subTypeEnum) {
-        this.subTypeEnum = subTypeEnum;
+    public List<FieldType> getSubTypeEnums() {
+        return subTypeEnums;
     }
 
     @Override
-    public String getSubType() {
-        return subType;
+    public List<String> getSubTypes() {
+        return subTypes;
     }
 
-    public void setSubType(String subType) {
-        this.subType = subType;
-    }
+
+//    @Override
+//    public Class<?> getTypeClass() {
+//        return typeClass;
+//    }
+//
+//    public void setTypeClass(Class<?> typeClass) {
+//        this.typeClass = typeClass;
+//    }
+//
+//    @Override
+//    public Class<?> getSubTypeClass() {
+//        return subTypeClass;
+//    }
+//
+//    public void setSubTypeClass(Class<?> subTypeClass) {
+//        this.subTypeClass = subTypeClass;
+//    }
+
 
 }

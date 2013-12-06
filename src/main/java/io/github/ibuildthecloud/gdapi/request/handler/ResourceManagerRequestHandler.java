@@ -1,10 +1,12 @@
 package io.github.ibuildthecloud.gdapi.request.handler;
 
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
+import io.github.ibuildthecloud.gdapi.model.ListOptions;
 import io.github.ibuildthecloud.gdapi.model.Schema.Method;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.request.resource.ResourceManager;
 import io.github.ibuildthecloud.gdapi.request.resource.ResourceManagerLocator;
+import io.github.ibuildthecloud.gdapi.util.ResponseCodes;
 
 import java.io.IOException;
 
@@ -23,12 +25,24 @@ public class ResourceManagerRequestHandler extends AbstractResponseGenerator {
             return;
         }
 
+        /* Note at this point we can assume type is not null because if type is
+         * null the manager will not be found
+         */
         Object response = null;
-        if ( Method.POST.isMethod(request.getMethod()) ) {
+        String method = request.getMethod();
+
+        if ( Method.POST.isMethod(method) ) {
+            /* Optimistically set response code to created.  The ResourceManager impl should
+             * set the code to ACCEPTED if a background task was created.  On error and exception
+             * should be thrown and then the response code will be changed to an error code
+             */
+            request.setResponseCode(ResponseCodes.CREATED);
             response = manager.create(request.getType(), request);
-        } else if ( Method.GET.isMethod(request.getMethod()) ){
+        } else if ( Method.PUT.isMethod(method) ) {
+            response = manager.update(request.getType(), request.getId(), request);
+        } else if ( Method.GET.isMethod(method) ){
             if ( request.getId() != null && request.getLink() == null ) {
-                response = manager.getById(request.getType(), request.getId());
+                response = manager.getById(request.getType(), request.getId(), new ListOptions(request));
             } else if ( request.getType() != null && request.getLink() != null ) {
                 response = manager.getLink(request.getType(), request.getId(), request.getLink(), request);
             } else if ( request.getType() != null ) {

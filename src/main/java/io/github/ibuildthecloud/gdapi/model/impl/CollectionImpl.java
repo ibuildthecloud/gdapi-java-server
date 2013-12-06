@@ -1,7 +1,10 @@
 package io.github.ibuildthecloud.gdapi.model.impl;
 
+import io.github.ibuildthecloud.gdapi.condition.Condition;
 import io.github.ibuildthecloud.gdapi.model.Collection;
 import io.github.ibuildthecloud.gdapi.model.Resource;
+import io.github.ibuildthecloud.gdapi.model.Sort;
+import io.github.ibuildthecloud.model.Pagination;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -17,6 +20,10 @@ public class CollectionImpl implements Collection {
     Map<String, URL> createTypes = new HashMap<String, URL>();
     Map<String, URL> actions = new HashMap<String, URL>();
     List<Resource> data = new LinkedList<Resource>();
+    Map<String, URL> sortLinks = new HashMap<String, URL>();
+    Pagination pagination;
+    Sort sort;
+    Map<String, List<Condition>> filters = new HashMap<String, List<Condition>>();
 
     @Override
     public String getType() {
@@ -70,6 +77,42 @@ public class CollectionImpl implements Collection {
 
     public void setData(List<Resource> data) {
         this.data = data;
+    }
+
+    @Override
+    public Map<String, URL> getSortLinks() {
+        return sortLinks;
+    }
+
+    public void setSortLinks(Map<String, URL> sortLinks) {
+        this.sortLinks = sortLinks;
+    }
+
+    @Override
+    public Pagination getPagination() {
+        return pagination;
+    }
+
+    public void setPagination(Pagination pagination) {
+        this.pagination = pagination;
+    }
+
+    @Override
+    public Sort getSort() {
+        return sort;
+    }
+
+    public void setSort(Sort sort) {
+        this.sort = sort;
+    }
+
+    @Override
+    public Map<String, List<Condition>> getFilters() {
+        return filters;
+    }
+
+    public void setFilters(Map<String, List<Condition>> filters) {
+        this.filters = filters;
     }
 
 }

@@ -5,15 +5,15 @@ import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.url.UrlBuilder;
 
 import java.net.URL;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ResourceImpl implements Resource {
 
     String id, type;
-    Map<String, URL> links = new HashMap<String, URL>();
-    Map<String, URL> actions = new HashMap<String, URL>();
-    Map<String, Object> fields = new HashMap<String, Object>();
+    Map<String, URL> links = new LinkedHashMap<String, URL>();
+    Map<String, URL> actions = new LinkedHashMap<String, URL>();
+    Map<String, Object> fields = new LinkedHashMap<String, Object>();
 
     @Override
     public String getId() {
@@ -28,7 +28,10 @@ public class ResourceImpl implements Resource {
     @Override
     public Map<String, URL> getLinks() {
         if ( ! links.containsKey(UrlBuilder.SELF) ) {
-            links.put(UrlBuilder.SELF, ApiContext.getUrlBuilder().resourceReferenceLink(this));
+            URL self = ApiContext.getUrlBuilder().resourceReferenceLink(this);
+            if ( self != null ) {
+                links.put(UrlBuilder.SELF, ApiContext.getUrlBuilder().resourceReferenceLink(this));
+            }
         }
         return links;
     }

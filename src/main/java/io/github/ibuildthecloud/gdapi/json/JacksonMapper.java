@@ -4,13 +4,16 @@ import io.github.ibuildthecloud.gdapi.model.Field;
 import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.model.SchemaCollection;
+import io.github.ibuildthecloud.gdapi.util.DateUtils;
 import io.github.ibuildthecloud.model.impl.FieldImpl;
 import io.github.ibuildthecloud.model.impl.SchemaImpl;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.annotation.PostConstruct;
 
@@ -33,7 +36,11 @@ public class JacksonMapper implements JsonMapper {
         module.setMixInAnnotation(SchemaCollection.class, SchemaCollectionMixin.class);
         module.setMixInAnnotation(SchemaImpl.class, SchemaImplMixin.class);
 
+        SimpleDateFormat df = new SimpleDateFormat(DateUtils.DATE_FORMAT);
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+
         mapper = new ObjectMapper();
+        mapper.setDateFormat(df);
         mapper.registerModule(new JaxbAnnotationModule());
         mapper.registerModule(module);
         mapper.getFactory().configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
@@ -44,7 +51,7 @@ public class JacksonMapper implements JsonMapper {
     public <T> T readValue(byte[] content, Class<T> type) throws IOException {
         return mapper.readValue(content, type);
     }
-    
+
     @Override
     public Object readValue(byte[] content) throws IOException {
         return mapper.readValue(content, Object.class);

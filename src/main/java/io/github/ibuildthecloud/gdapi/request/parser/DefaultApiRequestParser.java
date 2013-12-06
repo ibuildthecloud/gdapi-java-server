@@ -1,9 +1,9 @@
 package io.github.ibuildthecloud.gdapi.request.parser;
 
-import io.github.ibuildthecloud.gdapi.exception.RequestEntityTooLargeException;
-import io.github.ibuildthecloud.gdapi.exception.ResourceNotFoundException;
+import io.github.ibuildthecloud.gdapi.exception.ClientVisibleException;
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
+import io.github.ibuildthecloud.gdapi.util.ResponseCodes;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -92,7 +92,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
             return multiPart == null ? request.getParameterMap() : multiPart;
         } catch ( IOException e ) {
             if ( e.getCause() instanceof FileUploadBase.SizeLimitExceededException )
-                throw new RequestEntityTooLargeException();
+                throw new ClientVisibleException(ResponseCodes.REQUEST_ENTITY_TOO_LARGE);
             throw e;
         }
     }
@@ -180,7 +180,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
                 }
                 return buffer.toString();
             } catch (MalformedURLException e) {
-                throw new ResourceNotFoundException();
+                throw new ClientVisibleException(ResponseCodes.NOT_FOUND);
             }
         } else {
             return requestUrl.substring(0, index);
@@ -251,7 +251,8 @@ public class DefaultApiRequestParser implements ApiRequestParser {
         if ( StringUtils.isBlank(typeName) ) {
             return;
         } else {
-            apiRequest.setType(schemaFactory.getSingularName(typeName));
+            String singleType = schemaFactory.getSingularName(typeName);
+            apiRequest.setType(singleType == null ? typeName : singleType);
         }
 
         if ( StringUtils.isBlank(id) ) {

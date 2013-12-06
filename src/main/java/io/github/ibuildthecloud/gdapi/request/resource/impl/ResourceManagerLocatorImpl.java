@@ -22,6 +22,9 @@ public class ResourceManagerLocatorImpl implements ResourceManagerLocator {
 
     @Override
     public ResourceManager getResourceManager(ApiRequest request) {
+        if ( request.getType() == null )
+            return null;
+
         ResourceManager manager = resourceManagerByType.get(request.getType());
 
         if (manager == null) {
@@ -38,6 +41,9 @@ public class ResourceManagerLocatorImpl implements ResourceManagerLocator {
 
     @Override
     public ResourceManager getResourceManagerByType(String type) {
+        if ( type == null )
+            return null;
+
         ResourceManager manager = resourceManagerByType.get(type);
 
         if (manager == null) {

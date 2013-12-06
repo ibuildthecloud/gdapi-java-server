@@ -25,26 +25,35 @@ public class BodyParserRequestHandler extends AbstractApiRequestHandler implemen
 
     @Override
     public void handle(ApiRequest request) throws IOException {
+        Object obj = getObject(request);
+        if ( obj != null ) {
+            request.setRequestBodyObject(obj);
+        }
+
+        request.setRequestObject(merge(obj, request));
+    }
+
+    protected Object getObject(ApiRequest request) throws IOException {
         if ( ! RequestUtils.mayHaveBody(request.getMethod()) )
-            return;
+            return null;
 
         InputStream is = request.getInputStream();
         if ( is == null ) {
-            return;
+            return null;
         }
 
         byte[] content = IOUtils.toByteArray(is);
 
         if ( content.length == 0 )
-            return;
+            return null;
 
         Object body = jsonMarshaller.readValue(content);
 
         if ( isAllowedType(body) ) {
-            request.setRequestBodyObject(body);
+            return body;
         }
 
-        request.setRequestObject(merge(request.getRequestBodyObject(), request));
+        return null;
     }
 
     protected boolean isAllowedType(Object obj) {
@@ -67,7 +76,7 @@ public class BodyParserRequestHandler extends AbstractApiRequestHandler implemen
         } else if ( body instanceof List ){
             @SuppressWarnings("unchecked")
             List<Object> list = (List<Object>)body;
-            List<Object> result = new ArrayList<Object>(list.size());            
+            List<Object> result = new ArrayList<Object>(list.size());
             for ( Object object : list ) {
                 if ( isAllowedType(object) ) {
                     result.add(merge(object, request));
@@ -83,7 +92,7 @@ public class BodyParserRequestHandler extends AbstractApiRequestHandler implemen
         Map<String,Object> result = new HashMap<String, Object>();
 
         /* Notice that this loop makes the value singular if it can.  This is because the request params
-         * are always a String[] from the HttpServletRequest.getParametersMap() 
+         * are always a String[] from the HttpServletRequest.getParametersMap()
          */
         for ( Map.Entry<String, Object> entry : request.getRequestParams().entrySet() ) {
             result.put(entry.getKey(), RequestUtils.makeSingularIfCan(entry.getValue()));
