@@ -109,7 +109,7 @@ public class FieldImpl implements Field {
             this.typeEnum = part.getType();
 
             parts.remove(0);
-            setSubTypes(parts);
+            setSubTypesList(parts);
         }
     }
 
@@ -238,7 +238,7 @@ public class FieldImpl implements Field {
         return name;
     }
 
-    public void setSubTypes(List<TypeAndName> subTypes) {
+    public void setSubTypesList(List<TypeAndName> subTypes) {
         this.subTypes = new ArrayList<String>(subTypes.size());
         this.subTypeEnums = new ArrayList<FieldType>(subTypes.size());
 

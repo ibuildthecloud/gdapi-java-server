@@ -87,6 +87,13 @@ public class ApiRequestFilterDelegate  {
                     }
                 } catch ( Throwable t ) {
                     currentError = t;
+                    try {
+                        if ( handler.handleException(apiRequest, currentError) ) {
+                            currentError = null;
+                        }
+                    } catch ( Throwable t1 ) {
+                        currentError = t1;
+                    }
                 }
             }
             if ( currentError != null ) {

@@ -48,8 +48,21 @@ public class ResourceManagerRequestHandler extends AbstractResponseGenerator {
             } else if ( request.getType() != null ) {
                 response = manager.list(request.getType(), request);
             }
+        } else if ( Method.DELETE.isMethod(method) ) {
+            response = manager.delete(request.getType(), request.getId(), request);
         }
         request.setResponseObject(response);
+    }
+
+    @Override
+    public boolean handleException(ApiRequest request, Throwable e) {
+        ResourceManager manager = resourceManagerLocator.getResourceManager(request);
+
+        if ( manager == null ) {
+            return super.handleException(request, e);
+        }
+
+        return manager.handleException(e, request);
     }
 
     public SchemaFactory getSchemaFactory() {
@@ -69,5 +82,7 @@ public class ResourceManagerRequestHandler extends AbstractResponseGenerator {
     public void setResourceManagerLocator(ResourceManagerLocator resourceManagerLocator) {
         this.resourceManagerLocator = resourceManagerLocator;
     }
+
+
 
 }

@@ -26,8 +26,11 @@ public interface ResourceManager {
 
     Object update(String type, String id, ApiRequest request);
 
+    Object delete(String type, String id, ApiRequest request);
+
     Collection convertResponse(List<?> object, ApiRequest request);
 
     Resource convertResponse(Object obj, ApiRequest request);
 
+    boolean handleException(Throwable t, ApiRequest request);
 }

@@ -95,6 +95,18 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
     protected abstract Object updateInternal(String type, String id, Object obj, ApiRequest request);
 
     @Override
+    public final Object delete(String type, String id, ApiRequest request) {
+        Object object = getById(type, id, new ListOptions(request));
+        if ( object == null ) {
+            return null;
+        }
+
+        return deleteInternal(type, id, object, request);
+    }
+
+    protected abstract Object deleteInternal(String type, String id, Object obj, ApiRequest request);
+
+    @Override
     public final Object getLink(String type, String id, String link, ApiRequest request) {
         return authorize(getLinkInternal(type, id, link, request));
     }
@@ -308,6 +320,10 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
         return null;
     }
 
+    @Override
+    public boolean handleException(Throwable t, ApiRequest request) {
+        return false;
+    }
 
     public SchemaFactory getSchemaFactory() {
         return schemaFactory;

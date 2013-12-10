@@ -35,7 +35,7 @@ public class SchemaFactoryImpl implements SchemaFactory {
     final io.github.ibuildthecloud.gdapi.annotation.Type defaultType;
 
     String id = UUID.randomUUID().toString();
-    boolean includeDefaultTypes = true;
+    boolean includeDefaultTypes = true, writableByDefault = false;
     Map<String, SchemaImpl> schemasByName = new TreeMap<String, SchemaImpl>();
     Map<Class<?>, SchemaImpl> schemas = new HashMap<Class<?>, SchemaImpl>();
     Map<String, String> typeToPluralName = new HashMap<String, String>();
@@ -169,11 +169,17 @@ public class SchemaFactoryImpl implements SchemaFactory {
         if ( type == null )
             type = defaultType;
 
-        schema.setCreate(type.create());
-        schema.setUpdate(type.update());
+        if ( type == defaultType ) {
+            schema.setCreate(writableByDefault);
+            schema.setUpdate(writableByDefault);
+            schema.setDeletable(writableByDefault);
+        } else {
+            schema.setCreate(type.create());
+            schema.setUpdate(type.update());
+            schema.setDeletable(type.delete());
+        }
         schema.setById(type.byId());
         schema.setList(type.list());
-        schema.setDeletable(type.delete());
 
         return schema;
     }
@@ -293,9 +299,15 @@ public class SchemaFactoryImpl implements SchemaFactory {
             field.setInvalidChars(f.invalidChars());
         }
 
-        field.setNullable(f.nullable());
-        field.setUpdate(f.update());
-        field.setCreate(f.create());
+        if ( f == this.defaultField ) {
+            field.setNullable(writableByDefault);
+            field.setUpdate(writableByDefault);
+            field.setCreate(writableByDefault);
+        } else {
+            field.setNullable(f.nullable());
+            field.setUpdate(f.update());
+            field.setCreate(f.create());
+        }
         field.setUnique(f.unique());
         field.setRequired(f.required());
     }
@@ -339,7 +351,7 @@ public class SchemaFactoryImpl implements SchemaFactory {
             field.setType(types.get(0).getName());
         } else if ( types.size() > 1 ) {
             types.remove(0);
-            field.setSubTypes(types);
+            field.setSubTypesList(types);
         }
 
         if ( f.password() )
@@ -587,6 +599,14 @@ public class SchemaFactoryImpl implements SchemaFactory {
 
     public void setIncludeDefaultTypes(boolean includeDefaultTypes) {
         this.includeDefaultTypes = includeDefaultTypes;
+    }
+
+    public boolean isWritableByDefault() {
+        return writableByDefault;
+    }
+
+    public void setWritableByDefault(boolean writableByDefault) {
+        this.writableByDefault = writableByDefault;
     }
 
 }
