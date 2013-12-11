@@ -306,7 +306,7 @@ public class ValidationHandler extends AbstractApiRequestHandler {
 
     protected void validateVersion(ApiRequest request, ValidationContext context) {
         String version = request.getRequestVersion();
-        if ( ! request.getApiVersion().equals(version) ) {
+        if ( version != null && ! request.getApiVersion().equals(version) ) {
             error(UNSUPPORTED_VERSION, null);
         }
     }

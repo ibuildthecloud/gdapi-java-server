@@ -3,6 +3,7 @@ package io.github.ibuildthecloud.gdapi.request.resource;
 import io.github.ibuildthecloud.gdapi.model.ListOptions;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 
+import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractResourceManagerFilter implements ResourceManagerFilter {
@@ -33,7 +34,7 @@ public abstract class AbstractResourceManagerFilter implements ResourceManagerFi
     }
 
     @Override
-    public Object list(String type, Map<Object, Object> criteria, ListOptions options, ResourceManager next) {
+    public List<?> list(String type, Map<Object, Object> criteria, ListOptions options, ResourceManager next) {
         return next.list(type, criteria, options);
     }
 

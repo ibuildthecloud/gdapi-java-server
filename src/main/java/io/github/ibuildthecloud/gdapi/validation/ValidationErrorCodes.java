@@ -1,5 +1,8 @@
 package io.github.ibuildthecloud.gdapi.validation;
 
+import io.github.ibuildthecloud.gdapi.exception.ClientVisibleException;
+import io.github.ibuildthecloud.gdapi.model.impl.ValidationErrorImpl;
+
 public class ValidationErrorCodes implements ErrorCodes {
 
     public static final String UNSUPPORTED_VERSION = "UnsupportedVersion";
@@ -22,4 +25,7 @@ public class ValidationErrorCodes implements ErrorCodes {
 
     public static final String MISSING_REQUIRED = "MissingRequired";
 
+    public static final void throwValidationError(String code, String fieldName) {
+        throw new ClientVisibleException(new ValidationErrorImpl(code, fieldName));
+    }
 }

@@ -47,7 +47,7 @@ public class FilteredResourceManager implements ResourceManager {
     }
 
     @Override
-    public Object list(String type, Map<Object, Object> criteria, ListOptions options) {
+    public List<?> list(String type, Map<Object, Object> criteria, ListOptions options) {
         return filter.list(type, criteria, options, next);
     }
 

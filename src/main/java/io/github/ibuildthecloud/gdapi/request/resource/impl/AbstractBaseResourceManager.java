@@ -13,6 +13,7 @@ import io.github.ibuildthecloud.gdapi.model.impl.WrappedResource;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.request.resource.ResourceManager;
 import io.github.ibuildthecloud.gdapi.request.resource.ResourceManagerLocator;
+import io.github.ibuildthecloud.gdapi.util.RequestUtils;
 import io.github.ibuildthecloud.gdapi.util.TypeUtils;
 import io.github.ibuildthecloud.model.Pagination;
 import io.github.ibuildthecloud.url.UrlBuilder;
@@ -67,9 +68,10 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
     }
 
     @Override
-    public final Object list(String type, Map<Object, Object> criteria, ListOptions options) {
+    public final List<?> list(String type, Map<Object, Object> criteria, ListOptions options) {
         criteria.putAll(getDefaultCriteria(false));
-        return authorize(listInternal(type, criteria, options));
+        Object result = authorize(listInternal(type, criteria, options));
+        return RequestUtils.toList(result);
     }
 
     protected abstract Object listInternal(String type, Map<Object, Object> criteria, ListOptions options);

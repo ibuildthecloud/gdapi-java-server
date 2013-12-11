@@ -4,6 +4,8 @@ import io.github.ibuildthecloud.gdapi.condition.Condition;
 import io.github.ibuildthecloud.gdapi.model.Include;
 import io.github.ibuildthecloud.gdapi.model.Sort;
 import io.github.ibuildthecloud.gdapi.server.model.RequestServletContext;
+import io.github.ibuildthecloud.gdapi.util.ProxyUtils;
+import io.github.ibuildthecloud.gdapi.util.RequestUtils;
 import io.github.ibuildthecloud.model.Pagination;
 import io.github.ibuildthecloud.url.UrlBuilder;
 
@@ -71,6 +73,11 @@ public class ApiRequest {
         commit();
         commited = true;
         return requestServletContext.getResponse().getOutputStream();
+    }
+
+    public <T> T proxyRequestObject(Class<T> type) {
+        Map<String,Object> map = RequestUtils.toMap(requestObject);
+        return ProxyUtils.proxy(map, type);
     }
 
     public String getType() {

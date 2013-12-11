@@ -46,6 +46,7 @@ public class SchemaFactoryImpl implements SchemaFactory {
 
     List<Schema> schemasList = new ArrayList<Schema>();
     List<SchemaPostProcessor> postProcessors = new ArrayList<SchemaPostProcessor>();
+    List<SchemaPostProcessor> additionalPostProcessors = new ArrayList<SchemaPostProcessor>();
 
     public SchemaFactoryImpl() {
         try {
@@ -68,12 +69,19 @@ public class SchemaFactoryImpl implements SchemaFactory {
         return null;
     }
 
+    protected List<SchemaPostProcessor> getSchemaPostProcessors() {
+        List<SchemaPostProcessor> result = new ArrayList<SchemaPostProcessor>(postProcessors);
+        result.addAll(additionalPostProcessors);
+
+        return result;
+    }
+
     @Override
     public Schema registerSchema(Object obj) {
         Class<?> clz = obj instanceof Class<?> ? (Class<?>)obj : null;
         SchemaImpl schema = schemaName(obj);
 
-        for ( SchemaPostProcessor processor : postProcessors ) {
+        for ( SchemaPostProcessor processor : getSchemaPostProcessors() ) {
             processor.postProcessRegister(schema, this);
         }
 
@@ -125,7 +133,7 @@ public class SchemaFactoryImpl implements SchemaFactory {
 
         schema.setResourceFields(resourceFields);
 
-        for ( SchemaPostProcessor processor : postProcessors ) {
+        for ( SchemaPostProcessor processor : getSchemaPostProcessors() ) {
             processor.postProcess(schema, this);
         }
 
@@ -554,7 +562,7 @@ public class SchemaFactoryImpl implements SchemaFactory {
 
     @Override
     public void addPostProcessor(SchemaPostProcessor postProcessor) {
-        postProcessors.add(postProcessor);
+        additionalPostProcessors.add(postProcessor);
     }
 
     @Override

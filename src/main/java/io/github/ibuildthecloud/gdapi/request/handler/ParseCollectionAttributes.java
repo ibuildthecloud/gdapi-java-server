@@ -83,7 +83,7 @@ public class ParseCollectionAttributes extends AbstractApiRequestHandler {
                         if ( field.getTypeEnum() == FieldType.REFERENCE ) {
                             obj = formatter.parseId(obj.toString());
                             if ( obj == null ) {
-                                continue;
+                                obj = "-1";
                             }
                         }
                         conditionList.add(new Condition(conditionType, obj));

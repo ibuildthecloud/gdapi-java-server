@@ -50,8 +50,8 @@ public class DefaultHtmlTemplate implements HtmlTemplate {
             }
         }
 
-        result = result.replace("%JS%", SettingsUtil.getSetting(settings, "api.js.url", jsUrl));
-        result = result.replace("%CSS%", SettingsUtil.getSetting(settings, "api.css.url", cssUrl));
+        result = result.replace("%JS%", SettingsUtil.getSetting(settings, "api.js.url", getJsUrl()));
+        result = result.replace("%CSS%", SettingsUtil.getSetting(settings, "api.css.url", getCssUrl()));
 
         try {
             return result.getBytes("UTF-8");
@@ -71,6 +71,9 @@ public class DefaultHtmlTemplate implements HtmlTemplate {
 
         try {
             is = this.getClass().getResourceAsStream("header.txt");
+            if ( is == null ) {
+                is = DefaultHtmlTemplate.class.getResourceAsStream("header.txt");
+            }
             header = IOUtils.toString(is);
         } finally {
             IOUtils.closeQuietly(is);
@@ -78,6 +81,9 @@ public class DefaultHtmlTemplate implements HtmlTemplate {
 
         try {
             is = this.getClass().getResourceAsStream("footer.txt");
+            if ( is == null ) {
+                is = DefaultHtmlTemplate.class.getResourceAsStream("footer.txt");
+            }
             footer = IOUtils.toByteArray(is);
         } finally {
             IOUtils.closeQuietly(is);

@@ -3,6 +3,7 @@ package io.github.ibuildthecloud.gdapi.request.resource;
 import io.github.ibuildthecloud.gdapi.model.ListOptions;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ResourceManagerFilter {
@@ -17,7 +18,7 @@ public interface ResourceManagerFilter {
 
     Object list(String type, ApiRequest request, ResourceManager next);
 
-    Object list(String type, Map<Object,Object> criteria, ListOptions options, ResourceManager next);
+    List<?> list(String type, Map<Object,Object> criteria, ListOptions options, ResourceManager next);
 
     Object create(String type, ApiRequest request, ResourceManager next);
 
