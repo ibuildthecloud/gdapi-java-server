@@ -49,6 +49,7 @@ public class TestType {
     String invalidChars;
     IdRef<TestTypeCRUD> testTypeCrudId;
     TestTypeCRUD testTypeCrud;
+    Map<String,Object> typeMapObject;
 
     public void setOnlyWriteable(String onlyWriteable) {
         this.onlyWriteable = onlyWriteable;
@@ -352,6 +353,14 @@ public class TestType {
 
     public void setTypeListCrud(List<TestTypeCRUD> typeListCrud) {
         this.typeListCrud = typeListCrud;
+    }
+
+    public Map<String, Object> getTypeMapObject() {
+        return typeMapObject;
+    }
+
+    public void setTypeMapObject(Map<String, Object> typeMapObject) {
+        this.typeMapObject = typeMapObject;
     }
 
 }

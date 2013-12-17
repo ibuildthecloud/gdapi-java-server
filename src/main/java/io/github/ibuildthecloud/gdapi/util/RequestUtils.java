@@ -9,9 +9,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.ObjectUtils;
 
 public class RequestUtils {
+
+    public static boolean isBrowser(HttpServletRequest request, boolean checkAccepts) {
+        String accepts = request.getHeader("Accept");
+        String userAgent = request.getHeader("User-Agent");
+
+        if ( accepts == null || ! checkAccepts ) {
+            accepts = "*/*";
+        }
+
+        accepts = accepts.toLowerCase();
+
+        // User agent has Mozilla and browser accepts */*
+        return ( userAgent != null && userAgent.toLowerCase().indexOf("mozilla") != -1 &&
+                accepts.indexOf("*/*") != -1 );
+    }
 
     public static boolean isReadMethod(String method) {
         return ! isWriteMethod(method);

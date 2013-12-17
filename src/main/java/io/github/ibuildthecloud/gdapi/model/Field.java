@@ -6,6 +6,10 @@ import javax.xml.bind.annotation.XmlTransient;
 
 public interface Field {
 
+    @XmlTransient
+    @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
+    String getName();
+
     String getType();
 
     @XmlTransient
@@ -44,14 +48,6 @@ public interface Field {
 
     Object getValue(Object object);
 
-    // @XmlTransient
-    // @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
-    // Class<?> getTypeClass();
-    //
-    // @XmlTransient
-    // @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
-    // Class<?> getSubTypeClass();
-
     @XmlTransient
     @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
     List<FieldType> getSubTypeEnums();
@@ -59,5 +55,9 @@ public interface Field {
     @XmlTransient
     @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
     List<String> getSubTypes();
+
+    @XmlTransient
+    @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
+    Integer getDisplayIndex();
 
 }

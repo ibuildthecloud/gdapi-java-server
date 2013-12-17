@@ -28,6 +28,7 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 public class JacksonMapper implements JsonMapper {
 
     ObjectMapper mapper;
+    boolean escapeForwardSlashes;
 
     @PostConstruct
     public void init() {
@@ -45,6 +46,10 @@ public class JacksonMapper implements JsonMapper {
         mapper.registerModule(module);
         mapper.getFactory().configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        if ( escapeForwardSlashes ) {
+            mapper.getFactory().setCharacterEscapes(new EscapeForwardSlash());
+        }
     }
 
     @Override
@@ -81,4 +86,13 @@ public class JacksonMapper implements JsonMapper {
         @JsonAnyGetter
         Map<String,Object> getFields();
     }
+
+    public boolean isEscapeForwardSlashes() {
+        return escapeForwardSlashes;
+    }
+
+    public void setEscapeForwardSlashes(boolean escapeForwardSlashes) {
+        this.escapeForwardSlashes = escapeForwardSlashes;
+    }
+
 }

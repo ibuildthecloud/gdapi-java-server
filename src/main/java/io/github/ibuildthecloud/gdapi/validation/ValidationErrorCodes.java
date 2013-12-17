@@ -25,6 +25,8 @@ public class ValidationErrorCodes implements ErrorCodes {
 
     public static final String MISSING_REQUIRED = "MissingRequired";
 
+    public static final String INVALID_CSRF_TOKEN = "InvalidCSRFToken";
+
     public static final void throwValidationError(String code, String fieldName) {
         throw new ClientVisibleException(new ValidationErrorImpl(code, fieldName));
     }

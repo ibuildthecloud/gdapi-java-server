@@ -24,7 +24,33 @@ public class FieldImpl implements Field {
     String defaultValue;
     List<String> options;
     Method readMethod;
-//    Class<?> typeClass, subTypeClass;
+
+    public FieldImpl() {
+    }
+
+    public FieldImpl(Field field) {
+        this.name = field.getName();
+        this.validChars = field.getValidChars();
+        this.invalidChars = field.getInvalidChars();
+        this.create = field.isCreate();
+        this.update = field.isUpdate();
+        this.includeInList = field.isIncludeInList();
+        this.nullable = field.isNullable();
+        this.unique = field.isUnique();
+        this.required = field.isRequired();
+        this.min = field.getMin();
+        this.max = field.getMax();
+        this.minLength = field.getMinLength();
+        this.maxLength = field.getMaxLength();
+        this.defaultValue = field.getDefault();
+        this.options = field.getOptions() == null ? null : new ArrayList<String>(field.getOptions());
+        this.displayIndex = field.getDisplayIndex();
+        if ( field instanceof FieldImpl ) {
+            this.readMethod = ((FieldImpl)field).getReadMethod();
+        }
+
+        setType(field.getType());
+    }
 
     @Override
     public Object getValue(Object object) {
@@ -42,6 +68,7 @@ public class FieldImpl implements Field {
         }
     }
 
+    @Override
     @XmlTransient
     public String getName() {
         return name;
@@ -49,15 +76,6 @@ public class FieldImpl implements Field {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    @XmlTransient
-    public Integer getDisplayIndex() {
-        return displayIndex;
-    }
-
-    public void setDisplayIndex(Integer displayIndex) {
-        this.displayIndex = displayIndex;
     }
 
     @Override
@@ -235,7 +253,7 @@ public class FieldImpl implements Field {
 
     @Override
     public String toString() {
-        return name;
+        return name == null ? super.toString() : name;
     }
 
     public void setSubTypesList(List<TypeAndName> subTypes) {
@@ -260,24 +278,14 @@ public class FieldImpl implements Field {
         return subTypes;
     }
 
+    @Override
+    @XmlTransient
+    public Integer getDisplayIndex() {
+        return displayIndex;
+    }
 
-//    @Override
-//    public Class<?> getTypeClass() {
-//        return typeClass;
-//    }
-//
-//    public void setTypeClass(Class<?> typeClass) {
-//        this.typeClass = typeClass;
-//    }
-//
-//    @Override
-//    public Class<?> getSubTypeClass() {
-//        return subTypeClass;
-//    }
-//
-//    public void setSubTypeClass(Class<?> subTypeClass) {
-//        this.subTypeClass = subTypeClass;
-//    }
-
+    public void setDisplayIndex(Integer displayIndex) {
+        this.displayIndex = displayIndex;
+    }
 
 }

@@ -31,8 +31,6 @@ public interface SchemaFactory {
 
     Schema parseSchema(String name);
 
-    void init();
-
     boolean typeStringMatches(Class<?> clz, String type);
 
     void addPostProcessor(SchemaPostProcessor postProcessor);

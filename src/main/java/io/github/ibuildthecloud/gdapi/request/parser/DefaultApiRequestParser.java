@@ -3,6 +3,7 @@ package io.github.ibuildthecloud.gdapi.request.parser;
 import io.github.ibuildthecloud.gdapi.exception.ClientVisibleException;
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
+import io.github.ibuildthecloud.gdapi.util.RequestUtils;
 import io.github.ibuildthecloud.gdapi.util.ResponseCodes;
 
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,6 +51,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
     public boolean parse(ApiRequest apiRequest) throws IOException {
         HttpServletRequest request = apiRequest.getRequestServletContext().getRequest();
 
+        apiRequest.setLocale(getLocale(apiRequest, request));
         apiRequest.setMethod(parseMethod(apiRequest, request));
         apiRequest.setAction(parseAction(apiRequest, request));
         apiRequest.setRequestParams(parseParams(apiRequest, request));
@@ -62,6 +65,10 @@ public class DefaultApiRequestParser implements ApiRequestParser {
         parsePath(apiRequest, request);
 
         return true;
+    }
+
+    protected Locale getLocale(ApiRequest apiRequest, HttpServletRequest request) {
+        return request.getLocale();
     }
 
     protected String parseQueryString(ApiRequest apiRequest, HttpServletRequest request) {
@@ -209,22 +216,12 @@ public class DefaultApiRequestParser implements ApiRequestParser {
             return format;
         }
 
-        String accepts = request.getHeader("Accept");
-        String userAgent = request.getHeader("User-Agent");
-
-        if ( accepts == null ) {
-            accepts = "*/*";
-        }
-
-        accepts = accepts.toLowerCase();
-
         // User agent has Mozilla and browser accepts */*
-        if ( userAgent != null && userAgent.toLowerCase().indexOf("mozilla") != -1 &&
-                accepts.indexOf("*/*") != -1 ) {
+        if ( RequestUtils.isBrowser(request, true) ) {
             return HTML;
+        } else {
+            return JSON;
         }
-
-        return JSON;
     }
 
     protected void parsePath(ApiRequest apiRequest, HttpServletRequest request) {

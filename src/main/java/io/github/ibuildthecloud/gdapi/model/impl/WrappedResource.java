@@ -45,6 +45,9 @@ public class WrappedResource extends ResourceImpl implements Resource {
                 continue;
             }
             Field field = entry.getValue();
+            if ( ! field.isIncludeInList() ) {
+                continue;
+            }
             Object value = additionalFields.remove(name);
             if ( value == null ) {
                 value = field.getValue(obj);

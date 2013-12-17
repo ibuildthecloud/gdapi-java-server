@@ -11,6 +11,7 @@ import io.github.ibuildthecloud.url.UrlBuilder;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,6 +26,52 @@ public class SchemaImpl extends ResourceImpl implements Schema {
     Map<String, Field> resourceFields;
     Map<String, Filter> collectionFilters = new TreeMap<String, Filter>();
     List<String> includeableLinks = new ArrayList<String>();
+    Map<String, Action> resourceActions = new HashMap<String, Action>();
+    Map<String, Action> collectionActions = new HashMap<String, Action>();
+    Map<String, Field> collectionFields = new HashMap<String, Field>();
+
+    public SchemaImpl(SchemaImpl schema) {
+        this.name = schema.getId();
+        this.pluralName = schema.getPluralName();
+        this.create = schema.isCreate();
+        this.update = schema.isUpdate();
+        this.list = schema.isList();
+        this.deletable = schema.isDeletable();
+        this.byId = schema.isById();
+        this.includeableLinks = new ArrayList<String>(schema.getIncludeableLinks());
+        this.resourceFields = copyFields(schema.getResourceFields());
+        this.collectionFilters = copyFilters(schema.getCollectionFilters());
+        this.resourceActions = copyActions(schema.getResourceActions());
+        this.collectionActions = copyActions(schema.getCollectionActions());
+        this.collectionFields = copyFields(schema.getCollectionFields());
+    }
+
+    protected Map<String, Field> copyFields(Map<String, Field> input) {
+        Map<String, Field> result = new LinkedHashMap<String, Field>();
+        for ( String key : input.keySet() ) {
+            result.put(key, new FieldImpl(input.get(key)));
+        }
+
+        return result;
+    }
+
+    protected Map<String, Filter> copyFilters(Map<String, Filter> input) {
+        Map<String, Filter> result = new LinkedHashMap<String, Filter>();
+        for ( String key : input.keySet() ) {
+            result.put(key,  new Filter(input.get(key)));
+        }
+
+        return result;
+    }
+
+    protected Map<String, Action> copyActions(Map<String, Action> input) {
+        Map<String, Action> result = new LinkedHashMap<String, Action>();
+        for ( String key : input.keySet() ) {
+            result.put(key, new Action(input.get(key)));
+        }
+
+        return result;
+    }
 
     public SchemaImpl() {
         setType("schema");
@@ -174,20 +221,17 @@ public class SchemaImpl extends ResourceImpl implements Schema {
 
     @Override
     public Map<String, Action> getResourceActions() {
-        // TODO Auto-generated method stub
-        return new HashMap<String, Action>();
+        return resourceActions;
     }
 
     @Override
     public Map<String, Action> getCollectionActions() {
-        // TODO Auto-generated method stub
-        return new HashMap<String, Action>();
+        return collectionActions;
     }
 
     @Override
     public Map<String, Field> getCollectionFields() {
-        // TODO Auto-generated method stub
-        return new HashMap<String, Field>();
+        return collectionFields;
     }
 
     @Override
@@ -219,6 +263,27 @@ public class SchemaImpl extends ResourceImpl implements Schema {
 
     public void setIncludeableLinks(List<String> includeableLinks) {
         this.includeableLinks = includeableLinks;
+    }
+
+    @Override
+    public String toString() {
+        return "SchemaImpl [name=" + name + "]";
+    }
+
+    public void setCollectionFilters(Map<String, Filter> collectionFilters) {
+        this.collectionFilters = collectionFilters;
+    }
+
+    public void setCollectionActions(Map<String, Action> collectionActions) {
+        this.collectionActions = collectionActions;
+    }
+
+    public void setCollectionFields(Map<String, Field> collectionFields) {
+        this.collectionFields = collectionFields;
+    }
+
+    public void setResourceActions(Map<String, Action> resourceActions) {
+        this.resourceActions = resourceActions;
     }
 
 }

@@ -70,8 +70,8 @@ public class SchemaFactoryImpl implements SchemaFactory {
     }
 
     protected List<SchemaPostProcessor> getSchemaPostProcessors() {
-        List<SchemaPostProcessor> result = new ArrayList<SchemaPostProcessor>(postProcessors);
-        result.addAll(additionalPostProcessors);
+        List<SchemaPostProcessor> result = new ArrayList<SchemaPostProcessor>(additionalPostProcessors);
+        result.addAll(postProcessors);
 
         return result;
     }
@@ -82,7 +82,10 @@ public class SchemaFactoryImpl implements SchemaFactory {
         SchemaImpl schema = schemaName(obj);
 
         for ( SchemaPostProcessor processor : getSchemaPostProcessors() ) {
-            processor.postProcessRegister(schema, this);
+            schema = processor.postProcessRegister(schema, this);
+            if ( schema == null ) {
+                return null;
+            }
         }
 
         /* Register in the multitude of maps */
@@ -485,7 +488,6 @@ public class SchemaFactoryImpl implements SchemaFactory {
         return f;
     }
 
-    @Override
     @PostConstruct
     public void init() {
         if ( includeDefaultTypes ) {
@@ -615,6 +617,10 @@ public class SchemaFactoryImpl implements SchemaFactory {
 
     public void setWritableByDefault(boolean writableByDefault) {
         this.writableByDefault = writableByDefault;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
 }

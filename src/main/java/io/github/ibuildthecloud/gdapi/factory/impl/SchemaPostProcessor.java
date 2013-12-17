@@ -1,11 +1,12 @@
 package io.github.ibuildthecloud.gdapi.factory.impl;
 
+import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.model.impl.SchemaImpl;
 
 public interface SchemaPostProcessor {
 
-    SchemaImpl postProcessRegister(SchemaImpl schema, SchemaFactoryImpl factory);
+    SchemaImpl postProcessRegister(SchemaImpl schema, SchemaFactory factory);
 
-    SchemaImpl postProcess(SchemaImpl schema, SchemaFactoryImpl factory);
+    SchemaImpl postProcess(SchemaImpl schema, SchemaFactory factory);
 
 }

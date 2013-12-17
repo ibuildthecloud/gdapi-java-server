@@ -141,6 +141,8 @@ public class SchemaFactoryImplTest {
         assertEquals("array[map[string]]", fields.get("typeList").getType());
         assertEquals("array[string]", fields.get("typeArray").getType());
         assertEquals("array[testTypeCRUD]", fields.get("typeListCrud").getType());
+
+        assertEquals("map[type]", fields.get("typeMapObject").getType());
     }
 
     @Test
