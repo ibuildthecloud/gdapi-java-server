@@ -10,6 +10,7 @@ import io.github.ibuildthecloud.gdapi.request.parser.ApiRequestParser;
 import io.github.ibuildthecloud.gdapi.server.model.RequestServletContext;
 import io.github.ibuildthecloud.gdapi.util.ExceptionUtils;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -99,6 +100,8 @@ public class ApiRequestFilterDelegate  {
             if ( currentError != null ) {
                 throw currentError;
             }
+        } catch ( EOFException e ) {
+            log.trace("Caugth EOFException, ignoring", e);
         } catch ( Throwable t ) {
             log.error("Unhandled exception in API for request [{}]", apiRequest, t);
             if ( throwErrors ) {

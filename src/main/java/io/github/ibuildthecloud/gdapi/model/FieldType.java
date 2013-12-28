@@ -23,7 +23,7 @@ public enum FieldType {
     STRING(STRING_MODS, String.class),
     PASSWORD(String.class),
     FLOAT(NUMBER_MODS, Float.class, Float.TYPE, Double.class, Double.TYPE),
-    INT(NUMBER_MODS, Integer.class, Integer.TYPE, Long.class, Long.TYPE),
+    INT(NUMBER_MODS, Long.class, Long.TYPE, Integer.class, Integer.TYPE),
     DATE(NUMBER_MODS, Date.class),
     BLOB(InputStream.class),
     BOOLEAN(VALUE_MODS, Boolean.class, Boolean.TYPE),

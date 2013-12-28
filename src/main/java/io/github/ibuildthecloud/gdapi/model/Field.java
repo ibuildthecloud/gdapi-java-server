@@ -18,6 +18,10 @@ public interface Field {
 
     String getDefault();
 
+    @XmlTransient
+    @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
+    boolean hasDefault();
+
     boolean isUnique();
 
     boolean isNullable();

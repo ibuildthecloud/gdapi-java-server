@@ -1,5 +1,6 @@
 package io.github.ibuildthecloud.gdapi.model;
 
+import io.github.ibuildthecloud.gdapi.annotation.Type;
 import io.github.ibuildthecloud.gdapi.condition.Condition;
 import io.github.ibuildthecloud.model.Pagination;
 
@@ -7,6 +8,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+@Type(list = false)
 public interface Collection {
 
     public static final String SORT = "sort";

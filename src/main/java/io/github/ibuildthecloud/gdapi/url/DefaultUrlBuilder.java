@@ -31,6 +31,15 @@ public final class DefaultUrlBuilder implements UrlBuilder {
         return constructBasicUrl(getPluralName(resource), resource.getId());
     }
 
+    @Override
+    public URL resourceReferenceLink(Class<?> type, String id) {
+        IdFormatter formatter = ApiContext.getContext().getIdFormatter();
+
+        Schema schema = schemaFactory.getSchema(type);
+        return schema == null ? null : constructBasicUrl(schema.getPluralName(), formatter.formatId(schema.getId(), id));
+    }
+
+
     protected String getPluralName(Resource resource) {
         return getPluralName(resource.getType());
     }

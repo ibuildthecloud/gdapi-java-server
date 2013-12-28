@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +37,16 @@ import org.apache.commons.beanutils.PropertyUtils;
 public abstract class AbstractBaseResourceManager implements ResourceManager {
 
     Map<String,Map<String,String>> linksCache = Collections.synchronizedMap(new WeakHashMap<String,Map<String,String>>());
-
+    Set<Class<?>> resourcesToCreate = new HashSet<Class<?>>();
     protected SchemaFactory schemaFactory;
     protected ResourceManagerLocator locator;
 
     protected Object authorize(Object object) {
         return object;
+    }
+
+    protected void addResourceToCreateResponse(Class<?> clz) {
+        this.resourcesToCreate.add(clz);
     }
 
     @Override
@@ -151,7 +156,7 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
 
     @Override
     public Resource convertResponse(Object obj, ApiRequest request) {
-        return createResource(obj, ApiContext.getContext().getIdFormatter());
+        return createResource(obj, ApiContext.getContext().getIdFormatter(), request);
     }
 
     protected Collection createCollection(List<?> list, ApiRequest request) {
@@ -167,7 +172,7 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
         addFilters(collection, request);
 
         for ( Object obj : list ) {
-            Resource resource = createResource(obj, formatter);
+            Resource resource = createResource(obj, formatter, request);
             if ( resource != null ) {
                 collection.getData().add(resource);
                 if ( collection.getResourceType() == null ) {
@@ -263,12 +268,20 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
         return links.keySet();
     }
 
-    protected Resource createResource(Object obj, IdFormatter idFormatter) {
+    protected Resource createResource(Object obj, IdFormatter idFormatter, ApiRequest apiRequest) {
         if ( obj == null )
             return null;
 
         if ( obj instanceof Resource )
             return (Resource)obj;
+
+        if ( resourcesToCreate.size() > 0 && ! resourcesToCreate.contains(obj.getClass()) ) {
+            String type = locator.getType(obj.getClass());
+            ResourceManager rm = locator.getResourceManagerByType(type);
+            if ( rm != null ) {
+                return rm.convertResponse(obj, apiRequest);
+            }
+        }
 
         Schema schema = schemaFactory.getSchema(obj.getClass());
         if ( schema == null ) {

@@ -15,6 +15,7 @@ import io.github.ibuildthecloud.gdapi.request.handler.AbstractApiRequestHandler;
 import io.github.ibuildthecloud.gdapi.util.DateUtils;
 import io.github.ibuildthecloud.gdapi.util.RequestUtils;
 import io.github.ibuildthecloud.gdapi.util.ResponseCodes;
+import io.github.ibuildthecloud.gdapi.util.TypeUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,15 +94,29 @@ public class ValidationHandler extends AbstractApiRequestHandler {
             String fieldName = entry.getKey();
             Object value = entry.getValue();
 
+            if ( ! create && TypeUtils.ID_FIELD.equals(fieldName) ) {
+                /* For right now, just never let anyone update "id" */
+                continue;
+            }
+
             Field field = fields.get(fieldName);
             if ( field == null || ! isOperation(field, create) ) {
                 continue;
             }
 
+            boolean wasNull = value == null;
             value = convert(fieldName, field, value, context);
-            checkFieldCriteria(type, fieldName, field, value);
 
-            sanitized.put(fieldName, value);
+            if ( value != null || wasNull ) {
+                if ( value instanceof List ) {
+                    for ( Object individualValue : (List<?>)value ) {
+                        checkFieldCriteria(type, fieldName, field, individualValue);
+                    }
+                } else {
+                    checkFieldCriteria(type, fieldName, field, value);
+                }
+                sanitized.put(fieldName, value);
+            }
         }
 
         for ( Map.Entry<String, Field> entry : fields.entrySet() ) {
@@ -110,6 +125,10 @@ public class ValidationHandler extends AbstractApiRequestHandler {
 
             if ( isOperation(field, create) && field.isRequired() && ! sanitized.containsKey(fieldName) ) {
                 error(MISSING_REQUIRED, fieldName);
+            }
+
+            if ( create && ! sanitized.containsKey(fieldName) && field.hasDefault() ) {
+                sanitized.put(fieldName, field.getDefault());
             }
         }
 
@@ -226,6 +245,9 @@ public class ValidationHandler extends AbstractApiRequestHandler {
             return value;
         }
         try {
+            if ( StringUtils.isBlank(value.toString()) ) {
+                return null;
+            }
             return DateUtils.parse(value.toString());
         } catch ( ParseException e ) {
             return error(INVALID_DATE_FORMAT, fieldName);
@@ -292,13 +314,13 @@ public class ValidationHandler extends AbstractApiRequestHandler {
         }
 
         if ( validChars != null && stringValue != null ) {
-            if ( ! StringUtils.containsOnly(stringValue, validChars) ) {
+            if ( ! stringValue.matches("^[" + validChars + "]*$") ) {
                 error(INVALID_CHARACTERS, fieldName);
             }
         }
 
         if ( invalidChars != null && stringValue != null ) {
-            if ( StringUtils.containsAny(stringValue, invalidChars) ) {
+            if ( stringValue.matches("^[" + invalidChars + "]*$") ) {
                 error(INVALID_CHARACTERS, fieldName);
             }
         }

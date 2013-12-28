@@ -274,11 +274,6 @@ public class SchemaFactoryImpl implements SchemaFactory {
         assignLengths(field, f);
         assignOptions(prop, field, f);
 
-        if ( writeMethod == null ) {
-            field.setCreate(false);
-            field.setUpdate(false);
-        }
-
         return field;
     }
 

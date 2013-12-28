@@ -26,7 +26,11 @@ public class TypeIdFormatter implements IdFormatter {
             shortType = getShortType(type);
         }
 
-        return shortType + id;
+        if ( ! Character.isDigit(idString.charAt(0)) ) {
+            return shortType + "!" + id;
+        } else {
+            return shortType + id;
+        }
     }
 
     @Override
@@ -46,8 +50,11 @@ public class TypeIdFormatter implements IdFormatter {
 
         String parsedId = id.replaceAll("^[a-z]*", "");
         try {
-            Long.parseLong(parsedId);
-            return parsedId;
+            if ( parsedId.startsWith("!") ) {
+                return parsedId.substring(1);
+            } else {
+                return parsedId;
+            }
         } catch ( NumberFormatException e ) {
             return null;
         }

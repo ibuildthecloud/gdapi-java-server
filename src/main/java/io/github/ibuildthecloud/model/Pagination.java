@@ -1,5 +1,7 @@
 package io.github.ibuildthecloud.model;
 
+import io.github.ibuildthecloud.gdapi.model.ListOptions;
+
 import java.net.URL;
 
 import javax.xml.bind.annotation.XmlTransient;
@@ -11,6 +13,10 @@ public class Pagination {
     Integer limit;
     Long total;
     boolean partial = false;
+
+    public static ListOptions limit(int limit) {
+        return new ListOptions(null, new Pagination(limit), null);
+    }
 
     public Pagination(Integer maxLimit) {
         this.limit = maxLimit;

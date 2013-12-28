@@ -10,6 +10,7 @@ import io.github.ibuildthecloud.url.UrlBuilder;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class VersionHandler extends AbstractResponseGenerator {
 
@@ -20,7 +21,9 @@ public class VersionHandler extends AbstractResponseGenerator {
             SchemaFactory schemaFactory = ApiContext.getContext().getSchemaFactory();
             VersionImpl version = new VersionImpl(request.getApiVersion());
 
-            Map<String,URL> links = version.getLinks();
+            Map<String,URL> links = new TreeMap<String, URL>();
+            version.setLinks(links);
+            links.put(UrlBuilder.SELF, urlBuilder.current());
 
             for ( Schema schema : schemaFactory.listSchemas() ) {
                 URL link = urlBuilder.resourceCollection(schema.getId());

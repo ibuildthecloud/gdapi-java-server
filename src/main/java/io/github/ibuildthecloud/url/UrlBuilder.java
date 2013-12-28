@@ -13,6 +13,8 @@ public interface UrlBuilder {
 
     URL resourceReferenceLink(Resource resource);
 
+    URL resourceReferenceLink(Class<?> type, String id);
+
     URL resourceLink(Resource resource, String name);
 
     URL resourceCollection(Class<?> type);

@@ -10,6 +10,9 @@ public class ListOptions {
     Pagination pagination;
     Include include;
 
+    public ListOptions() {
+    }
+
     public ListOptions(Sort sort, Pagination pagination, Include include) {
         super();
         this.sort = sort;

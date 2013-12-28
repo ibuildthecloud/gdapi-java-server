@@ -16,7 +16,7 @@ public class FieldImpl implements Field {
 
     String name, type, validChars, invalidChars;
     Integer displayIndex;
-    boolean create, update, includeInList = true, nullable, unique, required;
+    boolean create, update, includeInList = true, nullable, unique, required, defaultIsNull = false;
     FieldType typeEnum;
     List<FieldType> subTypeEnums;
     List<String> subTypes;
@@ -286,6 +286,20 @@ public class FieldImpl implements Field {
 
     public void setDisplayIndex(Integer displayIndex) {
         this.displayIndex = displayIndex;
+    }
+
+    @XmlTransient
+    public boolean isDefaultIsNull() {
+        return defaultIsNull;
+    }
+
+    public void setDefaultIsNull(boolean defaultIsNull) {
+        this.defaultIsNull = defaultIsNull;
+    }
+
+    @Override
+    public boolean hasDefault() {
+        return defaultValue != null || defaultIsNull;
     }
 
 }

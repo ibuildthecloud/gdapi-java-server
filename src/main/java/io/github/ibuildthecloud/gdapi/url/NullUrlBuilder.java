@@ -53,4 +53,9 @@ public class NullUrlBuilder implements UrlBuilder {
         return null;
     }
 
+    @Override
+    public URL resourceReferenceLink(Class<?> type, String id) {
+        return null;
+    }
+
 }

@@ -39,6 +39,10 @@ public abstract class AbstractResourceManagerLocatorImpl implements ResourceMana
 
     @Override
     public ResourceManager getResourceManagerByType(String type) {
+        if ( type == null ) {
+            return null;
+        }
+
         ResourceManager rm = cached.get(type);
         if ( rm != null ) {
             return rm;
