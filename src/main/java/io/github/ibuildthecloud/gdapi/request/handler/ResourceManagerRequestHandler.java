@@ -32,12 +32,18 @@ public class ResourceManagerRequestHandler extends AbstractResponseGenerator {
         String method = request.getMethod();
 
         if ( Method.POST.isMethod(method) ) {
-            /* Optimistically set response code to created.  The ResourceManager impl should
-             * set the code to ACCEPTED if a background task was created.  On error and exception
-             * should be thrown and then the response code will be changed to an error code
-             */
-            request.setResponseCode(ResponseCodes.CREATED);
-            response = manager.create(request.getType(), request);
+            if ( request.getAction() == null ) {
+                /* Optimistically set response code to created.  The ResourceManager impl should
+                 * set the code to ACCEPTED if a background task was created.  On error and exception
+                 * should be thrown and then the response code will be changed to an error code
+                 */
+                request.setResponseCode(ResponseCodes.CREATED);
+                response = manager.create(request.getType(), request);
+            } else if ( request.getId() == null ){
+                response = manager.collectionAction(request.getType(), request);
+            } else {
+                response = manager.resourceAction(request.getType(), request);
+            }
         } else if ( Method.PUT.isMethod(method) ) {
             response = manager.update(request.getType(), request.getId(), request);
         } else if ( Method.GET.isMethod(method) ){

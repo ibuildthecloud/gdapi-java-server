@@ -11,7 +11,7 @@ import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.model.impl.SchemaImpl;
 
-public class SubSchemaFactory implements SchemaFactory, SchemaPostProcessor {
+public class SubSchemaFactory extends AbstractSchemaFactory implements SchemaFactory, SchemaPostProcessor {
     SchemaFactory schemaFactory;
     String id;
     Map<String,Schema> schemaMap;
@@ -78,18 +78,6 @@ public class SubSchemaFactory implements SchemaFactory, SchemaPostProcessor {
     }
 
     @Override
-    public String getSchemaName(Class<?> clz) {
-        Schema schema = getSchema(clz);
-        return schema == null ? null : schema.getId();
-    }
-
-    @Override
-    public String getSchemaName(String type) {
-        Schema schema = getSchema(type);
-        return schema == null ? null : schema.getId();
-    }
-
-    @Override
     public Schema getSchema(Class<?> clz) {
         return getSchema(schemaFactory.getSchemaName(clz));
     }
@@ -107,22 +95,6 @@ public class SubSchemaFactory implements SchemaFactory, SchemaPostProcessor {
     }
 
     @Override
-    public Class<?> getSchemaClass(Class<?> type) {
-        return getSchemaClass(getSchemaName(type));
-    }
-
-    @Override
-    public String getPluralName(String type) {
-        Schema schema = getSchema(type);
-        return schema == null ? null : schema.getPluralName();
-    }
-
-    @Override
-    public String getSingularName(String type) {
-        return getSchemaName(type);
-    }
-
-    @Override
     public Schema registerSchema(Object obj) {
         throw new UnsupportedOperationException();
     }
@@ -133,28 +105,19 @@ public class SubSchemaFactory implements SchemaFactory, SchemaPostProcessor {
     }
 
     @Override
-    public boolean typeStringMatches(Class<?> clz, String type) {
-        if ( type == null ) {
-            return false;
-        }
-        return type.equals(getSchemaName(clz));
-    }
-
-    @Override
     public void addPostProcessor(SchemaPostProcessor postProcessor) {
         throw new UnsupportedOperationException();
     }
 
-    public void setId(String id) {
-        this.id = id;
+    @Override
+    public SchemaImpl postProcessRegister(SchemaImpl schema, SchemaFactory factory) {
+        schemaList.add(schema);
+        return schema;
     }
 
-    public List<SchemaPostProcessor> getPostProcessor() {
-        return additionalPostProcessors;
-    }
-
-    public void setPostProcessor(List<SchemaPostProcessor> postProcessor) {
-        this.additionalPostProcessors = postProcessor;
+    @Override
+    public SchemaImpl postProcess(SchemaImpl schema, SchemaFactory factory) {
+        return schema;
     }
 
     public SchemaFactory getSchemaFactory() {
@@ -169,23 +132,24 @@ public class SubSchemaFactory implements SchemaFactory, SchemaPostProcessor {
         }
     }
 
-    @Override
-    public SchemaImpl postProcessRegister(SchemaImpl schema, SchemaFactory factory) {
-        schemaList.add(schema);
-        return schema;
-    }
-
-    @Override
-    public SchemaImpl postProcess(SchemaImpl schema, SchemaFactory factory) {
-        return schema;
-    }
-
     public List<SchemaPostProcessor> getPostProcessors() {
         return postProcessors;
     }
 
     public void setPostProcessors(List<SchemaPostProcessor> postProcessors) {
         this.postProcessors = postProcessors;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public List<SchemaPostProcessor> getPostProcessor() {
+        return additionalPostProcessors;
+    }
+
+    public void setPostProcessor(List<SchemaPostProcessor> postProcessor) {
+        this.additionalPostProcessors = postProcessor;
     }
 
 }

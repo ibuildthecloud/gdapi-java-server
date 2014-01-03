@@ -37,4 +37,14 @@ public abstract class AbstractNoOpResourceManager extends AbstractBaseResourceMa
         return null;
     }
 
+    @Override
+    protected Object resourceActionInternal(Object obj, ApiRequest request) {
+        return null;
+    }
+
+    @Override
+    protected Object collectionActionInternal(Object resources, ApiRequest request) {
+        return null;
+    }
+
 }

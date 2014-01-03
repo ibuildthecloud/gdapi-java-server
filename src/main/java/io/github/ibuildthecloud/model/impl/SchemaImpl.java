@@ -20,10 +20,11 @@ import javax.xml.bind.annotation.XmlTransient;
 
 public class SchemaImpl extends ResourceImpl implements Schema {
 
-    String name;
+    String name, parent;
     String pluralName;
+    List<String> children = new ArrayList<String>();
     boolean create, update, list = true, deletable, byId = true;
-    Map<String, Field> resourceFields;
+    Map<String, Field> resourceFields = new TreeMap<String, Field>();
     Map<String, Filter> collectionFilters = new TreeMap<String, Filter>();
     List<String> includeableLinks = new ArrayList<String>();
     Map<String, Action> resourceActions = new HashMap<String, Action>();
@@ -32,7 +33,14 @@ public class SchemaImpl extends ResourceImpl implements Schema {
 
     public SchemaImpl(SchemaImpl schema) {
         this.name = schema.getId();
+        this.parent = schema.getParent();
+        this.children = new ArrayList<String>(schema.getChildren());
         this.pluralName = schema.getPluralName();
+
+        this.load(schema);
+    }
+
+    public void load(SchemaImpl schema) {
         this.create = schema.isCreate();
         this.update = schema.isUpdate();
         this.list = schema.isList();
@@ -284,6 +292,20 @@ public class SchemaImpl extends ResourceImpl implements Schema {
 
     public void setResourceActions(Map<String, Action> resourceActions) {
         this.resourceActions = resourceActions;
+    }
+
+    @Override
+    public String getParent() {
+        return parent;
+    }
+
+    public void setParent(String parent) {
+        this.parent = parent;
+    }
+
+    @Override
+    public List<String> getChildren() {
+        return children;
     }
 
 }

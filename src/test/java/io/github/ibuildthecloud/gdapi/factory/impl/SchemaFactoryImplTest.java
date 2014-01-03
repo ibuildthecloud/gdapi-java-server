@@ -6,6 +6,7 @@ import io.github.ibuildthecloud.gdapi.model.FieldType;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.testobject.TestType;
 import io.github.ibuildthecloud.gdapi.testobject.TestTypeCRUD;
+import io.github.ibuildthecloud.gdapi.testobject.TestTypeChild;
 import io.github.ibuildthecloud.gdapi.testobject.TestTypeRename;
 
 import java.util.Iterator;
@@ -279,6 +280,38 @@ public class SchemaFactoryImplTest {
         assertTrue(resourceMethods.contains("PUT"));
 
         assertEquals(0, collectionMethods.size());
+    }
+
+    @Test
+    public void testParentClass() {
+        Schema parent = parseSchema(TestType.class);
+        Schema child = parseSchema(TestTypeChild.class);
+
+        assertEquals(parent.getId(), child.getParent());
+
+        Map<String,Field> fields = child.getResourceFields();
+
+        assertEquals("boolean", fields.get("typeBool").getType());
+        assertTrue(!fields.get("typeBool").isNullable());
+        assertEquals("boolean", fields.get("typeBoolean").getType());
+        assertTrue(fields.get("typeBoolean").isNullable());
+    }
+
+    @Test
+    public void testParentName() {
+        Schema parent = parseSchema(TestType.class);
+
+        Schema child = factory.registerSchema("child,parent=" + parent.getId());
+        child = factory.parseSchema(child.getId());
+
+        assertEquals(parent.getId(), child.getParent());
+
+        Map<String,Field> fields = child.getResourceFields();
+
+        assertEquals("boolean", fields.get("typeBool").getType());
+        assertTrue(!fields.get("typeBool").isNullable());
+        assertEquals("boolean", fields.get("typeBoolean").getType());
+        assertTrue(fields.get("typeBoolean").isNullable());
     }
 
 }

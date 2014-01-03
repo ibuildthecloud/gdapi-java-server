@@ -1,6 +1,8 @@
 package io.github.ibuildthecloud.gdapi.factory.impl;
 
+import io.github.ibuildthecloud.gdapi.annotation.Actions;
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
+import io.github.ibuildthecloud.gdapi.model.Action;
 import io.github.ibuildthecloud.gdapi.model.ApiError;
 import io.github.ibuildthecloud.gdapi.model.ApiVersion;
 import io.github.ibuildthecloud.gdapi.model.Collection;
@@ -29,7 +31,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 
 @io.github.ibuildthecloud.gdapi.annotation.Type
-public class SchemaFactoryImpl implements SchemaFactory {
+public class SchemaFactoryImpl extends AbstractSchemaFactory implements SchemaFactory {
 
     final io.github.ibuildthecloud.gdapi.annotation.Field defaultField;
     final io.github.ibuildthecloud.gdapi.annotation.Type defaultType;
@@ -37,12 +39,11 @@ public class SchemaFactoryImpl implements SchemaFactory {
     String id = UUID.randomUUID().toString();
     boolean includeDefaultTypes = true, writableByDefault = false;
     Map<String, SchemaImpl> schemasByName = new TreeMap<String, SchemaImpl>();
-    Map<Class<?>, SchemaImpl> schemas = new HashMap<Class<?>, SchemaImpl>();
-    Map<String, String> typeToPluralName = new HashMap<String, String>();
-    Map<String, String> pluralNameToType = new HashMap<String, String>();
+    Map<Class<?>, SchemaImpl> schemasByClass = new HashMap<Class<?>, SchemaImpl>();
     Map<String, Class<?>> typeToClass = new HashMap<String, Class<?>>();
     List<Class<?>> types = new ArrayList<Class<?>>();
     List<String> typeNames = new ArrayList<String>();
+    Map<SchemaImpl,Class<?>> parentClasses = new HashMap<SchemaImpl, Class<?>>();
 
     List<Schema> schemasList = new ArrayList<Schema>();
     List<SchemaPostProcessor> postProcessors = new ArrayList<SchemaPostProcessor>();
@@ -79,7 +80,7 @@ public class SchemaFactoryImpl implements SchemaFactory {
     @Override
     public Schema registerSchema(Object obj) {
         Class<?> clz = obj instanceof Class<?> ? (Class<?>)obj : null;
-        SchemaImpl schema = schemaName(obj);
+        SchemaImpl schema = schemaFromObject(obj);
 
         for ( SchemaPostProcessor processor : getSchemaPostProcessors() ) {
             schema = processor.postProcessRegister(schema, this);
@@ -90,16 +91,14 @@ public class SchemaFactoryImpl implements SchemaFactory {
 
         /* Register in the multitude of maps */
         if ( clz != null ) {
-            addToMap(typeToClass, schema, clz, true, true);
+            addToMap(typeToClass, schema, clz);
         }
-        addToMap(schemasByName, schema, schema, true, true);
-        addToMap(typeToPluralName, schema, schema.getPluralName(), true, false);
-        addToMap(pluralNameToType, schema, schema.getId(), false, true);
+        addToMap(schemasByName, schema, schema);
 
         if ( clz != null ) {
-            schemas.put(clz, schema);
+            schemasByClass.put(clz, schema);
             for ( Class<?> iface : clz.getInterfaces() ) {
-                schemas.put(iface, schema);
+                schemasByClass.put(iface, schema);
             }
         }
 
@@ -108,22 +107,20 @@ public class SchemaFactoryImpl implements SchemaFactory {
         return schema;
     }
 
-    protected <T> void addToMap(Map<String,T> map, SchemaImpl key, T value, boolean id, boolean plural) {
+    protected <T> void addToMap(Map<String,T> map, SchemaImpl key, T value) {
         if ( key == null || value == null )
             return;
-        if ( id ) {
-            map.put(key.getId(), value);
-            map.put(key.getId().toLowerCase(), value);
-        }
-        if ( plural ) {
-            map.put(key.getPluralName(), value);
-            map.put(key.getPluralName().toLowerCase(), value);
-        }
+
+        map.put(key.getId(), value);
+        map.put(key.getId().toLowerCase(), value);
+
+        map.put(key.getPluralName(), value);
+        map.put(key.getPluralName().toLowerCase(), value);
     }
 
     @Override
     public Schema getSchema(Class<?> clz) {
-        return schemas.get(clz);
+        return schemasByClass.get(clz);
     }
 
     @Override
@@ -131,10 +128,22 @@ public class SchemaFactoryImpl implements SchemaFactory {
         SchemaImpl schema = readSchema(name);
         Class<?> clz = typeToClass.get(name);
 
-        List<FieldImpl> fields = getFields(clz);
+        processParent(schema);
+
+        List<Field> fields = getFields(clz);
+        for ( Map.Entry<String, Field> entry : schema.getResourceFields().entrySet() ) {
+            Field field = entry.getValue();
+            if ( field instanceof FieldImpl ) {
+                ((FieldImpl) field).setName(entry.getKey());
+            }
+            fields.add(field);
+        }
+
         Map<String,Field> resourceFields = sortFields(fields);
 
         schema.setResourceFields(resourceFields);
+        schema.getResourceActions().putAll(getResourceActions(clz));
+        schema.getCollectionActions().putAll(getCollectionActions(clz));
 
         for ( SchemaPostProcessor processor : getSchemaPostProcessors() ) {
             processor.postProcess(schema, this);
@@ -143,27 +152,147 @@ public class SchemaFactoryImpl implements SchemaFactory {
         return schema;
     }
 
-    protected SchemaImpl schemaName(Object obj) {
+    protected void processParent(SchemaImpl schema) {
+        SchemaImpl parent = null;
+        Class<?> parentClass = parentClasses.get(schema);
+        String parentName = schema.getParent();
+
+        if ( parentClass == null && parentName != null ) {
+            parent = schemasByName.get(parentName);
+            if ( parent == null ) {
+                throw new IllegalArgumentException("Failed to find parent schema for [" + parentName
+                        + "] for type [" + schema.getId() + "]");
+            }
+        } else if ( parentClass != null ) {
+            parent = schemasByClass.get(parentClass);
+            if ( parent == null ) {
+                throw new IllegalArgumentException("Failed to find parent schema for class [" + parentClass
+                        + "] for type [" + schema.getId() + "]");
+            }
+        }
+
+        if ( parent != null ) {
+            schema.setParent(parent.getId());
+            parent.getChildren().add(schema.getId());
+
+            schema.load(parent);
+        }
+    }
+
+    protected Map<String,Action> getCollectionActions(Class<?> clz) {
+        return getActions(clz, true);
+    }
+
+    protected Map<String,Action> getResourceActions(Class<?> clz) {
+        return getActions(clz, false);
+    }
+
+    protected Map<String,Action> getActions(Class<?> clz, boolean collection) {
+        Map<String,Action> result = new LinkedHashMap<String, Action>();
+
+        if ( clz == null ) {
+            return result;
+        }
+
+        Actions actions = clz.getAnnotation(Actions.class);
+        if ( actions == null ) {
+            return result;
+        }
+
+        for ( io.github.ibuildthecloud.gdapi.annotation.Action action : actions.value() ) {
+            if ( action.collection() != collection ) {
+                continue;
+            }
+
+            String input = null;
+            String output = null;
+
+            if ( StringUtils.isBlank(action.inputType()) ) {
+                input = getSchemaName(action.input());
+            } else {
+                input = action.inputType();
+            }
+
+            if ( StringUtils.isBlank(action.outputType()) ) {
+                output = getSchemaName(action.output());
+            } else {
+                output = action.outputType();
+            }
+
+            result.put(action.name(), new Action(input, output));
+        }
+
+        return result;
+    }
+
+    protected SchemaImpl schemaFromObject(Object obj) {
         Class<?> clz = obj instanceof Class<?> ? (Class<?>)obj : obj.getClass();
         SchemaImpl schema = new SchemaImpl();
+
+        SchemaType schemaType = obj instanceof String ? schemaTypeFromString((String)obj) : schemaTypeFromClass(clz);
+
+        schema.setName(schemaType.name);
+        schema.setPluralName(schemaType.pluralName);
+        schema.setParent(schemaType.parent);
+
+        if ( schemaType.parent == null && schemaType.parentClass != null ) {
+            parentClasses.put(schema, schemaType.parentClass);
+        }
+
+        return schema;
+    }
+
+    protected SchemaType schemaTypeFromClass(Class<?> clz) {
+        SchemaType schemaType = new SchemaType();
         io.github.ibuildthecloud.gdapi.annotation.Type type = clz.getAnnotation(io.github.ibuildthecloud.gdapi.annotation.Type.class);
 
         if ( type == null )
             type = defaultType;
 
         if ( ! StringUtils.isEmpty(type.name()) ) {
-            schema.setName(type.name());
-        } else if ( obj instanceof String ) {
-            schema.setName((String)obj);
+            schemaType.name = type.name();
         } else {
-            schema.setName(StringUtils.uncapitalize(clz.getSimpleName()));
+            schemaType.name = StringUtils.uncapitalize(clz.getSimpleName());
         }
 
-        if ( type.pluralName().length() > 0 ) {
-            schema.setPluralName(type.pluralName());
+        if ( ! StringUtils.isBlank(type.pluralName()) ) {
+            schemaType.pluralName = type.pluralName();
         }
 
-        return schema;
+        if ( ! StringUtils.isBlank(type.parent()) ) {
+            schemaType.parent = type.parent();
+        }
+
+        if ( type.parentClass() != Void.class ) {
+            schemaType.parentClass = type.parentClass();
+        }
+
+        return schemaType;
+    }
+
+    protected SchemaType schemaTypeFromString(String type) {
+        SchemaType schemaType = new SchemaType();
+
+        String[] parts = type.split("\\s*,\\s*");
+        schemaType.name = parts[0];
+
+        for ( int i = 1 ; i < parts.length ; i++ ) {
+            String[] kv = parts[i].split("\\s*=\\s*");
+            if ( kv.length != 2 ) {
+                throw new IllegalArgumentException("Illegal type format [" + type + "] must be comma separated key=value pairs");
+            }
+
+            String key = kv[0];
+            String value = kv[1];
+
+            if ( "pluralName".equals(key) ) {
+                schemaType.pluralName = value;
+            } else if ( "parent".equals(key) ) {
+                schemaType.parent = value;
+            }
+        }
+
+        return schemaType;
     }
 
     protected SchemaImpl readSchema(String name) {
@@ -173,7 +302,7 @@ public class SchemaFactoryImpl implements SchemaFactory {
 
         SchemaImpl schema = schemasByName.get(name);
         if ( schema == null )
-            schema = schemaName(clz);
+            schema = schemaFromObject(clz);
 
         io.github.ibuildthecloud.gdapi.annotation.Type type = clz.getAnnotation(io.github.ibuildthecloud.gdapi.annotation.Type.class);
 
@@ -195,12 +324,12 @@ public class SchemaFactoryImpl implements SchemaFactory {
         return schema;
     }
 
-    protected Map<String, Field> sortFields(List<FieldImpl> fields) {
-        Map<Integer, FieldImpl> indexed = new TreeMap<Integer, FieldImpl>();
-        Map<String, FieldImpl> named = new TreeMap<String, FieldImpl>();
+    protected Map<String, Field> sortFields(List<Field> fields) {
+        Map<Integer, Field> indexed = new TreeMap<Integer, Field>();
+        Map<String, Field> named = new TreeMap<String, Field>();
         Map<String, Field> result = new LinkedHashMap<String, Field>();
 
-        for ( FieldImpl field : fields ) {
+        for ( Field field : fields ) {
             Integer displayIndex = field.getDisplayIndex();
 
             if ( displayIndex == null ) {
@@ -210,19 +339,19 @@ public class SchemaFactoryImpl implements SchemaFactory {
             }
         }
 
-        for ( FieldImpl field : indexed.values() ) {
+        for ( Field field : indexed.values() ) {
             result.put(field.getName(), field);
         }
 
-        for ( FieldImpl field : named.values() ) {
+        for ( Field field : named.values() ) {
             result.put(field.getName(), field);
         }
 
         return result;
     }
 
-    protected List<FieldImpl> getFields(Class<?> clz) {
-        List<FieldImpl> result = new ArrayList<FieldImpl>();
+    protected List<Field> getFields(Class<?> clz) {
+        List<Field> result = new ArrayList<Field>();
 
         if ( clz == null )
             return result;
@@ -517,22 +646,8 @@ public class SchemaFactoryImpl implements SchemaFactory {
     }
 
     @Override
-    public String getPluralName(String type) {
-        return typeToPluralName.get(lower(type));
-    }
-
-    @Override
     public Class<?> getSchemaClass(String type) {
         return typeToClass.get(lower(type));
-    }
-
-    @Override
-    public String getSingularName(String type) {
-        String result = pluralNameToType.get(lower(type));
-        if ( result == null && typeToPluralName.containsKey(type) ) {
-            return type;
-        }
-        return result;
     }
 
     protected String lower(String type) {
@@ -540,38 +655,8 @@ public class SchemaFactoryImpl implements SchemaFactory {
     }
 
     @Override
-    public boolean typeStringMatches(Class<?> clz, String type) {
-        if ( type == null || clz == null )
-            return false;
-
-        Schema schema = getSchema(clz);
-        if ( schema == null )
-            return false;
-
-        return schema == getSchema(type);
-    }
-
-    @Override
-    public Class<?> getSchemaClass(Class<?> type) {
-        Schema schema = getSchema(type);
-        return schema == null ? null : getSchemaClass(schema.getId());
-    }
-
-    @Override
     public void addPostProcessor(SchemaPostProcessor postProcessor) {
         additionalPostProcessors.add(postProcessor);
-    }
-
-    @Override
-    public String getSchemaName(Class<?> clz) {
-        Schema schema = getSchema(clz);
-        return schema == null ? null : schema.getId();
-    }
-
-    @Override
-    public String getSchemaName(String type) {
-        Schema schema = getSchema(type);
-        return schema == null ? null : schema.getId();
     }
 
     public List<Class<?>> getTypes() {
@@ -617,5 +702,13 @@ public class SchemaFactoryImpl implements SchemaFactory {
     public void setId(String id) {
         this.id = id;
     }
+
+    private static final class SchemaType {
+        String name;
+        String pluralName;
+        String parent;
+        Class<?> parentClass;
+    }
+
 
 }

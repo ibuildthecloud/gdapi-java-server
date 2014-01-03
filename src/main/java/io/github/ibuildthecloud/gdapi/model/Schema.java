@@ -35,4 +35,12 @@ public interface Schema extends Resource {
 
     List<String> getIncludeableLinks();
 
+    @XmlTransient
+    @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
+    String getParent();
+
+    @XmlTransient
+    @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
+    List<String> getChildren();
+
 }

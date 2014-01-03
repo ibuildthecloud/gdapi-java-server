@@ -1,10 +1,12 @@
 package io.github.ibuildthecloud.gdapi.model.impl;
 
 import io.github.ibuildthecloud.gdapi.condition.Condition;
+import io.github.ibuildthecloud.gdapi.context.ApiContext;
 import io.github.ibuildthecloud.gdapi.model.Collection;
 import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.model.Sort;
 import io.github.ibuildthecloud.model.Pagination;
+import io.github.ibuildthecloud.url.UrlBuilder;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -37,6 +39,13 @@ public class CollectionImpl implements Collection {
 
     @Override
     public Map<String, URL> getLinks() {
+        if ( ! links.containsKey(UrlBuilder.SELF) ) {
+            URL self = ApiContext.getUrlBuilder().current();
+            if ( self != null ) {
+                links.put(UrlBuilder.SELF, self);
+            }
+        }
+
         return links;
     }
 

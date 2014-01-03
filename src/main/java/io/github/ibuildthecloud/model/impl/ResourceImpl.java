@@ -30,7 +30,7 @@ public class ResourceImpl implements Resource {
         if ( ! links.containsKey(UrlBuilder.SELF) ) {
             URL self = ApiContext.getUrlBuilder().resourceReferenceLink(this);
             if ( self != null ) {
-                links.put(UrlBuilder.SELF, ApiContext.getUrlBuilder().resourceReferenceLink(this));
+                links.put(UrlBuilder.SELF, self);
             }
         }
         return links;

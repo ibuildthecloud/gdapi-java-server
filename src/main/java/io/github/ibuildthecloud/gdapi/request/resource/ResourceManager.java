@@ -28,6 +28,10 @@ public interface ResourceManager {
 
     Object delete(String type, String id, ApiRequest request);
 
+    Object resourceAction(String type, ApiRequest request);
+
+    Object collectionAction(String type, ApiRequest request);
+
     Collection convertResponse(List<?> object, ApiRequest request);
 
     Resource convertResponse(Object obj, ApiRequest request);

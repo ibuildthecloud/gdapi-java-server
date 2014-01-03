@@ -93,6 +93,12 @@ public final class DefaultUrlBuilder implements UrlBuilder {
     }
 
     @Override
+    public URL actionLink(Resource resource, String name) {
+        return constructBasicUrl(getPluralName(resource), resource.getId(),
+                "?" + Resource.ACTION + "=" + name);
+    }
+
+    @Override
     public URL sort(String field) {
         StringBuilder buffer = fullUrlToAppendQueryString(Collection.SORT, Collection.ORDER);
 

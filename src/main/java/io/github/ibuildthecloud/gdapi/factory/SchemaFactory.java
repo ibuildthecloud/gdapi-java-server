@@ -19,6 +19,8 @@ public interface SchemaFactory {
 
     Schema getSchema(String type);
 
+    Class<?> getSchemaClass(String type, boolean resolveParent);
+
     Class<?> getSchemaClass(String type);
 
     Class<?> getSchemaClass(Class<?> type);
@@ -30,6 +32,8 @@ public interface SchemaFactory {
     Schema registerSchema(Object obj);
 
     Schema parseSchema(String name);
+
+    List<String> getSchemaNames(Class<?> clz);
 
     boolean typeStringMatches(Class<?> clz, String type);
 

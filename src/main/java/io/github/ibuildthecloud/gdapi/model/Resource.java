@@ -9,6 +9,8 @@ import java.util.Map;
 @Type(list = false)
 public interface Resource {
 
+    public static final String ACTION = "action";
+
     String getId();
 
     String getType();

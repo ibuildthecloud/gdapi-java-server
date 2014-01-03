@@ -81,4 +81,14 @@ public class FilteredResourceManager implements ResourceManager {
         return next.handleException(t, request);
     }
 
+    @Override
+    public Object resourceAction(String type, ApiRequest request) {
+        return next.resourceAction(type, request);
+    }
+
+    @Override
+    public Object collectionAction(String type, ApiRequest request) {
+        return next.collectionAction(type, request);
+    }
+
 }

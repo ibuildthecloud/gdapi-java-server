@@ -4,6 +4,7 @@ import io.github.ibuildthecloud.gdapi.condition.Condition;
 import io.github.ibuildthecloud.gdapi.context.ApiContext;
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.id.IdFormatter;
+import io.github.ibuildthecloud.gdapi.model.Action;
 import io.github.ibuildthecloud.gdapi.model.Collection;
 import io.github.ibuildthecloud.gdapi.model.ListOptions;
 import io.github.ibuildthecloud.gdapi.model.Resource;
@@ -283,22 +284,41 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
             }
         }
 
-        Schema schema = schemaFactory.getSchema(obj.getClass());
+        Schema schema = getSchemaForDisplay(obj);
         if ( schema == null ) {
             return null;
         }
 
         Resource resource = constructResource(idFormatter, schema, obj);
-        addLinks(resource);
+        addLinks(obj, schema, resource);
+        addActions(obj, schema, resource);
 
         return resource;
+    }
+
+    protected Schema getSchemaForDisplay(Object obj) {
+        return schemaFactory.getSchema(obj.getClass());
+    }
+
+    protected void addActions(Object obj, Schema schema, Resource resource) {
+        Map<String,Action> actions = schema.getResourceActions();
+
+        if ( actions == null || actions.size() == 0 ) {
+            return;
+        }
+
+        UrlBuilder urlBuilder = ApiContext.getUrlBuilder();
+
+        for ( String name : actions.keySet() ) {
+            resource.getActions().put(name, urlBuilder.actionLink(resource, name));
+        }
     }
 
     protected Resource constructResource(IdFormatter idFormatter, Schema schema, Object obj) {
         return new WrappedResource(idFormatter, schema, obj);
     }
 
-    protected void addLinks(Resource resource) {
+    protected void addLinks(Object obj, Schema schema, Resource resource) {
         Map<String,URL> links = resource.getLinks();
 
         for ( Map.Entry<String,String> entry : getLinks(resource).entrySet() ) {
@@ -339,6 +359,31 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
     public boolean handleException(Throwable t, ApiRequest request) {
         return false;
     }
+
+    @Override
+    public final Object resourceAction(String type, ApiRequest request) {
+        Object resource = getById(type, request.getId(), new ListOptions());
+
+        if ( resource == null ) {
+            return null;
+        }
+
+        return resourceActionInternal(resource, request);
+    }
+
+    protected abstract Object resourceActionInternal(Object obj, ApiRequest request);
+
+    @Override
+    public final Object collectionAction(String type, ApiRequest request) {
+        Object resources = list(type, request);
+        if ( resources == null ) {
+            return null;
+        }
+
+        return collectionActionInternal(resources, request);
+    }
+
+    protected abstract Object collectionActionInternal(Object resources, ApiRequest request);
 
     public SchemaFactory getSchemaFactory() {
         return schemaFactory;

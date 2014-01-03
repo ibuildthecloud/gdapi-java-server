@@ -5,8 +5,10 @@ import io.github.ibuildthecloud.gdapi.context.ApiContext;
 import io.github.ibuildthecloud.gdapi.exception.ClientVisibleException;
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.id.IdFormatter;
+import io.github.ibuildthecloud.gdapi.model.Action;
 import io.github.ibuildthecloud.gdapi.model.Field;
 import io.github.ibuildthecloud.gdapi.model.FieldType;
+import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.model.Schema.Method;
 import io.github.ibuildthecloud.gdapi.model.impl.ValidationErrorImpl;
@@ -34,8 +36,12 @@ import javax.annotation.PostConstruct;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ValidationHandler extends AbstractApiRequestHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(ValidationHandler.class);
 
     ReferenceValidator referenceValidator;
     Set<String> supportedMethods;
@@ -50,8 +56,44 @@ public class ValidationHandler extends AbstractApiRequestHandler {
         validateVersion(request, context);
         validateId(request, context);
         validateType(request, context);
+        validateAction(request, context);
         validateMethod(request, context);
         validateField(request, context);
+    }
+
+    protected void validateAction(ApiRequest request, ValidationContext context) {
+        String action = request.getAction();
+        if ( action == null || ! Method.POST.isMethod(request.getMethod()) ) {
+            return;
+        }
+
+        Map<String,Action> actions = request.getId() == null ? context.schema.getCollectionActions() :
+                context.schema.getResourceActions();
+
+        if ( actions == null || ! actions.containsKey(action) ) {
+            error(INVALID_ACTION, Resource.ACTION);
+        }
+
+        if ( referenceValidator != null && request.getId() != null ) {
+            Resource resource = referenceValidator.getResourceId(request.getType(), request.getId());
+            if ( resource == null ) {
+                error(ResponseCodes.NOT_FOUND);
+            }
+            if ( ! resource.getActions().containsKey(action) ) {
+                error(ACTION_NOT_AVAILABLE, Resource.ACTION);
+            }
+        }
+
+        String input = actions.get(action).getInput();
+        if ( input != null ) {
+            Schema inputSchema = context.schemaFactory.getSchema(input);
+            if ( inputSchema == null ) {
+                log.error("Failed to find input schema [{}] for action [{}] on type [{}]", input, action, request.getType());
+                error(ResponseCodes.NOT_FOUND);
+            } else {
+                context.actionSchema = inputSchema;
+            }
+        }
     }
 
     protected void validateType(ApiRequest request, ValidationContext context) {
@@ -74,21 +116,25 @@ public class ValidationHandler extends AbstractApiRequestHandler {
 
     protected void validateWriteField(ApiRequest request, ValidationContext context) {
         if ( Method.PUT.isMethod(request.getMethod()) ) {
-            validateOperationField(request, false, context);
+            validateOperationField(context.schema, request, false, context);
         } else if ( Method.POST.isMethod(request.getMethod()) ) {
-            validateOperationField(request, true, context);
+            if ( request.getAction() == null ) {
+                validateOperationField(context.schema, request, true, context);
+            } else {
+                validateOperationField(context.actionSchema, request, true, context);
+            }
         }
     }
 
-    protected void validateOperationField(ApiRequest request, boolean create, ValidationContext context) {
-        if ( context.schema == null ) {
+    protected void validateOperationField(Schema schema, ApiRequest request, boolean create, ValidationContext context) {
+        if ( schema == null ) {
             return;
         }
 
         String type = request.getType();
         Map<String,Object> input = RequestUtils.toMap(request.getRequestObject());
         Map<String,Object> sanitized = new LinkedHashMap<String, Object>();
-        Map<String,Field> fields = context.schema.getResourceFields();
+        Map<String,Field> fields = schema.getResourceFields();
 
         for ( Map.Entry<String, Object> entry : input.entrySet() ) {
             String fieldName = entry.getKey();
@@ -354,6 +400,11 @@ public class ValidationHandler extends AbstractApiRequestHandler {
 
     protected void validateMethod(ApiRequest request, ValidationContext context) {
         String method = request.getMethod();
+
+        if ( request.getAction() != null && Method.POST.isMethod(method) ) {
+            return;
+        }
+
         if ( method == null || ! supportedMethods.contains(method) ) {
             error(ResponseCodes.METHOD_NOT_ALLOWED);
         }
@@ -401,6 +452,7 @@ public class ValidationHandler extends AbstractApiRequestHandler {
     private static final class ValidationContext {
         SchemaFactory schemaFactory;
         Schema schema;
+        Schema actionSchema;
         IdFormatter idFormatter;
     }
 

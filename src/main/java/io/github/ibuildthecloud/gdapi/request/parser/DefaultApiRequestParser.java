@@ -2,6 +2,7 @@ package io.github.ibuildthecloud.gdapi.request.parser;
 
 import io.github.ibuildthecloud.gdapi.exception.ClientVisibleException;
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
+import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.util.RequestUtils;
 import io.github.ibuildthecloud.gdapi.util.ResponseCodes;
@@ -86,7 +87,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
 
     protected String parseAction(ApiRequest apiRequest, HttpServletRequest request) {
         if ( "POST".equals(apiRequest.getMethod()) ) {
-            return request.getParameter("action");
+            return request.getParameter(Resource.ACTION);
         }
         return null;
     }

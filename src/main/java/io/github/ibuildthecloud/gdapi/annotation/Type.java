@@ -13,6 +13,10 @@ public @interface Type {
 
     String pluralName() default "";
 
+    String parent() default "";
+
+    Class<?> parentClass() default Void.class;
+
     boolean create() default false;
 
     boolean update() default false;
