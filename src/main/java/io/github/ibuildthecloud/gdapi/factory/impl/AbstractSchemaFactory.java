@@ -82,5 +82,23 @@ public abstract class AbstractSchemaFactory implements SchemaFactory {
         return clz;
     }
 
+    @Override
+    public String getBaseType(String type) {
+        Schema schema = getSchema(type);
+        if ( schema == null ) {
+            return null;
+        }
+
+        while ( schema.getParent() != null ) {
+            Schema parent = getSchema(schema.getParent());
+            if ( parent == null ) {
+                return null;
+            }
+            schema = parent;
+        }
+
+        return schema.getId();
+    }
+
 
 }

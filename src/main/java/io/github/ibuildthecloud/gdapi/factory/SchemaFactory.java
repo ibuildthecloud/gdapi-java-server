@@ -29,6 +29,8 @@ public interface SchemaFactory {
 
     String getSingularName(String type);
 
+    String getBaseType(String type);
+
     Schema registerSchema(Object obj);
 
     Schema parseSchema(String name);

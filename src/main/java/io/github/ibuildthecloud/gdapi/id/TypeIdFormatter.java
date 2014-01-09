@@ -1,14 +1,19 @@
 package io.github.ibuildthecloud.gdapi.id;
 
+import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import javax.inject.Inject;
 
 public class TypeIdFormatter implements IdFormatter {
 
     private Map<String,String> typeCache = Collections.synchronizedMap(new WeakHashMap<String, String>());
 
     String globalPrefix = "1";
+    SchemaFactory schemaFactory;
 
     @Override
     public String formatId(String type, Object id) {
@@ -61,6 +66,11 @@ public class TypeIdFormatter implements IdFormatter {
     }
 
     protected String getShortType(String type) {
+        String base = schemaFactory.getBaseType(type);
+        if ( base != null ) {
+            type = base;
+        }
+
         StringBuilder buffer = new StringBuilder(globalPrefix);
         buffer.append(type.charAt(0));
         buffer.append(type.replaceAll("[a-z]+", ""));
@@ -69,5 +79,14 @@ public class TypeIdFormatter implements IdFormatter {
         typeCache.put(type, result);
 
         return result;
+    }
+
+    public SchemaFactory getSchemaFactory() {
+        return schemaFactory;
+    }
+
+    @Inject
+    public void setSchemaFactory(SchemaFactory schemaFactory) {
+        this.schemaFactory = schemaFactory;
     }
 }

@@ -21,7 +21,9 @@ public enum ConditionType {
         ConditionType.LT,
         ConditionType.LTE,
         ConditionType.GT,
-        ConditionType.GTE
+        ConditionType.GTE,
+        ConditionType.NULL,
+        ConditionType.NOTNULL
     };
 
     public static final ConditionType[] STRING_MODS = new ConditionType[] {
@@ -29,12 +31,16 @@ public enum ConditionType {
         ConditionType.NE,
         ConditionType.PREFIX,
         ConditionType.LIKE,
-        ConditionType.NOTLIKE
+        ConditionType.NOTLIKE,
+        ConditionType.NULL,
+        ConditionType.NOTNULL
     };
 
     public static final ConditionType[] VALUE_MODS = new ConditionType[] {
         ConditionType.EQ,
         ConditionType.NE,
+        ConditionType.NULL,
+        ConditionType.NOTNULL
     };
 
     private String externalForm;
