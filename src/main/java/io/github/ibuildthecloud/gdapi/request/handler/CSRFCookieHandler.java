@@ -2,7 +2,6 @@ package io.github.ibuildthecloud.gdapi.request.handler;
 
 import io.github.ibuildthecloud.gdapi.exception.ClientVisibleException;
 import io.github.ibuildthecloud.gdapi.model.Schema.Method;
-import io.github.ibuildthecloud.gdapi.model.impl.ErrorImpl;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.util.RequestUtils;
 import io.github.ibuildthecloud.gdapi.util.ResponseCodes;
