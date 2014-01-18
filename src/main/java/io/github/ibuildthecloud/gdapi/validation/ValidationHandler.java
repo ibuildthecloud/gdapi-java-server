@@ -49,7 +49,7 @@ public class ValidationHandler extends AbstractApiRequestHandler {
     @Override
     public void handle(ApiRequest request) throws IOException {
         ValidationContext context = new ValidationContext();
-        context.schemaFactory = ApiContext.getContext().getSchemaFactory();
+        context.schemaFactory = request.getSchemaFactory();
         context.idFormatter = ApiContext.getContext().getIdFormatter();
         context.schema = context.schemaFactory.getSchema(request.getType());
 
@@ -240,7 +240,12 @@ public class ValidationHandler extends AbstractApiRequestHandler {
             }
         }
 
-        return id;
+        try {
+            /* Attempt to convert to long */
+            return new Long(id);
+        } catch ( NumberFormatException nfe ) {
+            return id;
+        }
     }
 
     protected Object convertGenericType(String fieldName, Object value, FieldType type) {

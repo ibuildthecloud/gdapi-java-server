@@ -26,6 +26,7 @@ public class CollectionImpl implements Collection {
     Pagination pagination;
     Sort sort;
     Map<String, List<Condition>> filters = new HashMap<String, List<Condition>>();
+    Map<String, Object> createDefaults = new HashMap<String, Object>();
 
     @Override
     public String getType() {
@@ -122,6 +123,15 @@ public class CollectionImpl implements Collection {
 
     public void setFilters(Map<String, List<Condition>> filters) {
         this.filters = filters;
+    }
+
+    @Override
+    public Map<String, Object> getCreateDefaults() {
+        return createDefaults;
+    }
+
+    public void setCreateDefaults(Map<String, Object> createDefaults) {
+        this.createDefaults = createDefaults;
     }
 
 }

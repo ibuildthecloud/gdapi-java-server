@@ -1,6 +1,5 @@
 package io.github.ibuildthecloud.gdapi.request.handler;
 
-import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.model.ListOptions;
 import io.github.ibuildthecloud.gdapi.model.Schema.Method;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
@@ -14,7 +13,6 @@ import javax.inject.Inject;
 
 public class ResourceManagerRequestHandler extends AbstractResponseGenerator {
 
-    SchemaFactory schemaFactory;
     ResourceManagerLocator resourceManagerLocator;
 
     @Override
@@ -69,15 +67,6 @@ public class ResourceManagerRequestHandler extends AbstractResponseGenerator {
         }
 
         return manager.handleException(e, request);
-    }
-
-    public SchemaFactory getSchemaFactory() {
-        return schemaFactory;
-    }
-
-    @Inject
-    public void setSchemaFactory(SchemaFactory schemaFactory) {
-        this.schemaFactory = schemaFactory;
     }
 
     public ResourceManagerLocator getResourceManagerLocator() {

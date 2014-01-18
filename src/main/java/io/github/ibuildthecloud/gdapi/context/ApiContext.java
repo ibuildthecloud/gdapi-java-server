@@ -14,7 +14,6 @@ public class ApiContext {
 
     ApiRequest apiRequest;
     IdFormatter idFormatter = new IdentityFormatter();
-    SchemaFactory schemaFactory;
     Object policy;
 
     protected ApiContext() {
@@ -23,6 +22,10 @@ public class ApiContext {
 
     public static ApiContext getContext() {
         return TL.get();
+    }
+
+    public static SchemaFactory getSchemaFactory() {
+        return getContext().getApiRequest().getSchemaFactory();
     }
 
     public static ApiContext newContext() {
@@ -40,7 +43,7 @@ public class ApiContext {
         if ( context != null ) {
             UrlBuilder writer = context.getApiRequest().getUrlBuilder();
             if ( writer == null ) {
-                writer = new DefaultUrlBuilder(context.getApiRequest(), context.getSchemaFactory());
+                writer = new DefaultUrlBuilder(context.getApiRequest(), ApiContext.getSchemaFactory());
                 context.getApiRequest().setUrlBuilder(writer);
             }
             return writer;
@@ -54,14 +57,6 @@ public class ApiContext {
 
     public void setApiRequest(ApiRequest apiRequest) {
         this.apiRequest = apiRequest;
-    }
-
-    public SchemaFactory getSchemaFactory() {
-        return schemaFactory;
-    }
-
-    public void setSchemaFactory(SchemaFactory schemaFactory) {
-        this.schemaFactory = schemaFactory;
     }
 
     public Object getPolicy() {

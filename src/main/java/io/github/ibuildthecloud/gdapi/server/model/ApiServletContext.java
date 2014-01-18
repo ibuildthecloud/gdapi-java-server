@@ -4,13 +4,13 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class RequestServletContext {
+public class ApiServletContext {
 
     HttpServletRequest request;
     HttpServletResponse response;
     FilterChain filterChain;
 
-    public RequestServletContext(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+    public ApiServletContext(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
         super();
         this.request = request;
         this.response = response;

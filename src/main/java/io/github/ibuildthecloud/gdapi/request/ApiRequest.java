@@ -1,9 +1,10 @@
 package io.github.ibuildthecloud.gdapi.request;
 
 import io.github.ibuildthecloud.gdapi.condition.Condition;
+import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.model.Include;
 import io.github.ibuildthecloud.gdapi.model.Sort;
-import io.github.ibuildthecloud.gdapi.server.model.RequestServletContext;
+import io.github.ibuildthecloud.gdapi.server.model.ApiServletContext;
 import io.github.ibuildthecloud.gdapi.util.ProxyUtils;
 import io.github.ibuildthecloud.gdapi.util.RequestUtils;
 import io.github.ibuildthecloud.model.Pagination;
@@ -12,6 +13,7 @@ import io.github.ibuildthecloud.url.UrlBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,7 +35,7 @@ public class ApiRequest {
     String requestPath;
     boolean commited = false;
     int responseCode = HttpServletResponse.SC_OK;
-    RequestServletContext requestServletContext;
+    ApiServletContext apiServletContext;
     Object responseObject;
     Object requestObject;
     Object requestBodyObject;
@@ -51,19 +53,23 @@ public class ApiRequest {
     Pagination pagination;
     Include include;
     Map<Object,Object> attributes = new HashMap<Object, Object>();
+    SchemaFactory schemaFactory;
+    Map<String,Object> createDefaults = new HashMap<String, Object>();
+    List<Throwable> exceptions = new ArrayList<Throwable>();
 
-    public ApiRequest(String apiVersion, RequestServletContext requestServletContext) {
+    public ApiRequest(String apiVersion, ApiServletContext requestServletContext, SchemaFactory schemaFactory) {
         super();
         this.apiVersion = apiVersion;
-        this.requestServletContext = requestServletContext;
+        this.apiServletContext = requestServletContext;
         this.locale = requestServletContext.getRequest().getLocale();
+        this.schemaFactory = schemaFactory;
     }
 
     public InputStream getInputStream() throws IOException {
-        if ( requestServletContext == null ) {
+        if ( apiServletContext == null ) {
             return null;
         }
-        return requestServletContext.getRequest().getInputStream();
+        return apiServletContext.getRequest().getInputStream();
     }
 
     public OutputStream getOutputStream() throws IOException {
@@ -72,7 +78,7 @@ public class ApiRequest {
         }
         commit();
         commited = true;
-        return requestServletContext.getResponse().getOutputStream();
+        return apiServletContext.getResponse().getOutputStream();
     }
 
     public <T> T proxyRequestObject(Class<T> type) {
@@ -220,12 +226,12 @@ public class ApiRequest {
         this.queryString = queryString;
     }
 
-    public RequestServletContext getRequestServletContext() {
-        return requestServletContext;
+    public ApiServletContext getServletContext() {
+        return apiServletContext;
     }
 
-    public void setRequestServletContext(RequestServletContext requestServletContext) {
-        this.requestServletContext = requestServletContext;
+    public void setRequestServletContext(ApiServletContext requestServletContext) {
+        this.apiServletContext = requestServletContext;
     }
 
     public long getStartTime() {
@@ -243,9 +249,9 @@ public class ApiRequest {
     public void commit() {
         if ( ! commited ) {
             if ( responseContentType != null ) {
-                requestServletContext.getResponse().setHeader("Content-Type", responseContentType);
+                apiServletContext.getResponse().setHeader("Content-Type", responseContentType);
             }
-            requestServletContext.getResponse().setStatus(responseCode);
+            apiServletContext.getResponse().setStatus(responseCode);
         }
     }
 
@@ -312,4 +318,25 @@ public class ApiRequest {
     public void setAttribute(Object key, Object value) {
         this.attributes.put(key, value);
     }
+
+    public SchemaFactory getSchemaFactory() {
+        return schemaFactory;
+    }
+
+    public void setSchemaFactory(SchemaFactory schemaFactory) {
+        this.schemaFactory = schemaFactory;
+    }
+
+    public Map<String, Object> getCreateDefaults() {
+        return createDefaults;
+    }
+
+    public void setCreateDefaults(Map<String, Object> createDefaults) {
+        this.createDefaults = createDefaults;
+    }
+
+    public List<Throwable> getExceptions() {
+        return exceptions;
+    }
+
 }

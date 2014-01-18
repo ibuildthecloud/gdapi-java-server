@@ -21,7 +21,6 @@ import javax.inject.Inject;
 public class JsonResponseWriter extends AbstractApiRequestHandler {
 
     JsonMapper jsonMapper;
-    SchemaFactory schemaFactory;
     boolean chunked = false;
 
     @Override
@@ -46,7 +45,7 @@ public class JsonResponseWriter extends AbstractApiRequestHandler {
 
         if ( ! chunked ) {
             byte[] bytes = baos.toByteArray();
-            request.getRequestServletContext().getResponse().setContentLength(bytes.length);
+            request.getServletContext().getResponse().setContentLength(bytes.length);
             os.write(bytes);
             os.flush();
         }
@@ -69,7 +68,7 @@ public class JsonResponseWriter extends AbstractApiRequestHandler {
             return object;
         }
 
-        return createResource(object);
+        return createResource(request.getSchemaFactory(), object);
     }
 
     protected Collection createCollection(List<?> list, ApiRequest request) {
@@ -77,7 +76,7 @@ public class JsonResponseWriter extends AbstractApiRequestHandler {
         collection.setResourceType(request.getType());
 
         for ( Object obj : list ) {
-            Resource resource = createResource(obj);
+            Resource resource = createResource(request.getSchemaFactory(), obj);
             if ( resource != null ) {
                 collection.getData().add(resource);
                 if ( collection.getResourceType() == null ) {
@@ -89,7 +88,7 @@ public class JsonResponseWriter extends AbstractApiRequestHandler {
         return collection;
     }
 
-    protected Resource createResource(Object obj) {
+    protected Resource createResource(SchemaFactory schemaFactory, Object obj) {
         if ( obj == null )
             return null;
 
@@ -111,15 +110,6 @@ public class JsonResponseWriter extends AbstractApiRequestHandler {
     @Inject
     public void setJsonMapper(JsonMapper jsonMapper) {
         this.jsonMapper = jsonMapper;
-    }
-
-    public SchemaFactory getSchemaFactory() {
-        return schemaFactory;
-    }
-
-    @Inject
-    public void setSchemaFactory(SchemaFactory schemaFactory) {
-        this.schemaFactory = schemaFactory;
     }
 
     public boolean isChunked() {

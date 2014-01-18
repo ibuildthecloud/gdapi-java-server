@@ -1,6 +1,5 @@
 package io.github.ibuildthecloud.gdapi.request.resource.impl;
 
-import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.request.resource.ResourceManager;
 import io.github.ibuildthecloud.gdapi.request.resource.ResourceManagerFilter;
@@ -11,11 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Inject;
-
 public abstract class AbstractResourceManagerLocatorImpl implements ResourceManagerLocator {
 
-    SchemaFactory schemaFactory;
     Map<Object, ResourceManager> cached = new ConcurrentHashMap<Object, ResourceManager>();
 
     @Override
@@ -24,11 +20,6 @@ public abstract class AbstractResourceManagerLocatorImpl implements ResourceMana
             return null;
 
         return getResourceManagerByType(request.getType());
-    }
-
-    @Override
-    public String getType(Class<?> type) {
-        return schemaFactory.getSchemaName(type);
     }
 
     protected abstract ResourceManager getDefaultResourceManager();
@@ -86,15 +77,6 @@ public abstract class AbstractResourceManagerLocatorImpl implements ResourceMana
         }
 
         list.add(filter);
-    }
-
-    public SchemaFactory getSchemaFactory() {
-        return schemaFactory;
-    }
-
-    @Inject
-    public void setSchemaFactory(SchemaFactory schemaFactory) {
-        this.schemaFactory = schemaFactory;
     }
 
 }

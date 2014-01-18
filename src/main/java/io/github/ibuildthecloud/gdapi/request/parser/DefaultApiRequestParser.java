@@ -1,7 +1,6 @@
 package io.github.ibuildthecloud.gdapi.request.parser;
 
 import io.github.ibuildthecloud.gdapi.exception.ClientVisibleException;
-import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.util.RequestUtils;
@@ -21,7 +20,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
@@ -46,11 +44,10 @@ public class DefaultApiRequestParser implements ApiRequestParser {
     String overrideUrlHeader = DEFAULT_OVERRIDE_URL_HEADER;
     String overrideClientIpHeader = DEFAULT_OVERRIDE_CLIENT_IP_HEADER;
     Set<String> allowedFormats;
-    SchemaFactory schemaFactory;
 
     @Override
     public boolean parse(ApiRequest apiRequest) throws IOException {
-        HttpServletRequest request = apiRequest.getRequestServletContext().getRequest();
+        HttpServletRequest request = apiRequest.getServletContext().getRequest();
 
         apiRequest.setLocale(getLocale(apiRequest, request));
         apiRequest.setMethod(parseMethod(apiRequest, request));
@@ -249,7 +246,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
         if ( StringUtils.isBlank(typeName) ) {
             return;
         } else {
-            String singleType = schemaFactory.getSingularName(typeName);
+            String singleType = apiRequest.getSchemaFactory().getSingularName(typeName);
             apiRequest.setType(singleType == null ? typeName : singleType);
         }
 
@@ -296,15 +293,6 @@ public class DefaultApiRequestParser implements ApiRequestParser {
 
     public void setAllowedFormats(Set<String> allowedFormats) {
         this.allowedFormats = allowedFormats;
-    }
-
-    public SchemaFactory getSchemaFactory() {
-        return schemaFactory;
-    }
-
-    @Inject
-    public void setSchemaFactory(SchemaFactory schemaFactory) {
-        this.schemaFactory = schemaFactory;
     }
 
 }

@@ -43,13 +43,17 @@ public class TypeIdFormatter implements IdFormatter {
         if ( id == null || id.length() == 0 )
             return null;
 
+        if ( Character.isLetter(id.charAt(0)) && ! id.startsWith(globalPrefix) ) {
+            return id;
+        }
+
         if ( ! id.startsWith(globalPrefix) ) {
             return null;
         }
 
         id = id.substring(globalPrefix.length());
 
-        if ( ! Character.isLetter(id.charAt(0)) ) {
+        if ( id.length() == 0 || ! Character.isLetter(id.charAt(0)) ) {
             return null;
         }
 

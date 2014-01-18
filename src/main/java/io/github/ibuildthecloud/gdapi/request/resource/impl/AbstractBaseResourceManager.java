@@ -39,7 +39,6 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
 
     Map<String,Map<String,String>> linksCache = Collections.synchronizedMap(new WeakHashMap<String,Map<String,String>>());
     Set<Class<?>> resourcesToCreate = new HashSet<Class<?>>();
-    protected SchemaFactory schemaFactory;
     protected ResourceManagerLocator locator;
 
     protected Object authorize(Object object) {
@@ -56,10 +55,10 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
     }
 
     protected Object getByIdInternal(String type, String id, ListOptions options) {
-        Map<Object,Object> criteria = getDefaultCriteria(true);
+        Map<Object,Object> criteria = getDefaultCriteria(true, type);
         criteria.put(TypeUtils.ID_FIELD, id);
 
-        return getFirstFromList(listInternal(type, criteria, options));
+        return getFirstFromList(listInternal(ApiContext.getSchemaFactory(), type, criteria, options));
     }
 
     @Override
@@ -69,18 +68,21 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
 
     protected Object listInternal(String type, ApiRequest request) {
         Map<Object,Object> criteria = new LinkedHashMap<Object, Object>(request.getConditions());
-        criteria.putAll(getDefaultCriteria(false));
-        return listInternal(type, criteria, new ListOptions(request));
+        criteria.putAll(getDefaultCriteria(false, type));
+        return listInternal(request.getSchemaFactory(), type, criteria, new ListOptions(request));
     }
 
     @Override
     public final List<?> list(String type, Map<Object, Object> criteria, ListOptions options) {
-        criteria.putAll(getDefaultCriteria(false));
-        Object result = authorize(listInternal(type, criteria, options));
+        if ( criteria == null ) {
+            criteria = new LinkedHashMap<Object, Object>();
+        }
+        criteria.putAll(getDefaultCriteria(false, type));
+        Object result = authorize(listInternal(ApiContext.getSchemaFactory(), type, criteria, options));
         return RequestUtils.toList(result);
     }
 
-    protected abstract Object listInternal(String type, Map<Object, Object> criteria, ListOptions options);
+    protected abstract Object listInternal(SchemaFactory schemaFactory, String type, Map<Object, Object> criteria, ListOptions options);
 
     @Override
     public final Object create(String type, ApiRequest request) {
@@ -121,7 +123,7 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
 
     protected abstract Object getLinkInternal(String type, String id, String link, ApiRequest request);
 
-    protected Map<Object,Object> getDefaultCriteria(boolean byId) {
+    protected Map<Object,Object> getDefaultCriteria(boolean byId, String type) {
         return new HashMap<Object, Object>();
     }
 
@@ -166,6 +168,8 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
             collection.setResourceType(getCollectionType(list, request));
         }
 
+        collection.setCreateDefaults(request.getCreateDefaults());
+
         IdFormatter formatter = ApiContext.getContext().getIdFormatter();
 
         addSort(collection, request);
@@ -190,7 +194,7 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
     }
 
     protected void addFilters(CollectionImpl collection, ApiRequest request) {
-        Schema schema = schemaFactory.getSchema(collection.getResourceType());
+        Schema schema = request.getSchemaFactory().getSchema(collection.getResourceType());
         Map<String,List<Condition>> conditions = new TreeMap<String, List<Condition>>(request.getConditions());
         for ( String key : schema.getCollectionFilters().keySet() ) {
             if ( ! conditions.containsKey(key) ) {
@@ -236,7 +240,7 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
 
     protected void addSort(CollectionImpl collection, ApiRequest request) {
         UrlBuilder urlBuilder = ApiContext.getUrlBuilder();
-        Set<String> sortLinks = getSortLinks(schemaFactory, collection.getResourceType());
+        Set<String> sortLinks = getSortLinks(request.getSchemaFactory(), collection.getResourceType());
         Map<String,URL> sortLinkMap = new TreeMap<String,URL>();
         for ( String sortLink : sortLinks ) {
             URL sortUrl = urlBuilder.sort(sortLink);
@@ -276,31 +280,33 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
         if ( obj instanceof Resource )
             return (Resource)obj;
 
+        SchemaFactory schemaFactory = apiRequest == null ? ApiContext.getSchemaFactory() : apiRequest.getSchemaFactory();
+
         if ( resourcesToCreate.size() > 0 && ! resourcesToCreate.contains(obj.getClass()) ) {
-            String type = locator.getType(obj.getClass());
+            String type = schemaFactory.getSchemaName(obj.getClass());
             ResourceManager rm = locator.getResourceManagerByType(type);
             if ( rm != null ) {
                 return rm.convertResponse(obj, apiRequest);
             }
         }
 
-        Schema schema = getSchemaForDisplay(obj);
+        Schema schema = getSchemaForDisplay(schemaFactory, obj);
         if ( schema == null ) {
             return null;
         }
 
-        Resource resource = constructResource(idFormatter, schema, obj);
-        addLinks(obj, schema, resource);
-        addActions(obj, schema, resource);
+        Resource resource = constructResource(idFormatter, schemaFactory, schema, obj);
+        addLinks(obj, schemaFactory, schema, resource);
+        addActions(obj, schemaFactory, schema, resource);
 
         return resource;
     }
 
-    protected Schema getSchemaForDisplay(Object obj) {
+    protected Schema getSchemaForDisplay(SchemaFactory schemaFactory, Object obj) {
         return schemaFactory.getSchema(obj.getClass());
     }
 
-    protected void addActions(Object obj, Schema schema, Resource resource) {
+    protected void addActions(Object obj, SchemaFactory schemaFactory, Schema schema, Resource resource) {
         Map<String,Action> actions = schema.getResourceActions();
 
         if ( actions == null || actions.size() == 0 ) {
@@ -314,14 +320,14 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
         }
     }
 
-    protected Resource constructResource(IdFormatter idFormatter, Schema schema, Object obj) {
+    protected Resource constructResource(IdFormatter idFormatter, SchemaFactory schemaFactory, Schema schema, Object obj) {
         return new WrappedResource(idFormatter, schema, obj);
     }
 
-    protected void addLinks(Object obj, Schema schema, Resource resource) {
+    protected void addLinks(Object obj, SchemaFactory schemaFactory, Schema schema, Resource resource) {
         Map<String,URL> links = resource.getLinks();
 
-        for ( Map.Entry<String,String> entry : getLinks(resource).entrySet() ) {
+        for ( Map.Entry<String,String> entry : getLinks(schemaFactory, resource).entrySet() ) {
             String linkName = entry.getKey();
             String propName = entry.getValue();
 
@@ -338,7 +344,7 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
         }
     }
 
-    protected Map<String, String> getLinks(Resource resource) {
+    protected Map<String, String> getLinks(SchemaFactory schemaFactory, Resource resource) {
         return new HashMap<String, String>();
     }
 
@@ -384,15 +390,6 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
     }
 
     protected abstract Object collectionActionInternal(Object resources, ApiRequest request);
-
-    public SchemaFactory getSchemaFactory() {
-        return schemaFactory;
-    }
-
-    @Inject
-    public void setSchemaFactory(SchemaFactory schemaFactory) {
-        this.schemaFactory = schemaFactory;
-    }
 
     public ResourceManagerLocator getLocator() {
         return locator;

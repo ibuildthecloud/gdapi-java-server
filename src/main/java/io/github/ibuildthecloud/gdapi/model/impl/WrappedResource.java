@@ -22,12 +22,14 @@ public class WrappedResource extends ResourceImpl implements Resource {
     Object obj;
     Map<String, Object> fields = new LinkedHashMap<String, Object>();
     Map<String, Object> additionalFields;
+    Map<String, Field> resourceFields;
     boolean createTsFields = true;
     IdFormatter idFormatter;
 
     public WrappedResource(IdFormatter idFormatter, Schema schema, Object obj, Map<String, Object> additionalFields) {
         super();
         this.schema = schema;
+        this.resourceFields = schema.getResourceFields();
         this.obj = obj;
         this.idFormatter = idFormatter;
         this.additionalFields = additionalFields;
@@ -39,7 +41,7 @@ public class WrappedResource extends ResourceImpl implements Resource {
     }
 
     protected void init() {
-        for ( Map.Entry<String,Field> entry : schema.getResourceFields().entrySet() ) {
+        for ( Map.Entry<String,Field> entry : resourceFields.entrySet() ) {
             String name = entry.getKey();
             if ( name.equals(TypeUtils.ID_FIELD) ) {
                 continue;
@@ -59,7 +61,9 @@ public class WrappedResource extends ResourceImpl implements Resource {
         }
 
         for ( Map.Entry<String, Object> entry : additionalFields.entrySet() ) {
-            fields.put(entry.getKey(), entry.getValue());
+            String key = entry.getKey();
+            if ( resourceFields.containsKey(key) )
+                fields.put(key, entry.getValue());
         }
 
         setId(idFormatter.formatId(getType(), getIdValue()));

@@ -3,7 +3,6 @@ package io.github.ibuildthecloud.gdapi.request.handler;
 import io.github.ibuildthecloud.gdapi.condition.Condition;
 import io.github.ibuildthecloud.gdapi.condition.ConditionType;
 import io.github.ibuildthecloud.gdapi.context.ApiContext;
-import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.id.IdFormatter;
 import io.github.ibuildthecloud.gdapi.model.Collection;
 import io.github.ibuildthecloud.gdapi.model.Field;
@@ -24,12 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.inject.Inject;
-
 public class ParseCollectionAttributes extends AbstractApiRequestHandler {
 
-    SchemaFactory schemaFactory;
-    Integer defaultLimit = 1000;
+    Integer defaultLimit = 100;
+    Integer maxLimit = 1000;
 
     @Override
     public void handle(ApiRequest request) throws IOException {
@@ -37,7 +34,7 @@ public class ParseCollectionAttributes extends AbstractApiRequestHandler {
             return;
         }
 
-        Schema schema = schemaFactory.getSchema(request.getType());
+        Schema schema = request.getSchemaFactory().getSchema(request.getType());
         if ( schema == null ) {
             return;
         }
@@ -60,6 +57,7 @@ public class ParseCollectionAttributes extends AbstractApiRequestHandler {
             request.setInclude(new Include(links));
         }
     }
+
     protected void parseFilters(Schema schema, Map<String,Object> params, ApiRequest request) {
         IdFormatter formatter = ApiContext.getContext().getIdFormatter();
         Map<String,Filter> filters = schema.getCollectionFilters();
@@ -125,26 +123,22 @@ public class ParseCollectionAttributes extends AbstractApiRequestHandler {
     protected void parsePagination(Schema schema, Map<String,Object> params, ApiRequest request) {
         String limit = RequestUtils.getSingularStringValue(Collection.LIMIT, params);
         String marker = RequestUtils.getSingularStringValue(Collection.MARKER, params);
-        Pagination pagination = new Pagination(defaultLimit);
+        Pagination pagination = new Pagination(defaultLimit == null ? maxLimit : defaultLimit);
         pagination.setMarker(marker);
 
         try {
             if ( limit != null ) {
-                pagination.setLimit(new Integer(limit));
+                Integer limitInt = new Integer(limit);
+                if ( maxLimit != null && limitInt.intValue() > maxLimit.intValue() ) {
+                    limitInt = maxLimit;
+                }
+                pagination.setLimit(limitInt);
             }
         } catch (NumberFormatException e) {
             //ignore
         }
+
         request.setPagination(pagination);
-    }
-
-    public SchemaFactory getSchemaFactory() {
-        return schemaFactory;
-    }
-
-    @Inject
-    public void setSchemaFactory(SchemaFactory schemaFactory) {
-        this.schemaFactory = schemaFactory;
     }
 
     public Integer getDefaultLimit() {
@@ -153,6 +147,14 @@ public class ParseCollectionAttributes extends AbstractApiRequestHandler {
 
     public void setDefaultLimit(Integer defaultLimit) {
         this.defaultLimit = defaultLimit;
+    }
+
+    public Integer getMaxLimit() {
+        return maxLimit;
+    }
+
+    public void setMaxLimit(Integer maxLimit) {
+        this.maxLimit = maxLimit;
     }
 
     private static final class NameAndOp {
@@ -180,4 +182,5 @@ public class ParseCollectionAttributes extends AbstractApiRequestHandler {
 
 
     }
+
 }

@@ -8,14 +8,12 @@ import io.github.ibuildthecloud.gdapi.util.ResponseCodes;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
-
 public class SchemasHandler extends AbstractResponseGenerator {
-
-    SchemaFactory schemaFactory;
 
     @Override
     protected void generate(ApiRequest request) throws IOException {
+        SchemaFactory schemaFactory = request.getSchemaFactory();
+
         if ( ! schemaFactory.typeStringMatches(Schema.class, request.getType()) )
             return;
 
@@ -28,15 +26,6 @@ public class SchemasHandler extends AbstractResponseGenerator {
             }
             request.setResponseObject(lookup);
         }
-    }
-
-    public SchemaFactory getSchemaFactory() {
-        return schemaFactory;
-    }
-
-    @Inject
-    public void setSchemaFactory(SchemaFactory schemaFactory) {
-        this.schemaFactory = schemaFactory;
     }
 
 }

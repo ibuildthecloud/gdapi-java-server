@@ -21,6 +21,9 @@ public class ResourceManagerLocatorImpl extends AbstractResourceManagerLocatorIm
     Map<String, List<ResourceManagerFilter>> resourceManagerFiltersByType = new LinkedHashMap<String, List<ResourceManagerFilter>>();
     Map<String, ResourceManager> resourceManagersByType = new LinkedHashMap<String, ResourceManager>();
 
+    /* Should not be used at runtime, just for startup */
+    SchemaFactory schemaFactory;
+
     @PostConstruct
     public void init() {
         resourceManagersByType.clear();
@@ -80,17 +83,6 @@ public class ResourceManagerLocatorImpl extends AbstractResourceManagerLocatorIm
         this.defaultResourceManager = defaultResourceManager;
     }
 
-    @Override
-    public SchemaFactory getSchemaFactory() {
-        return schemaFactory;
-    }
-
-    @Override
-    @Inject
-    public void setSchemaFactory(SchemaFactory schemaFactory) {
-        this.schemaFactory = schemaFactory;
-    }
-
     public List<ResourceManagerFilter> getResourceManagerFilters() {
         return resourceManagerFilters;
     }
@@ -107,6 +99,15 @@ public class ResourceManagerLocatorImpl extends AbstractResourceManagerLocatorIm
     @Inject
     public void setResourceManagers(List<ResourceManager> resourceManagers) {
         this.resourceManagers = resourceManagers;
+    }
+
+    public SchemaFactory getSchemaFactory() {
+        return schemaFactory;
+    }
+
+    @Inject
+    public void setSchemaFactory(SchemaFactory schemaFactory) {
+        this.schemaFactory = schemaFactory;
     }
 
 }

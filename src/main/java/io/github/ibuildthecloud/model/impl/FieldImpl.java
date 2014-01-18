@@ -47,6 +47,7 @@ public class FieldImpl implements Field {
         this.displayIndex = field.getDisplayIndex();
         if ( field instanceof FieldImpl ) {
             this.readMethod = ((FieldImpl)field).getReadMethod();
+            this.defaultIsNull = ((FieldImpl)field).isDefaultIsNull();
         }
 
         setType(field.getType());
@@ -253,7 +254,13 @@ public class FieldImpl implements Field {
 
     @Override
     public String toString() {
-        return name == null ? super.toString() : name;
+        return "FieldImpl [name=" + name + ", type=" + type + ", validChars=" + validChars + ", invalidChars="
+                + invalidChars + ", displayIndex=" + displayIndex + ", create=" + create + ", update=" + update
+                + ", includeInList=" + includeInList + ", nullable=" + nullable + ", unique=" + unique + ", required="
+                + required + ", defaultIsNull=" + defaultIsNull + ", typeEnum=" + typeEnum + ", subTypeEnums="
+                + subTypeEnums + ", subTypes=" + subTypes + ", min=" + min + ", max=" + max + ", minLength="
+                + minLength + ", maxLength=" + maxLength + ", defaultValue=" + defaultValue + ", options=" + options
+                + ", readMethod=" + readMethod + "]";
     }
 
     public void setSubTypesList(List<TypeAndName> subTypes) {

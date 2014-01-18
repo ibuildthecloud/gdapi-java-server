@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Type(list = false)
-public interface Collection {
+public interface Collection extends ApiStandardType {
 
     public static final String SORT = "sort";
     public static final String ORDER = "order";
@@ -30,6 +30,8 @@ public interface Collection {
     Map<String,URL> getActions();
 
     Map<String,URL> getSortLinks();
+
+    Map<String,Object> getCreateDefaults();
 
     Pagination getPagination();
 

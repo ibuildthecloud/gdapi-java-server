@@ -7,7 +7,7 @@ import java.net.URL;
 import java.util.Map;
 
 @Type(list = false)
-public interface Resource {
+public interface Resource extends ApiStandardType {
 
     public static final String ACTION = "action";
 

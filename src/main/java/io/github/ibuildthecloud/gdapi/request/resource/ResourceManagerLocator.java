@@ -8,6 +8,4 @@ public interface ResourceManagerLocator {
 
     ResourceManager getResourceManagerByType(String type);
 
-    String getType(Class<?> type);
-
 }

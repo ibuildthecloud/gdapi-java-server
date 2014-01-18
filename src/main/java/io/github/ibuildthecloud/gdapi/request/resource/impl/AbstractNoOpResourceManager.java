@@ -1,5 +1,6 @@
 package io.github.ibuildthecloud.gdapi.request.resource.impl;
 
+import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.model.ListOptions;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 
@@ -13,7 +14,7 @@ public abstract class AbstractNoOpResourceManager extends AbstractBaseResourceMa
     }
 
     @Override
-    protected Object listInternal(String type, Map<Object, Object> criteria, ListOptions options) {
+    protected Object listInternal(SchemaFactory schemaFactory, String type, Map<Object, Object> criteria, ListOptions options) {
         return null;
     }
 

@@ -4,6 +4,7 @@
 <link rel="stylesheet" type="text/css" href="%CSS%" />
 <script src="%JS%"></script>
 <script>
+var user = "%USER%";
 var curlUser='${DSTACK_ACCESS_KEY}:${DSTACK_SECRET_KEY}';
 var schemas="%SCHEMAS%";
 //var docs = "http://url-to-your-docs/site";

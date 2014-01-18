@@ -7,6 +7,8 @@ import io.github.ibuildthecloud.gdapi.model.Schema;
 
 public interface SchemaFactory {
 
+    static final String BASE_SCHEMA = "base";
+
     String getId();
 
     List<Schema> listSchemas();

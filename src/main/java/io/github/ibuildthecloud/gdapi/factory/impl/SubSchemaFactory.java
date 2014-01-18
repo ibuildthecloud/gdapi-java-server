@@ -1,23 +1,26 @@
 package io.github.ibuildthecloud.gdapi.factory.impl;
 
+import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
+import io.github.ibuildthecloud.gdapi.model.Field;
+import io.github.ibuildthecloud.gdapi.model.FieldType;
+import io.github.ibuildthecloud.gdapi.model.Filter;
+import io.github.ibuildthecloud.gdapi.model.Schema;
+import io.github.ibuildthecloud.model.impl.SchemaImpl;
+
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
-import io.github.ibuildthecloud.gdapi.model.Schema;
-import io.github.ibuildthecloud.model.impl.SchemaImpl;
-
-public class SubSchemaFactory extends AbstractSchemaFactory implements SchemaFactory, SchemaPostProcessor {
+public class SubSchemaFactory extends AbstractSchemaFactory implements SchemaFactory {
     SchemaFactory schemaFactory;
     String id;
     Map<String,Schema> schemaMap;
     List<SchemaImpl> schemaList = new ArrayList<SchemaImpl>();
     List<SchemaPostProcessor> postProcessors = new ArrayList<SchemaPostProcessor>();
-    List<SchemaPostProcessor> additionalPostProcessors = new ArrayList<SchemaPostProcessor>();
     boolean init = false;
 
     public synchronized void init() {
@@ -25,25 +28,31 @@ public class SubSchemaFactory extends AbstractSchemaFactory implements SchemaFac
             return;
         }
 
+        schemaMap = new HashMap<String, Schema>();
+
         if ( schemaFactory instanceof SubSchemaFactory ) {
             ((SubSchemaFactory)schemaFactory).init();
         }
 
-        List<SchemaPostProcessor> postProcessors = getAllPostProcessors();
         List<SchemaImpl> result = new ArrayList<SchemaImpl>();
 
-        Iterator<SchemaImpl> iter = schemaList.iterator();
-        outer:
-        while ( iter.hasNext() ) {
-            SchemaImpl schema = new SchemaImpl(iter.next());
-            for ( SchemaPostProcessor post : postProcessors ) {
-                if ( post.postProcessRegister(schema, this) == null) {
-                    iter.remove();
-                    break outer;
+        for ( Schema schema : schemaFactory.listSchemas() ) {
+            if ( schema instanceof SchemaImpl ) {
+                /* Copy */
+                SchemaImpl impl = new SchemaImpl((SchemaImpl)schema);
+
+                for ( SchemaPostProcessor post : postProcessors ) {
+                    impl = post.postProcessRegister(impl, this);
+                    if ( impl == null) {
+                        break;
+                    }
+                }
+
+                if ( impl != null ) {
+                    result.add(impl);
+                    schemaMap.put(impl.getId(), impl);
                 }
             }
-
-            result.add(schema);
         }
 
         schemaList = result;
@@ -54,16 +63,33 @@ public class SubSchemaFactory extends AbstractSchemaFactory implements SchemaFac
             }
         }
 
+        for ( SchemaImpl schema : schemaList ) {
+            prune(schema);
+        }
+
         init = true;
     }
 
-    public List<SchemaPostProcessor> getAllPostProcessors() {
-        List<SchemaPostProcessor> result = new ArrayList<SchemaPostProcessor>(additionalPostProcessors);
-        if ( postProcessors != null ) {
-            result.addAll(postProcessors);
-        }
+    protected void prune(SchemaImpl schema) {
+        Map<String,Field> fields = schema.getResourceFields();
+        Map<String,Filter> filters = schema.getCollectionFilters();
 
-        return result;
+        for ( String name : new HashSet<String>(fields.keySet()) ) {
+            Field field = fields.get(name);
+
+            List<FieldType> subTypeEnums = field.getSubTypeEnums();
+            List<String> subTypes = field.getSubTypes();
+
+            for ( int i = 0 ; i < subTypeEnums.size() ; i++ ) {
+                if ( subTypeEnums.get(i) == FieldType.TYPE && ! schemaMap.containsKey(subTypes.get(i)) &&
+                        ! "type".equals(subTypes.get(i))
+                        ) {
+                    fields.remove(name);
+                    filters.remove(name);
+                    break;
+                }
+            }
+        }
     }
 
     @Override
@@ -109,27 +135,8 @@ public class SubSchemaFactory extends AbstractSchemaFactory implements SchemaFac
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public SchemaImpl postProcessRegister(SchemaImpl schema, SchemaFactory factory) {
-        schemaList.add(schema);
-        return schema;
-    }
-
-    @Override
-    public SchemaImpl postProcess(SchemaImpl schema, SchemaFactory factory) {
-        return schema;
-    }
-
     public SchemaFactory getSchemaFactory() {
         return schemaFactory;
-    }
-
-    @Inject
-    public void setSchemaFactory(SchemaFactory schemaFactory) {
-        this.schemaFactory = schemaFactory;
-        if ( schemaFactory != null ) {
-            schemaFactory.addPostProcessor(this);
-        }
     }
 
     public List<SchemaPostProcessor> getPostProcessors() {
@@ -144,12 +151,9 @@ public class SubSchemaFactory extends AbstractSchemaFactory implements SchemaFac
         this.id = id;
     }
 
-    public List<SchemaPostProcessor> getPostProcessor() {
-        return additionalPostProcessors;
-    }
-
-    public void setPostProcessor(List<SchemaPostProcessor> postProcessor) {
-        this.additionalPostProcessors = postProcessor;
+    @Inject
+    public void setSchemaFactory(SchemaFactory schemaFactory) {
+        this.schemaFactory = schemaFactory;
     }
 
 }

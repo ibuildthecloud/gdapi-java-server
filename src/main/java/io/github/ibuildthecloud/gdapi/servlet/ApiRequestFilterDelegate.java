@@ -7,7 +7,7 @@ import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.request.handler.ApiRequestHandler;
 import io.github.ibuildthecloud.gdapi.request.parser.ApiRequestParser;
-import io.github.ibuildthecloud.gdapi.server.model.RequestServletContext;
+import io.github.ibuildthecloud.gdapi.server.model.ApiServletContext;
 import io.github.ibuildthecloud.gdapi.util.ExceptionUtils;
 
 import java.io.EOFException;
@@ -56,12 +56,15 @@ public class ApiRequestFilterDelegate  {
         HttpServletRequest httpRequest = (HttpServletRequest)request;
         HttpServletResponse httpResponse = (HttpServletResponse)response;
 
-        ApiRequest apiRequest = new ApiRequest(version, new RequestServletContext(httpRequest, httpResponse, chain));
+        ApiRequest apiRequest = new ApiRequest(version, new ApiServletContext(httpRequest, httpResponse, chain),
+                schemaFactory);
 
         try {
+            apiRequest.setSchemaFactory(schemaFactory);
+
             ApiContext context = ApiContext.newContext();
             context.setApiRequest(apiRequest);
-            context.setSchemaFactory(schemaFactory);
+
             if ( idFormatter != null ) {
                 context.setIdFormatter(idFormatter);
             }
@@ -88,6 +91,7 @@ public class ApiRequestFilterDelegate  {
                     }
                 } catch ( Throwable t ) {
                     currentError = t;
+                    apiRequest.getExceptions().add(t);
                     try {
                         if ( handler.handleException(apiRequest, currentError) ) {
                             currentError = null;

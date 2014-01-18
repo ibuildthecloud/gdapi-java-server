@@ -146,7 +146,7 @@ public class SchemaFactoryImpl extends AbstractSchemaFactory implements SchemaFa
         schema.getCollectionActions().putAll(getCollectionActions(clz));
 
         for ( SchemaPostProcessor processor : getSchemaPostProcessors() ) {
-            processor.postProcess(schema, this);
+            schema = processor.postProcess(schema, this);
         }
 
         return schema;

@@ -28,8 +28,8 @@ public class CSRFCookieHandler extends AbstractApiRequestHandler {
 
     @Override
     public void handle(ApiRequest request) throws IOException {
-        HttpServletRequest httpRequest = request.getRequestServletContext().getRequest();
-        HttpServletResponse response = request.getRequestServletContext().getResponse();
+        HttpServletRequest httpRequest = request.getServletContext().getRequest();
+        HttpServletResponse response = request.getServletContext().getResponse();
 
         if ( ! RequestUtils.isBrowser(httpRequest, false) ) {
             return;

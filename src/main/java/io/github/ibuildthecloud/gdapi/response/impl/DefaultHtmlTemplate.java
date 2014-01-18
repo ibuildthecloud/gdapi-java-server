@@ -27,6 +27,14 @@ public class DefaultHtmlTemplate implements HtmlTemplate {
 
     @Override
     public byte[] getHeader(ApiRequest request, Object response) {
+        try {
+            return getStringHeader(request, response).getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected String getStringHeader(ApiRequest request, Object response) {
         String result = header;
 
         URL schemaUrl = ApiContext.getUrlBuilder().resourceCollection(Schema.class);
@@ -37,7 +45,7 @@ public class DefaultHtmlTemplate implements HtmlTemplate {
         }
 
         if ( "true".equals(SettingsUtil.getSetting(settings, "api.dev", "")) ) {
-            Cookie[] cookies = request.getRequestServletContext().getRequest().getCookies();
+            Cookie[] cookies = request.getServletContext().getRequest().getCookies();
             if ( cookies != null ) {
                 for ( Cookie cookie : cookies ) {
                     if ( "js.url".equals(cookie.getName()) && ! StringUtils.isEmpty(cookie.getValue()) ) {
@@ -53,11 +61,18 @@ public class DefaultHtmlTemplate implements HtmlTemplate {
         result = result.replace("%JS%", SettingsUtil.getSetting(settings, "api.js.url", getJsUrl()));
         result = result.replace("%CSS%", SettingsUtil.getSetting(settings, "api.css.url", getCssUrl()));
 
-        try {
-            return result.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
+        String user = getUser(request, response);
+        if ( user == null ) {
+            user = "";
         }
+
+        result = result.replace("%USER%", user);
+
+        return result;
+    }
+
+    protected String getUser(ApiRequest request, Object response) {
+        return null;
     }
 
     @Override
