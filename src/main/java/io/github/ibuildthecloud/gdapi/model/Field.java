@@ -16,7 +16,7 @@ public interface Field {
     @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
     FieldType getTypeEnum();
 
-    String getDefault();
+    Object getDefault();
 
     @XmlTransient
     @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)

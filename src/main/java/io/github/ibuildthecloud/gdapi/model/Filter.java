@@ -7,6 +7,9 @@ public class Filter {
 
     List<String> modifiers;
 
+    public Filter() {
+    }
+
     public Filter(Filter other) {
         this(new ArrayList<String>(other.getModifiers()));
     }

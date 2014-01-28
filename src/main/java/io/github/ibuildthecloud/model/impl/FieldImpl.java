@@ -21,7 +21,7 @@ public class FieldImpl implements Field {
     List<FieldType> subTypeEnums;
     List<String> subTypes;
     Long min, max, minLength, maxLength;
-    String defaultValue;
+    Object defaultValue;
     List<String> options;
     Method readMethod;
 
@@ -190,7 +190,7 @@ public class FieldImpl implements Field {
     }
 
     @Override
-    public String getDefault() {
+    public Object getDefault() {
         return defaultValue;
     }
 
