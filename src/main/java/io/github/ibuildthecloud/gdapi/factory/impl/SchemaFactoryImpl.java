@@ -47,7 +47,6 @@ public class SchemaFactoryImpl extends AbstractSchemaFactory implements SchemaFa
 
     List<Schema> schemasList = new ArrayList<Schema>();
     List<SchemaPostProcessor> postProcessors = new ArrayList<SchemaPostProcessor>();
-    List<SchemaPostProcessor> additionalPostProcessors = new ArrayList<SchemaPostProcessor>();
 
     public SchemaFactoryImpl() {
         try {
@@ -70,19 +69,12 @@ public class SchemaFactoryImpl extends AbstractSchemaFactory implements SchemaFa
         return null;
     }
 
-    protected List<SchemaPostProcessor> getSchemaPostProcessors() {
-        List<SchemaPostProcessor> result = new ArrayList<SchemaPostProcessor>(additionalPostProcessors);
-        result.addAll(postProcessors);
-
-        return result;
-    }
-
     @Override
     public Schema registerSchema(Object obj) {
         Class<?> clz = obj instanceof Class<?> ? (Class<?>)obj : null;
         SchemaImpl schema = schemaFromObject(obj);
 
-        for ( SchemaPostProcessor processor : getSchemaPostProcessors() ) {
+        for ( SchemaPostProcessor processor : postProcessors ) {
             schema = processor.postProcessRegister(schema, this);
             if ( schema == null ) {
                 return null;
@@ -145,7 +137,7 @@ public class SchemaFactoryImpl extends AbstractSchemaFactory implements SchemaFa
         schema.getResourceActions().putAll(getResourceActions(clz));
         schema.getCollectionActions().putAll(getCollectionActions(clz));
 
-        for ( SchemaPostProcessor processor : getSchemaPostProcessors() ) {
+        for ( SchemaPostProcessor processor : postProcessors ) {
             schema = processor.postProcess(schema, this);
         }
 
@@ -652,11 +644,6 @@ public class SchemaFactoryImpl extends AbstractSchemaFactory implements SchemaFa
 
     protected String lower(String type) {
         return type == null ? "" : type.toLowerCase();
-    }
-
-    @Override
-    public void addPostProcessor(SchemaPostProcessor postProcessor) {
-        additionalPostProcessors.add(postProcessor);
     }
 
     public List<Class<?>> getTypes() {

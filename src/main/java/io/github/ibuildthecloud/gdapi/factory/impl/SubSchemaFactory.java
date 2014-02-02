@@ -130,11 +130,6 @@ public class SubSchemaFactory extends AbstractSchemaFactory implements SchemaFac
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public void addPostProcessor(SchemaPostProcessor postProcessor) {
-        throw new UnsupportedOperationException();
-    }
-
     public SchemaFactory getSchemaFactory() {
         return schemaFactory;
     }

@@ -11,6 +11,7 @@ public class Pagination {
     String marker = null;
     URL first, previous, next;
     Integer limit;
+    Integer collectionSize;;
     Long total;
     boolean partial = false;
 
@@ -79,6 +80,15 @@ public class Pagination {
 
     public void setMarker(String marker) {
         this.marker = marker;
+    }
+
+    @XmlTransient
+    public Integer getCollectionSize() {
+        return collectionSize;
+    }
+
+    public void setCollectionSize(Integer collectionSize) {
+        this.collectionSize = collectionSize;
     }
 
 }

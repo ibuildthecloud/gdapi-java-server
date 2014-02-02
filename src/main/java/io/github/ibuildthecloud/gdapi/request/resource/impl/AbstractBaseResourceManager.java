@@ -21,6 +21,8 @@ import io.github.ibuildthecloud.url.UrlBuilder;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,23 +65,40 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
 
     @Override
     public final Object list(String type, ApiRequest request) {
-        return authorize(listInternal(type, request));
-    }
-
-    protected Object listInternal(String type, ApiRequest request) {
-        Map<Object,Object> criteria = new LinkedHashMap<Object, Object>(request.getConditions());
-        criteria.putAll(getDefaultCriteria(false, type));
-        return listInternal(request.getSchemaFactory(), type, criteria, new ListOptions(request));
+        return list(type, new LinkedHashMap<Object, Object>(request.getConditions()), new ListOptions());
     }
 
     @Override
     public final List<?> list(String type, Map<Object, Object> criteria, ListOptions options) {
+        criteria = mergeCriteria(criteria, getDefaultCriteria(false, type));
+
+        Object result = authorize(listInternal(ApiContext.getSchemaFactory(), type, criteria, options));
+        return RequestUtils.toList(result);
+    }
+
+    protected Map<Object,Object> mergeCriteria(Map<Object,Object> criteria, Map<Object,Object> other) {
         if ( criteria == null ) {
             criteria = new LinkedHashMap<Object, Object>();
         }
-        criteria.putAll(getDefaultCriteria(false, type));
-        Object result = authorize(listInternal(ApiContext.getSchemaFactory(), type, criteria, options));
-        return RequestUtils.toList(result);
+
+        for ( Map.Entry<Object, Object> entry : other.entrySet() ) {
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            Object existing = criteria.get(key);
+
+            if ( existing instanceof List ) {
+                List<Object> newCondition = new ArrayList<Object>();
+                newCondition.add(value);
+                newCondition.addAll((List<?>)existing);
+                criteria.put(key, newCondition);
+            } else if ( existing == null ) {
+                criteria.put(key, value);
+            } else {
+                criteria.put(key, Arrays.asList(value, existing));
+            }
+        }
+
+        return criteria;
     }
 
     protected abstract Object listInternal(SchemaFactory schemaFactory, String type, Map<Object, Object> criteria, ListOptions options);

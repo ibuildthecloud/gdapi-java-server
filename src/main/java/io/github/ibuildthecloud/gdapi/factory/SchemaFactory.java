@@ -1,13 +1,10 @@
 package io.github.ibuildthecloud.gdapi.factory;
 
-import java.util.List;
-
-import io.github.ibuildthecloud.gdapi.factory.impl.SchemaPostProcessor;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 
-public interface SchemaFactory {
+import java.util.List;
 
-    static final String BASE_SCHEMA = "base";
+public interface SchemaFactory {
 
     String getId();
 
@@ -40,7 +37,5 @@ public interface SchemaFactory {
     List<String> getSchemaNames(Class<?> clz);
 
     boolean typeStringMatches(Class<?> clz, String type);
-
-    void addPostProcessor(SchemaPostProcessor postProcessor);
 
 }
