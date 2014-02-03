@@ -12,6 +12,7 @@ import io.github.ibuildthecloud.model.impl.ResourceImpl;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlTransient;
@@ -61,12 +62,29 @@ public class WrappedResource extends ResourceImpl implements Resource {
         }
 
         for ( Map.Entry<String, Object> entry : additionalFields.entrySet() ) {
+            Object value = entry.getValue();
             String key = entry.getKey();
-            if ( resourceFields.containsKey(key) )
-                fields.put(key, entry.getValue());
+            if ( resourceFields.containsKey(key) || isResource(value) ) {
+                fields.put(key, value);
+            }
         }
 
         setId(idFormatter.formatId(getType(), getIdValue()));
+    }
+
+    protected boolean isResource(Object obj) {
+        if ( obj instanceof Resource ) {
+            return true;
+        }
+
+        if ( obj instanceof List<?> ) {
+            List<?> list = (List<?>)obj;
+            if ( list.size() == 0 || isResource(list.get(0)) ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected Object getIdValue() {
