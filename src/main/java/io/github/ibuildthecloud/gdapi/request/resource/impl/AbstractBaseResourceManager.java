@@ -19,7 +19,6 @@ import io.github.ibuildthecloud.gdapi.util.TypeUtils;
 import io.github.ibuildthecloud.model.Pagination;
 import io.github.ibuildthecloud.url.UrlBuilder;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +34,7 @@ import java.util.WeakHashMap;
 
 import javax.inject.Inject;
 
-import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public abstract class AbstractBaseResourceManager implements ResourceManager {
 
@@ -65,7 +64,7 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
 
     @Override
     public final Object list(String type, ApiRequest request) {
-        return list(type, new LinkedHashMap<Object, Object>(request.getConditions()), new ListOptions());
+        return list(type, new LinkedHashMap<Object, Object>(request.getConditions()), new ListOptions(request));
     }
 
     @Override
@@ -146,19 +145,23 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
         return new HashMap<Object, Object>();
     }
 
-    protected Long getMarker(Pagination pagination) {
+    protected Object getMarker(Pagination pagination) {
         if ( pagination == null ) {
             return null;
         }
 
         String marker = pagination.getMarker();
-        if ( marker == null ) {
+        if ( StringUtils.isBlank(marker) ) {
             return null;
+        }
+
+        if ( marker.charAt(0) == 'm') {
+            return marker.substring(1);
         }
 
         Object obj = ApiContext.getContext().getIdFormatter().parseId(marker);
         if ( obj instanceof Long ) {
-            return (Long)obj;
+            return obj;
         } else if ( obj != null ) {
             try {
                 return new Long(obj.toString());
@@ -229,32 +232,7 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
             return;
         }
 
-        Integer limit = pagination.getLimit();
-        if ( limit != null && list.size() > limit ) {
-            Long lastId = getLastId(list);
-            URL nextUrl = lastId == null ? null : ApiContext.getUrlBuilder().next(lastId);
-            if ( nextUrl != null ) {
-                list.remove(list.size()-1);
-                pagination.setPartial(true);
-                pagination.setNext(nextUrl);
-            }
-        }
-
-        collection.setPagination(pagination);
-    }
-
-    protected Long getLastId(List<?> list) {
-        Object last = list.get(list.size()-1);
-        try {
-            Object id = PropertyUtils.getProperty(last, TypeUtils.ID_FIELD);
-            return id == null ? null : new Long(id.toString());
-        } catch (IllegalAccessException e) {
-        } catch (InvocationTargetException e) {
-        } catch (NoSuchMethodException e) {
-        } catch (NumberFormatException nfe) {
-        }
-
-        return null;
+        collection.setPagination(pagination.getResponse());
     }
 
     protected void addSort(CollectionImpl collection, ApiRequest request) {

@@ -108,12 +108,17 @@ public final class DefaultUrlBuilder implements UrlBuilder {
     }
 
     @Override
-    public URL next(Long id) {
+    public URL next(String id) {
         IdFormatter formatter = ApiContext.getContext().getIdFormatter();
 
         StringBuilder buffer = fullUrlToAppendQueryString(Collection.MARKER);
 
-        buffer.append(Collection.MARKER).append("=").append(formatter.formatId(Collection.MARKER, id));
+        String formatted = id;
+        if ( id != null && id.length() > 0 && id.charAt(0) != 'm' ) {
+            formatted = formatter.formatId(Collection.MARKER, id);
+        }
+
+        buffer.append(Collection.MARKER).append("=").append(formatted);
 
         return toURL(buffer.toString());
     }

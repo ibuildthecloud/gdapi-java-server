@@ -27,7 +27,7 @@ public interface UrlBuilder {
 
     URL sort(String field);
 
-    URL next(Long id);
+    URL next(String id);
 
     URL version(String version);
 

@@ -11,9 +11,9 @@ public class Pagination {
     String marker = null;
     URL first, previous, next;
     Integer limit;
-    Integer collectionSize;;
     Long total;
     boolean partial = false;
+    Pagination response;
 
     public static ListOptions limit(int limit) {
         return new ListOptions(null, new Pagination(limit), null);
@@ -83,12 +83,12 @@ public class Pagination {
     }
 
     @XmlTransient
-    public Integer getCollectionSize() {
-        return collectionSize;
+    public Pagination getResponse() {
+        return response;
     }
 
-    public void setCollectionSize(Integer collectionSize) {
-        this.collectionSize = collectionSize;
+    public void setResponse(Pagination response) {
+        this.response = response;
     }
 
 }

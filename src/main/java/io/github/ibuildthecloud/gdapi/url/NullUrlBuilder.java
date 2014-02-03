@@ -39,7 +39,7 @@ public class NullUrlBuilder implements UrlBuilder {
     }
 
     @Override
-    public URL next(Long id) {
+    public URL next(String id) {
         return null;
     }
 
