@@ -93,7 +93,7 @@ public class RequestUtils {
     }
 
     public static boolean hasBeenHandled(ApiRequest request) {
-        if ( request.isCommited() || request.getResponseObject() != null ) {
+        if ( request.isCommitted() || request.getResponseObject() != null ) {
             return true;
         }
 

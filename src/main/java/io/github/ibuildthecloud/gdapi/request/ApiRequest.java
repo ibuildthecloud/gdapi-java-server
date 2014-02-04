@@ -33,7 +33,7 @@ public class ApiRequest {
     String clientIp;
     String queryString;
     String requestPath;
-    boolean commited = false;
+    boolean committed = false;
     int responseCode = HttpServletResponse.SC_OK;
     ApiServletContext apiServletContext;
     Object responseObject;
@@ -73,11 +73,11 @@ public class ApiRequest {
     }
 
     public OutputStream getOutputStream() throws IOException {
-        if ( commited ) {
+        if ( committed ) {
             throw new IllegalStateException("Response is commited");
         }
         commit();
-        commited = true;
+        committed = true;
         return apiServletContext.getResponse().getOutputStream();
     }
 
@@ -118,8 +118,8 @@ public class ApiRequest {
         this.method = method;
     }
 
-    public boolean isCommited() {
-        return commited;
+    public boolean isCommitted() {
+        return committed;
     }
 
     public int getResponseCode() {
@@ -247,11 +247,13 @@ public class ApiRequest {
     }
 
     public void commit() {
-        if ( ! commited ) {
+        if ( ! committed ) {
             if ( responseContentType != null ) {
                 apiServletContext.getResponse().setHeader("Content-Type", responseContentType);
             }
             apiServletContext.getResponse().setStatus(responseCode);
+
+            committed = true;
         }
     }
 

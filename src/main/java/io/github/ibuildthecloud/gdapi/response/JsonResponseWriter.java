@@ -25,7 +25,7 @@ public class JsonResponseWriter extends AbstractApiRequestHandler {
 
     @Override
     public void handle(ApiRequest request) throws IOException {
-        if ( request.isCommited() )
+        if ( request.isCommitted() )
             return;
 
         if ( ! getResponseFormat().equals(request.getResponseFormat()) ) {
