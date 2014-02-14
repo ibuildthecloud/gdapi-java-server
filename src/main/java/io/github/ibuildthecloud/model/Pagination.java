@@ -19,8 +19,8 @@ public class Pagination {
         return new ListOptions(null, new Pagination(limit), null);
     }
 
-    public Pagination(Integer maxLimit) {
-        this.limit = maxLimit;
+    public Pagination(Integer limit) {
+        this.limit = limit;
     }
 
     public URL getFirst() {
@@ -52,9 +52,7 @@ public class Pagination {
     }
 
     public void setLimit(Integer limit) {
-        if ( limit != null && this.limit.intValue() >= limit.intValue()) {
-            this.limit = limit;
-        }
+        this.limit = limit;
     }
 
     public Long getTotal() {

@@ -39,18 +39,18 @@ public class ApiRequestFilterDelegate  {
     SchemaFactory schemaFactory;
     IdFormatter idFormatter;
 
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+    public ApiContext doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
 
         if ( ! (request instanceof HttpServletRequest) || ! (response instanceof HttpServletResponse) ) {
             chain.doFilter(request, response);
-            return;
+            return null;
         }
 
         if ( version == null ) {
             log.error("No version set");
             chain.doFilter(request, response);
-            return;
+            return null;
         }
 
         HttpServletRequest httpRequest = (HttpServletRequest)request;
@@ -59,10 +59,12 @@ public class ApiRequestFilterDelegate  {
         ApiRequest apiRequest = new ApiRequest(version, new ApiServletContext(httpRequest, httpResponse, chain),
                 schemaFactory);
 
+        ApiContext context = null;
+
         try {
             apiRequest.setSchemaFactory(schemaFactory);
 
-            ApiContext context = ApiContext.newContext();
+            context = ApiContext.newContext();
             context.setApiRequest(apiRequest);
 
             if ( idFormatter != null ) {
@@ -71,7 +73,7 @@ public class ApiRequestFilterDelegate  {
 
             if ( ! parser.parse(apiRequest) ) {
                 chain.doFilter(httpRequest, httpResponse);
-                return;
+                return null;
             }
 
             URL schemaUrl = ApiContext.getUrlBuilder().resourceCollection(Schema.class);
@@ -122,6 +124,8 @@ public class ApiRequestFilterDelegate  {
             apiRequest.commit();
             ApiContext.remove();
         }
+
+        return context;
     }
 
     public ApiRequestParser getParser() {

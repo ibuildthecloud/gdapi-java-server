@@ -179,8 +179,6 @@ public class ParseCollectionAttributes extends AbstractApiRequestHandler {
         public String getOp() {
             return op;
         }
-
-
     }
 
 }
