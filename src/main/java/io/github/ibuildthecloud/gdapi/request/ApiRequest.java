@@ -57,6 +57,38 @@ public class ApiRequest {
     Map<String,Object> createDefaults = new HashMap<String, Object>();
     List<Throwable> exceptions = new ArrayList<Throwable>();
 
+    public ApiRequest(ApiRequest request) {
+        this.locale = request.getLocale();
+        this.type = request.getType();
+        this.id = request.getId();
+        this.link = request.getLink();
+        this.action = request.getAction();
+        this.method = request.getMethod();
+        this.clientIp = request.getClientIp();
+        this.queryString = request.getQueryString();
+        this.requestPath = request.getRequestPath();
+        this.committed = request.isCommitted();
+        this.responseCode = request.getResponseCode();
+        this.requestObject = request.getRequestObject();
+        this.requestBodyObject = request.getRequestBodyObject();
+        this.requestParams = request.getRequestParams();
+        this.requestUrl = request.getRequestUrl();
+        this.requestVersion = request.getRequestVersion();
+        this.apiVersion = request.getApiVersion();
+        this.responseUrlBase = request.getResponseUrlBase();
+        this.responseFormat = request.getResponseFormat();
+        this.responseContentType = request.getResponseContentType();
+        this.startTime = request.getStartTime();
+        this.urlBuilder = request.getUrlBuilder();
+        this.conditions = request.getConditions();
+        this.sort = request.getSort();
+        this.pagination = request.getPagination();
+        this.include = request.getInclude();
+        this.schemaFactory = request.getSchemaFactory();
+        this.createDefaults = request.getCreateDefaults();
+        this.exceptions = request.getExceptions();
+    }
+
     public ApiRequest(String apiVersion, ApiServletContext requestServletContext, SchemaFactory schemaFactory) {
         super();
         this.apiVersion = apiVersion;
