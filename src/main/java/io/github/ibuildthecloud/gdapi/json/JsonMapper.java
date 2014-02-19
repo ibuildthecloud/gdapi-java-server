@@ -11,4 +11,6 @@ public interface JsonMapper {
 
     void writeValue(OutputStream os, Object object) throws IOException;
 
+    <T> T convertValue(Object fromValue, Class<T> toValueType);
+
 }

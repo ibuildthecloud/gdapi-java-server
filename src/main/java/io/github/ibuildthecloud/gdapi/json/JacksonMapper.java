@@ -67,6 +67,11 @@ public class JacksonMapper implements JsonMapper {
         mapper.writeValue(os, object);
     }
 
+    @Override
+    public <T> T convertValue(Object fromValue, Class<T> toValueType) {
+        return mapper.convertValue(fromValue, toValueType);
+    }
+
     public static interface ResourceMix {
         @JsonAnyGetter
         Map<String,Object> getFields();
