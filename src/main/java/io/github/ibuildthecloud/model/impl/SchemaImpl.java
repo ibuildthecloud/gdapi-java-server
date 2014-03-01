@@ -31,7 +31,12 @@ public class SchemaImpl extends ResourceImpl implements Schema {
     Map<String, Action> collectionActions = new HashMap<String, Action>();
     Map<String, Field> collectionFields = new HashMap<String, Field>();
 
+    public SchemaImpl() {
+        setType("schema");
+    }
+
     public SchemaImpl(SchemaImpl schema) {
+        this();
         this.name = schema.getId();
         this.parent = schema.getParent();
         this.children = new ArrayList<String>(schema.getChildren());
@@ -79,10 +84,6 @@ public class SchemaImpl extends ResourceImpl implements Schema {
         }
 
         return result;
-    }
-
-    public SchemaImpl() {
-        setType("schema");
     }
 
     @Override
