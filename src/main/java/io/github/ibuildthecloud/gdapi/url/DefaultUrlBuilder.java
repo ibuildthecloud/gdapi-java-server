@@ -66,7 +66,7 @@ public final class DefaultUrlBuilder implements UrlBuilder {
     @Override
     public URL resourceCollection(Class<?> type) {
         Schema schema = schemaFactory.getSchema(type);
-        return schema == null ? null : constructBasicUrl(getPluralName(schema));
+        return schema == null ? null : constructBasicUrl(schema.getPluralName());
     }
 
     @Override

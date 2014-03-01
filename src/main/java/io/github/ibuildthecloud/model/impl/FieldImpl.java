@@ -191,6 +191,22 @@ public class FieldImpl implements Field {
 
     @Override
     public Object getDefault() {
+        if ( defaultValue == null || this.typeEnum == null ) {
+            return defaultValue;
+        }
+
+        switch (this.typeEnum) {
+        case BOOLEAN:
+            return Boolean.parseBoolean(defaultValue.toString());
+        case INT:
+            try {
+                return Long.parseLong(defaultValue.toString());
+            } catch ( NumberFormatException nfe) {
+                break;
+            }
+        default:
+        }
+
         return defaultValue;
     }
 

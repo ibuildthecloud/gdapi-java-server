@@ -39,7 +39,7 @@ public class DefaultHtmlTemplate implements HtmlTemplate {
 
         URL schemaUrl = ApiContext.getUrlBuilder().resourceCollection(Schema.class);
         if ( schemaUrl == null ) {
-            result = result.replace("%SCHEMAS","");
+            result = result.replace("%SCHEMAS%","");
         } else {
             result = result.replace("%SCHEMAS%", schemaUrl.toExternalForm());
         }

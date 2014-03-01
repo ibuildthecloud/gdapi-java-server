@@ -91,6 +91,8 @@ public class ApiRequestFilterDelegate  {
                             currentError = null;
                         }
                     }
+                } catch ( EOFException e ) {
+                    throw e;
                 } catch ( Throwable t ) {
                     currentError = t;
                     apiRequest.getExceptions().add(t);
@@ -107,7 +109,8 @@ public class ApiRequestFilterDelegate  {
                 throw currentError;
             }
         } catch ( EOFException e ) {
-            log.trace("Caugth EOFException, ignoring", e);
+            log.trace("Caught EOFException, ignoring", e);
+            throw e;
         } catch ( Throwable t ) {
             log.error("Unhandled exception in API for request [{}]", apiRequest, t);
             if ( throwErrors ) {

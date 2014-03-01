@@ -9,6 +9,7 @@ import io.github.ibuildthecloud.gdapi.model.Collection;
 import io.github.ibuildthecloud.gdapi.model.ListOptions;
 import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.model.Schema;
+import io.github.ibuildthecloud.gdapi.model.Schema.Method;
 import io.github.ibuildthecloud.gdapi.model.impl.CollectionImpl;
 import io.github.ibuildthecloud.gdapi.model.impl.WrappedResource;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
@@ -187,7 +188,30 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
     protected Collection createCollection(List<?> list, ApiRequest request) {
         CollectionImpl collection = new CollectionImpl();
         if ( request != null ) {
-            collection.setResourceType(getCollectionType(list, request));
+            String collectionType = getCollectionType(list, request);
+            collection.setResourceType(collectionType);
+
+            Schema schema = request.getSchemaFactory().getSchema(collectionType);
+            if ( schema != null && schema.getChildren().size() > 0 ) {
+                UrlBuilder urlBuilder = ApiContext.getUrlBuilder();
+                Map<String, URL> createTypes = new TreeMap<String, URL>();
+
+                if ( schema.getCollectionMethods().contains(Method.POST.toString()) ) {
+                    createTypes.put(schema.getId(), urlBuilder.resourceCollection(collectionType));
+                }
+
+                for ( String childType : schema.getChildren() ) {
+                    schema = request.getSchemaFactory().getSchema(childType);
+
+                    if ( schema != null && schema.getCollectionMethods().contains(Method.POST.toString()) ) {
+                        createTypes.put(schema.getId(), urlBuilder.resourceCollection(schema.getId()));
+                    }
+                }
+
+                if ( createTypes.size() > 0 ) {
+                    collection.setCreateTypes(createTypes);
+                }
+            }
         }
 
         collection.setCreateDefaults(request.getCreateDefaults());

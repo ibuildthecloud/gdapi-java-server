@@ -10,6 +10,7 @@ import io.github.ibuildthecloud.model.impl.SchemaImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -88,6 +89,13 @@ public class SubSchemaFactory extends AbstractSchemaFactory implements SchemaFac
                     filters.remove(name);
                     break;
                 }
+            }
+        }
+
+        Iterator<String> childrenIter = schema.getChildren().iterator();
+        while ( childrenIter.hasNext() ) {
+            if ( ! schemaMap.containsKey(childrenIter.next()) ) {
+                childrenIter.remove();
             }
         }
     }
