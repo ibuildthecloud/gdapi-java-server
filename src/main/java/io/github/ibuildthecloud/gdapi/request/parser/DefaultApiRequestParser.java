@@ -136,9 +136,14 @@ public class DefaultApiRequestParser implements ApiRequestParser {
     }
 
     protected String getOverrideHeader(HttpServletRequest request, String header, String defaultValue) {
-        if ( ! allowClientOverrideHeaders ) {
+        return getOverrideHeader(request, header, defaultValue, true);
+    }
+
+    protected String getOverrideHeader(HttpServletRequest request, String header, String defaultValue, boolean checkSetting) {
+        if ( checkSetting && ! isAllowClientOverrideHeaders() ) {
             return defaultValue;
         }
+
         String value = request.getHeader(header);
         return value == null ? defaultValue : value;
     }
@@ -147,7 +152,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
         String clientIp = request.getRemoteAddr();
 
         clientIp = getOverrideHeader(request, overrideClientIpHeader, clientIp);
-        clientIp = getOverrideHeader(request, FORWARDED_HEADER, clientIp);
+        clientIp = getOverrideHeader(request, FORWARDED_HEADER, clientIp, false);
 
         return clientIp;
     }
@@ -293,6 +298,14 @@ public class DefaultApiRequestParser implements ApiRequestParser {
 
     public void setAllowedFormats(Set<String> allowedFormats) {
         this.allowedFormats = allowedFormats;
+    }
+
+    public boolean isAllowClientOverrideHeaders() {
+        return allowClientOverrideHeaders;
+    }
+
+    public void setAllowClientOverrideHeaders(boolean allowClientOverrideHeaders) {
+        this.allowClientOverrideHeaders = allowClientOverrideHeaders;
     }
 
 }
