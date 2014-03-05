@@ -65,8 +65,11 @@ public abstract class AbstractResourceManagerLocatorImpl implements ResourceMana
             return resourceManager;
         }
 
-        List<ResourceManagerFilter> subList = new ArrayList<ResourceManagerFilter>();
-        return new FilteredResourceManager(filters.get(0), wrap(subList, resourceManager));
+        if ( filters.size() == 1 ) {
+            return new FilteredResourceManager(filters.get(0), resourceManager);
+        }
+
+        return new FilteredResourceManager(filters.get(0), wrap(filters.subList(1, filters.size()), resourceManager));
     }
 
     protected void add(Map<String, List<ResourceManagerFilter>> filters, String key, ResourceManagerFilter filter) {
