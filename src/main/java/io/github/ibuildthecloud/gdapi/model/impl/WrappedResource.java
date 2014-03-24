@@ -64,7 +64,8 @@ public class WrappedResource extends ResourceImpl implements Resource {
         for ( Map.Entry<String, Object> entry : additionalFields.entrySet() ) {
             Object value = entry.getValue();
             String key = entry.getKey();
-            if ( resourceFields.containsKey(key) || isResource(value) ) {
+            Field field = resourceFields.get(key);
+            if ( (field != null && field.isIncludeInList()) || isResource(value) ) {
                 fields.put(key, value);
             }
         }
