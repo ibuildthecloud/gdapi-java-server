@@ -169,8 +169,17 @@ public class ValidationHandler extends AbstractApiRequestHandler {
             String fieldName = entry.getKey();
             Field field = entry.getValue();
 
-            if ( isOperation(field, create) && field.isRequired() && ! sanitized.containsKey(fieldName) ) {
-                error(MISSING_REQUIRED, fieldName);
+            if ( isOperation(field, create) && field.isRequired() ) {
+                if ( ! sanitized.containsKey(fieldName) ) {
+                    error(MISSING_REQUIRED, fieldName);
+                }
+
+                if ( field.getTypeEnum() == FieldType.ARRAY ) {
+                    List<Object> list = convertArray(fieldName, null, null, sanitized.get(fieldName), context);
+                    if ( list != null && list.size() == 0 ) {
+                        error(MISSING_REQUIRED, fieldName);
+                    }
+                }
             }
 
             if ( create && ! sanitized.containsKey(fieldName) && field.hasDefault() ) {
@@ -268,7 +277,7 @@ public class ValidationHandler extends AbstractApiRequestHandler {
         return error(INVALID_FORMAT, fieldName);
     }
 
-    protected Object convertArray(String fieldName, List<FieldType> subTypes, List<String> subTypesNames, Object value,
+    protected List<Object> convertArray(String fieldName, List<FieldType> subTypes, List<String> subTypesNames, Object value,
             ValidationContext context) {
         List<Object> result = new ArrayList<Object>();
         List<?> items = null;
@@ -279,6 +288,11 @@ public class ValidationHandler extends AbstractApiRequestHandler {
             items = (List<?>)value;
         } else {
             items = Arrays.asList(value);
+        }
+
+        if ( subTypes == null ) {
+            result.addAll(items);
+            return result;
         }
 
         FieldType type = subTypes.get(0);
