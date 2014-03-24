@@ -1,8 +1,11 @@
 package io.github.ibuildthecloud.gdapi.request.handler;
 
+import io.github.ibuildthecloud.gdapi.exception.ClientVisibleException;
 import io.github.ibuildthecloud.gdapi.json.JsonMapper;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.util.RequestUtils;
+import io.github.ibuildthecloud.gdapi.util.ResponseCodes;
+import io.github.ibuildthecloud.gdapi.validation.ValidationErrorCodes;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,10 +50,14 @@ public class BodyParserRequestHandler extends AbstractApiRequestHandler implemen
         if ( content.length == 0 )
             return null;
 
-        Object body = jsonMarshaller.readValue(content);
+        try {
+            Object body = jsonMarshaller.readValue(content);
 
-        if ( isAllowedType(body) ) {
-            return body;
+            if ( isAllowedType(body) ) {
+                return body;
+            }
+        } catch ( IOException e ) {
+            throw new ClientVisibleException(ResponseCodes.BAD_REQUEST, ValidationErrorCodes.INVALID_BODY_CONTENT);
         }
 
         return null;

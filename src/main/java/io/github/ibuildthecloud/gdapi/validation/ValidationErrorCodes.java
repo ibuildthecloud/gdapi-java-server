@@ -29,6 +29,8 @@ public class ValidationErrorCodes implements ErrorCodes {
 
     public static final String INVALID_ACTION = "InvalidAction";
 
+    public static final String INVALID_BODY_CONTENT = "InvalidBodyContent";
+
     public static final String ACTION_NOT_AVAILABLE = "ActionNotAvailable";
 
     public static final void throwValidationError(String code, String fieldName) {
