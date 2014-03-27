@@ -1,6 +1,4 @@
-package io.github.ibuildthecloud.model;
-
-import io.github.ibuildthecloud.gdapi.model.ListOptions;
+package io.github.ibuildthecloud.gdapi.model;
 
 import java.net.URL;
 

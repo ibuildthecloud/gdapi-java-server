@@ -4,9 +4,9 @@ import io.github.ibuildthecloud.gdapi.context.ApiContext;
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.model.Schema.Method;
+import io.github.ibuildthecloud.gdapi.model.impl.VersionImpl;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
-import io.github.ibuildthecloud.model.impl.VersionImpl;
-import io.github.ibuildthecloud.url.UrlBuilder;
+import io.github.ibuildthecloud.gdapi.url.UrlBuilder;
 
 import java.io.IOException;
 import java.net.URL;

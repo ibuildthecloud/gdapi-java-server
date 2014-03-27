@@ -4,7 +4,6 @@ import java.net.URL;
 
 import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.model.Sort.SortOrder;
-import io.github.ibuildthecloud.url.UrlBuilder;
 
 public class NullUrlBuilder implements UrlBuilder {
 

@@ -1,8 +1,8 @@
-package io.github.ibuildthecloud.model.impl;
+package io.github.ibuildthecloud.gdapi.model.impl;
 
 import io.github.ibuildthecloud.gdapi.context.ApiContext;
 import io.github.ibuildthecloud.gdapi.model.Resource;
-import io.github.ibuildthecloud.url.UrlBuilder;
+import io.github.ibuildthecloud.gdapi.url.UrlBuilder;
 
 import java.net.URL;
 import java.util.LinkedHashMap;

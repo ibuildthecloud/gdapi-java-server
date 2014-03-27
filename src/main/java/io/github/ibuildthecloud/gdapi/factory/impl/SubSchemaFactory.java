@@ -5,7 +5,7 @@ import io.github.ibuildthecloud.gdapi.model.Field;
 import io.github.ibuildthecloud.gdapi.model.FieldType;
 import io.github.ibuildthecloud.gdapi.model.Filter;
 import io.github.ibuildthecloud.gdapi.model.Schema;
-import io.github.ibuildthecloud.model.impl.SchemaImpl;
+import io.github.ibuildthecloud.gdapi.model.impl.SchemaImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;

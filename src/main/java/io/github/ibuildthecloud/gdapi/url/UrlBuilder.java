@@ -1,4 +1,4 @@
-package io.github.ibuildthecloud.url;
+package io.github.ibuildthecloud.gdapi.url;
 
 import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.model.Sort.SortOrder;

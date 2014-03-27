@@ -3,12 +3,12 @@ package io.github.ibuildthecloud.gdapi.request;
 import io.github.ibuildthecloud.gdapi.condition.Condition;
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
 import io.github.ibuildthecloud.gdapi.model.Include;
+import io.github.ibuildthecloud.gdapi.model.Pagination;
 import io.github.ibuildthecloud.gdapi.model.Sort;
 import io.github.ibuildthecloud.gdapi.server.model.ApiServletContext;
+import io.github.ibuildthecloud.gdapi.url.UrlBuilder;
 import io.github.ibuildthecloud.gdapi.util.ProxyUtils;
 import io.github.ibuildthecloud.gdapi.util.RequestUtils;
-import io.github.ibuildthecloud.model.Pagination;
-import io.github.ibuildthecloud.url.UrlBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;

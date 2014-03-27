@@ -3,10 +3,10 @@ package io.github.ibuildthecloud.gdapi.model.impl;
 import io.github.ibuildthecloud.gdapi.condition.Condition;
 import io.github.ibuildthecloud.gdapi.context.ApiContext;
 import io.github.ibuildthecloud.gdapi.model.Collection;
+import io.github.ibuildthecloud.gdapi.model.Pagination;
 import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.model.Sort;
-import io.github.ibuildthecloud.model.Pagination;
-import io.github.ibuildthecloud.url.UrlBuilder;
+import io.github.ibuildthecloud.gdapi.url.UrlBuilder;
 
 import java.net.URL;
 import java.util.HashMap;

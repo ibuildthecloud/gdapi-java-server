@@ -2,7 +2,6 @@ package io.github.ibuildthecloud.gdapi.model;
 
 import io.github.ibuildthecloud.gdapi.model.Sort;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
-import io.github.ibuildthecloud.model.Pagination;
 
 public class ListOptions {
 

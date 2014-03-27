@@ -2,7 +2,6 @@ package io.github.ibuildthecloud.gdapi.model;
 
 import io.github.ibuildthecloud.gdapi.annotation.Type;
 import io.github.ibuildthecloud.gdapi.condition.Condition;
-import io.github.ibuildthecloud.model.Pagination;
 
 import java.net.URL;
 import java.util.List;

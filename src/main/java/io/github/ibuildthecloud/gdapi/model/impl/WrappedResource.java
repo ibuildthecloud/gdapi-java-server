@@ -7,7 +7,6 @@ import io.github.ibuildthecloud.gdapi.model.FieldType;
 import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.util.TypeUtils;
-import io.github.ibuildthecloud.model.impl.ResourceImpl;
 
 import java.util.Date;
 import java.util.HashMap;

@@ -9,12 +9,12 @@ import io.github.ibuildthecloud.gdapi.model.Field;
 import io.github.ibuildthecloud.gdapi.model.FieldType;
 import io.github.ibuildthecloud.gdapi.model.Filter;
 import io.github.ibuildthecloud.gdapi.model.Include;
+import io.github.ibuildthecloud.gdapi.model.Pagination;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.model.Sort;
 import io.github.ibuildthecloud.gdapi.model.Sort.SortOrder;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.util.RequestUtils;
-import io.github.ibuildthecloud.model.Pagination;
 
 import java.io.IOException;
 import java.net.URL;

@@ -9,10 +9,10 @@ import io.github.ibuildthecloud.gdapi.model.Collection;
 import io.github.ibuildthecloud.gdapi.model.Field;
 import io.github.ibuildthecloud.gdapi.model.FieldType;
 import io.github.ibuildthecloud.gdapi.model.FieldType.TypeAndName;
+import io.github.ibuildthecloud.gdapi.model.impl.FieldImpl;
+import io.github.ibuildthecloud.gdapi.model.impl.SchemaImpl;
 import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.model.Schema;
-import io.github.ibuildthecloud.model.impl.FieldImpl;
-import io.github.ibuildthecloud.model.impl.SchemaImpl;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;

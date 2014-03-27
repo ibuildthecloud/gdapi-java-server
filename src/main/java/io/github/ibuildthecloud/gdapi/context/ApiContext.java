@@ -6,7 +6,7 @@ import io.github.ibuildthecloud.gdapi.id.IdentityFormatter;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.url.DefaultUrlBuilder;
 import io.github.ibuildthecloud.gdapi.url.NullUrlBuilder;
-import io.github.ibuildthecloud.url.UrlBuilder;
+import io.github.ibuildthecloud.gdapi.url.UrlBuilder;
 
 public class ApiContext {
 

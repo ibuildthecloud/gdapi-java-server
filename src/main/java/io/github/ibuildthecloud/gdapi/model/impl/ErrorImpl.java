@@ -6,9 +6,8 @@ import java.util.UUID;
 
 import io.github.ibuildthecloud.gdapi.exception.ClientVisibleException;
 import io.github.ibuildthecloud.gdapi.model.ApiError;
+import io.github.ibuildthecloud.gdapi.url.UrlBuilder;
 import io.github.ibuildthecloud.gdapi.util.ResponseCodes;
-import io.github.ibuildthecloud.model.impl.ResourceImpl;
-import io.github.ibuildthecloud.url.UrlBuilder;
 
 public class ErrorImpl extends ResourceImpl implements ApiError {
 

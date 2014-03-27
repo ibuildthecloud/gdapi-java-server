@@ -1,4 +1,4 @@
-package io.github.ibuildthecloud.model.impl;
+package io.github.ibuildthecloud.gdapi.model.impl;
 
 import io.github.ibuildthecloud.gdapi.model.Field;
 import io.github.ibuildthecloud.gdapi.model.FieldType;

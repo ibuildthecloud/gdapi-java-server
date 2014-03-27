@@ -1,7 +1,7 @@
 package io.github.ibuildthecloud.gdapi.factory.impl;
 
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
-import io.github.ibuildthecloud.model.impl.SchemaImpl;
+import io.github.ibuildthecloud.gdapi.model.impl.SchemaImpl;
 
 public interface SchemaPostProcessor {
 

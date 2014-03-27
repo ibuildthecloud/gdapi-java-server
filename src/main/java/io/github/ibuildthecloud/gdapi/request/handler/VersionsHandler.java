@@ -3,10 +3,10 @@ package io.github.ibuildthecloud.gdapi.request.handler;
 import io.github.ibuildthecloud.gdapi.context.ApiContext;
 import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.model.impl.CollectionImpl;
+import io.github.ibuildthecloud.gdapi.model.impl.VersionImpl;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
+import io.github.ibuildthecloud.gdapi.url.UrlBuilder;
 import io.github.ibuildthecloud.gdapi.version.Versions;
-import io.github.ibuildthecloud.model.impl.VersionImpl;
-import io.github.ibuildthecloud.url.UrlBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;

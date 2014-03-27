@@ -4,9 +4,9 @@ import io.github.ibuildthecloud.gdapi.model.Field;
 import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.model.SchemaCollection;
+import io.github.ibuildthecloud.gdapi.model.impl.FieldImpl;
+import io.github.ibuildthecloud.gdapi.model.impl.SchemaImpl;
 import io.github.ibuildthecloud.gdapi.util.DateUtils;
-import io.github.ibuildthecloud.model.impl.FieldImpl;
-import io.github.ibuildthecloud.model.impl.SchemaImpl;
 
 import java.io.IOException;
 import java.io.OutputStream;
