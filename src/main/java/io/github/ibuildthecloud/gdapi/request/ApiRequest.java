@@ -53,6 +53,7 @@ public class ApiRequest {
     Pagination pagination;
     Include include;
     Map<Object,Object> attributes = new HashMap<Object, Object>();
+    Map<String,String> options = new HashMap<String, String>();
     SchemaFactory schemaFactory;
     Map<String,Object> createDefaults = new HashMap<String, Object>();
     List<Throwable> exceptions = new ArrayList<Throwable>();
@@ -87,6 +88,7 @@ public class ApiRequest {
         this.schemaFactory = request.getSchemaFactory();
         this.createDefaults = request.getCreateDefaults();
         this.exceptions = request.getExceptions();
+        this.options = request.getOptions();
     }
 
     public ApiRequest(String apiVersion, ApiServletContext requestServletContext, SchemaFactory schemaFactory) {
@@ -371,6 +373,10 @@ public class ApiRequest {
 
     public List<Throwable> getExceptions() {
         return exceptions;
+    }
+
+    public Map<String, String> getOptions() {
+        return options;
     }
 
 }
