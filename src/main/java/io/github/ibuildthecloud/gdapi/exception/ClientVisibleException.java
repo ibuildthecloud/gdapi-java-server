@@ -16,7 +16,7 @@ public class ClientVisibleException extends RuntimeException {
     }
 
     public ClientVisibleException(int status, String code, String message, String detail) {
-        super(message);
+        super(message == null ? code : message);
         this.status = status;
         this.code = code;
         this.detail = detail;
