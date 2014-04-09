@@ -15,7 +15,7 @@ public class ErrorImpl extends ResourceImpl implements ApiError {
     String code, message, detail;
 
     public ErrorImpl() {
-        this.status = ResponseCodes.BAD_REQUEST;
+        this.status = ResponseCodes.UNPROCESSABLE_ENTITY;
         setType("error");
         setId(UUID.randomUUID().toString());
     }
