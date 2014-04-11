@@ -210,7 +210,7 @@ public class FieldImpl implements Field {
         return defaultValue;
     }
 
-    public void setDefault(String defaultValue) {
+    public void setDefault(Object defaultValue) {
         this.defaultValue = defaultValue;
     }
 

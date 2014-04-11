@@ -169,6 +169,10 @@ public class ValidationHandler extends AbstractApiRequestHandler {
             String fieldName = entry.getKey();
             Field field = entry.getValue();
 
+            if ( create && ! sanitized.containsKey(fieldName) && field.hasDefault() ) {
+                sanitized.put(fieldName, field.getDefault());
+            }
+
             if ( isOperation(field, create) && field.isRequired() ) {
                 if ( ! sanitized.containsKey(fieldName) ) {
                     error(MISSING_REQUIRED, fieldName);
@@ -180,10 +184,6 @@ public class ValidationHandler extends AbstractApiRequestHandler {
                         error(MISSING_REQUIRED, fieldName);
                     }
                 }
-            }
-
-            if ( create && ! sanitized.containsKey(fieldName) && field.hasDefault() ) {
-                sanitized.put(fieldName, field.getDefault());
             }
         }
 
