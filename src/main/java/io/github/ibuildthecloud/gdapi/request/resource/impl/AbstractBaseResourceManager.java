@@ -316,7 +316,7 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
             return null;
         }
 
-        Resource resource = constructResource(idFormatter, schemaFactory, schema, obj);
+        Resource resource = constructResource(idFormatter, schemaFactory, schema, obj, apiRequest);
         addLinks(obj, schemaFactory, schema, resource);
         addActions(obj, schemaFactory, schema, resource);
 
@@ -341,7 +341,8 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
         }
     }
 
-    protected Resource constructResource(IdFormatter idFormatter, SchemaFactory schemaFactory, Schema schema, Object obj) {
+    protected Resource constructResource(IdFormatter idFormatter, SchemaFactory schemaFactory, Schema schema, Object obj,
+            ApiRequest apiRequest) {
         return new WrappedResource(idFormatter, schema, obj);
     }
 
