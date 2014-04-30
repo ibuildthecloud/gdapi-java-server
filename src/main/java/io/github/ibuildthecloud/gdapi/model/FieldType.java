@@ -32,7 +32,7 @@ public enum FieldType {
     ARRAY(List.class, Object[].class),
     MAP(Map.class),
     TYPE(Object.class),
-//    RESOURCE(Object.class),
+    JSON(Object.class),
     NONE;
 
     Class<?>[] clzs;

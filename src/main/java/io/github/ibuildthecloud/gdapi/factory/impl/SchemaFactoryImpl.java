@@ -505,7 +505,10 @@ public class SchemaFactoryImpl extends AbstractSchemaFactory implements SchemaFa
         String name = fieldType.getExternalType();
         if ( fieldType == FieldType.TYPE ) {
             Schema subSchema = getSchema(clz);
-            if ( subSchema != null ) {
+            if ( subSchema == null ) {
+                fieldType = FieldType.JSON;
+                name = fieldType.getExternalType();
+            } else {
                 name = subSchema.getId();
             }
         }

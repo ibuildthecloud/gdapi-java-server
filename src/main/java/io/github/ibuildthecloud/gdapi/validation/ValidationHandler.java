@@ -219,6 +219,8 @@ public class ValidationHandler extends AbstractApiRequestHandler {
             return convertArray(fieldName, subTypes, subTypeNames, value, context);
         case BLOB:
             return checkType(fieldName, value, InputStream.class);
+        case JSON:
+            return value;
         case BOOLEAN:
         case ENUM:
         case FLOAT:

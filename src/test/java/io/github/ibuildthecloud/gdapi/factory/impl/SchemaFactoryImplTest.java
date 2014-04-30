@@ -143,7 +143,7 @@ public class SchemaFactoryImplTest {
         assertEquals("array[string]", fields.get("typeArray").getType());
         assertEquals("array[testTypeCRUD]", fields.get("typeListCrud").getType());
 
-        assertEquals("map[type]", fields.get("typeMapObject").getType());
+        assertEquals("map[json]", fields.get("typeMapObject").getType());
     }
 
     @Test
