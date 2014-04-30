@@ -207,7 +207,9 @@ public class ValidationHandler extends AbstractApiRequestHandler {
 
         switch(type) {
         case MAP:
-            return checkType(fieldName, value, Map.class);
+            @SuppressWarnings("unchecked")
+            Map<String,Object> map = (Map<String,Object>)checkType(fieldName, value, Map.class);
+            return convertMap(fieldName, subTypes, subTypeNames, map, context);
         case DATE:
             return convertDate(fieldName, value);
         case ARRAY:
@@ -275,6 +277,25 @@ public class ValidationHandler extends AbstractApiRequestHandler {
             return value;
         }
         return error(INVALID_FORMAT, fieldName);
+    }
+
+    protected Map<String,Object> convertMap(String fieldName, List<FieldType> subTypes, List<String> subTypesNames, Map<String,Object> value,
+            ValidationContext context) {
+        Map<String,Object> result = new LinkedHashMap<String,Object>();
+
+        if ( subTypes == null ) {
+            result.putAll(value);
+            return result;
+        }
+
+        FieldType type = subTypes.get(0);
+        for ( Map.Entry<String, Object> entry : value.entrySet() ) {
+            Object item = convert(fieldName, type, subTypes.subList(1, subTypes.size()),
+                    subTypesNames.subList(1, subTypesNames.size()), entry.getValue(), context);
+            result.put(entry.getKey(), item);
+        }
+
+        return result;
     }
 
     protected List<Object> convertArray(String fieldName, List<FieldType> subTypes, List<String> subTypesNames, Object value,
