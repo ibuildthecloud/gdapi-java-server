@@ -32,7 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 public class DefaultApiRequestParser implements ApiRequestParser {
 
     public static final String DEFAULT_OVERRIDE_URL_HEADER = "X-API-request-url";
-    public static final String DEFAULT_OVERRIDE_CLIENT_IP_HEADER = "X-API-request-url";
+    public static final String DEFAULT_OVERRIDE_CLIENT_IP_HEADER = "X-API-client-ip";
     public static final String FORWARDED_HEADER = "X-Forwarded-For";
 
     public static final String HTML = "html";
