@@ -8,7 +8,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -24,6 +26,7 @@ public class FieldImpl implements Field {
     Object defaultValue;
     List<String> options;
     Method readMethod;
+    Map<String,Object> attributes = new HashMap<String, Object>();
 
     public FieldImpl() {
     }
@@ -45,6 +48,7 @@ public class FieldImpl implements Field {
         this.defaultValue = field.getDefault();
         this.options = field.getOptions() == null ? null : new ArrayList<String>(field.getOptions());
         this.displayIndex = field.getDisplayIndex();
+        this.attributes = new HashMap<String, Object>(field.getAttributes());
         if ( field instanceof FieldImpl ) {
             this.readMethod = ((FieldImpl)field).getReadMethod();
             this.defaultIsNull = ((FieldImpl)field).isDefaultIsNull();
@@ -323,6 +327,16 @@ public class FieldImpl implements Field {
     @Override
     public boolean hasDefault() {
         return defaultValue != null || defaultIsNull;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    @XmlTransient
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
     }
 
 }

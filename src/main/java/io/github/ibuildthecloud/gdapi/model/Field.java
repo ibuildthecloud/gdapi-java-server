@@ -1,6 +1,7 @@
 package io.github.ibuildthecloud.gdapi.model;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -63,5 +64,9 @@ public interface Field {
     @XmlTransient
     @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
     Integer getDisplayIndex();
+
+    @XmlTransient
+    @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
+    Map<String, Object> getAttributes();
 
 }
