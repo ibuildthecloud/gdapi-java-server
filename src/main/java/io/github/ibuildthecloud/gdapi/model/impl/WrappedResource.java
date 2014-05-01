@@ -69,7 +69,10 @@ public class WrappedResource extends ResourceImpl implements Resource {
             }
         }
 
-        setId(idFormatter.formatId(getType(), getIdValue()));
+        Object id = idFormatter.formatId(getType(), getIdValue());
+        if ( id != null ) {
+            setId(id.toString());
+        }
     }
 
     protected boolean isResource(Object obj) {

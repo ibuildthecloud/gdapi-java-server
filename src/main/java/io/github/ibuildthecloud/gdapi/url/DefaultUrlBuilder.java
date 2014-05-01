@@ -35,7 +35,8 @@ public final class DefaultUrlBuilder implements UrlBuilder {
         IdFormatter formatter = ApiContext.getContext().getIdFormatter();
 
         Schema schema = schemaFactory.getSchema(type);
-        return schema == null ? null : constructBasicUrl(schema.getPluralName(), formatter.formatId(schema.getId(), id));
+        return schema == null ? null : constructBasicUrl(schema.getPluralName(),
+                formatter.formatId(schema.getId(), id).toString());
     }
 
 
@@ -112,7 +113,7 @@ public final class DefaultUrlBuilder implements UrlBuilder {
 
         StringBuilder buffer = fullUrlToAppendQueryString(Collection.MARKER);
 
-        String formatted = id;
+        Object formatted = id;
         if ( id != null && id.length() > 0 && id.charAt(0) != 'm' ) {
             formatted = formatter.formatId(Collection.MARKER, id);
         }
