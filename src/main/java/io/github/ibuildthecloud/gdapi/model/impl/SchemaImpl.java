@@ -249,7 +249,6 @@ public class SchemaImpl extends ResourceImpl implements Schema {
     }
 
     @Override
-    @XmlTransient
     public String getPluralName() {
         if ( pluralName == null )
             return TypeUtils.guessPluralName(name);

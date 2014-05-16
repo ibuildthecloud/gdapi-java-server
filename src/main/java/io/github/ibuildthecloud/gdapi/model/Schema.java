@@ -15,8 +15,6 @@ public interface Schema extends Resource {
         }
     }
 
-    @XmlTransient
-    @io.github.ibuildthecloud.gdapi.annotation.Field(include = false)
     String getPluralName();
 
     List<String> getResourceMethods();
