@@ -141,6 +141,13 @@ public class SchemaFactoryImpl extends AbstractSchemaFactory implements SchemaFa
             schema = processor.postProcess(schema, this);
         }
 
+        if ( clz == null && schema.getParent() != null ) {
+            clz = typeToClass.get(schema.getParent());
+            if ( clz != null ) {
+                addToMap(typeToClass, schema, clz);
+            }
+        }
+
         return schema;
     }
 
