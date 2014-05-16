@@ -32,7 +32,6 @@ public class ApiRequest {
     String method;
     String clientIp;
     String queryString;
-    String requestPath;
     boolean committed = false;
     int responseCode = HttpServletResponse.SC_OK;
     ApiServletContext apiServletContext;
@@ -67,7 +66,6 @@ public class ApiRequest {
         this.method = request.getMethod();
         this.clientIp = request.getClientIp();
         this.queryString = request.getQueryString();
-        this.requestPath = request.getRequestPath();
         this.committed = request.isCommitted();
         this.responseCode = request.getResponseCode();
         this.requestObject = request.getRequestObject();
@@ -194,14 +192,6 @@ public class ApiRequest {
 
     public void setRequestParams(Map<String, Object> requestParams) {
         this.requestParams = requestParams;
-    }
-
-    public String getRequestPath() {
-        return requestPath;
-    }
-
-    public void setRequestPath(String requestPath) {
-        this.requestPath = requestPath;
     }
 
     public String getClientIp() {
