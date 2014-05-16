@@ -16,6 +16,8 @@ import io.github.ibuildthecloud.gdapi.model.impl.WrappedResource;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.request.resource.ResourceManager;
 import io.github.ibuildthecloud.gdapi.request.resource.ResourceManagerLocator;
+import io.github.ibuildthecloud.gdapi.response.ResourceOutputFilter;
+import io.github.ibuildthecloud.gdapi.response.ResourceOutputFilterManager;
 import io.github.ibuildthecloud.gdapi.url.UrlBuilder;
 import io.github.ibuildthecloud.gdapi.util.RequestUtils;
 import io.github.ibuildthecloud.gdapi.util.TypeUtils;
@@ -42,6 +44,7 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
     Map<String,Map<String,String>> linksCache = Collections.synchronizedMap(new WeakHashMap<String,Map<String,String>>());
     Set<Class<?>> resourcesToCreate = new HashSet<Class<?>>();
     protected ResourceManagerLocator locator;
+    protected ResourceOutputFilterManager outputFilterManager;
 
     protected Object authorize(Object object) {
         return object;
@@ -182,7 +185,14 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
 
     @Override
     public Resource convertResponse(Object obj, ApiRequest request) {
-        return createResource(obj, ApiContext.getContext().getIdFormatter(), request);
+        Resource resource = createResource(obj, ApiContext.getContext().getIdFormatter(), request);
+        ResourceOutputFilter filter = outputFilterManager.getOutputFilter(resource);
+
+        if ( filter != null ) {
+            resource = filter.filter(request, obj, resource);
+        }
+
+        return resource;
     }
 
     protected Collection createCollection(List<?> list, ApiRequest request) {
@@ -216,14 +226,12 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
 
         collection.setCreateDefaults(request.getCreateDefaults());
 
-        IdFormatter formatter = ApiContext.getContext().getIdFormatter();
-
         addSort(collection, request);
         addPagination(list, collection, request);
         addFilters(collection, request);
 
         for ( Object obj : list ) {
-            Resource resource = createResource(obj, formatter, request);
+            Resource resource = convertResponse(obj, request);
             if ( resource != null ) {
                 collection.getData().add(resource);
                 if ( collection.getResourceType() == null ) {
@@ -420,6 +428,15 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
     @Inject
     public void setLocator(ResourceManagerLocator locator) {
         this.locator = locator;
+    }
+
+    public ResourceOutputFilterManager getOutputFilterManager() {
+        return outputFilterManager;
+    }
+
+    @Inject
+    public void setOutputFilterManager(ResourceOutputFilterManager outputFilterManager) {
+        this.outputFilterManager = outputFilterManager;
     }
 
 }
