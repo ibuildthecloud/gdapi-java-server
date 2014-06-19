@@ -32,6 +32,7 @@ public class ApiRequest {
     String method;
     String clientIp;
     String queryString;
+    String staticResourceBase = "static";
     boolean committed = false;
     int responseCode = HttpServletResponse.SC_OK;
     ApiServletContext apiServletContext;
@@ -87,6 +88,7 @@ public class ApiRequest {
         this.createDefaults = request.getCreateDefaults();
         this.exceptions = request.getExceptions();
         this.options = request.getOptions();
+        this.staticResourceBase = request.getStaticResourceBase();
     }
 
     public ApiRequest(String apiVersion, ApiServletContext requestServletContext, SchemaFactory schemaFactory) {
@@ -367,6 +369,14 @@ public class ApiRequest {
 
     public Map<String, String> getOptions() {
         return options;
+    }
+
+    public String getStaticResourceBase() {
+        return staticResourceBase;
+    }
+
+    public void setStaticResourceBase(String staticResourceBase) {
+        this.staticResourceBase = staticResourceBase;
     }
 
 }

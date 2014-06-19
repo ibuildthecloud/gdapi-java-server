@@ -62,4 +62,9 @@ public class NullUrlBuilder implements UrlBuilder {
         return null;
     }
 
+    @Override
+    public URL staticResource(String... resources) {
+        return null;
+    }
+
 }

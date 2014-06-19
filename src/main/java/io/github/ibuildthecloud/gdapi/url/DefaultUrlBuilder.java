@@ -172,4 +172,19 @@ public final class DefaultUrlBuilder implements UrlBuilder {
         return toURL(apiRequest.getRequestUrl());
     }
 
+    public URL staticResource(String... parts) {
+        StringBuilder builder = new StringBuilder()
+            .append(apiRequest.getResponseUrlBase())
+            .append("/")
+            .append(apiRequest.getStaticResourceBase());
+
+        for ( String part : parts ) {
+            if ( part == null )
+                return null;
+            builder.append("/").append(part);
+        }
+
+        return toURL(builder.toString().toLowerCase());
+    }
+
 }

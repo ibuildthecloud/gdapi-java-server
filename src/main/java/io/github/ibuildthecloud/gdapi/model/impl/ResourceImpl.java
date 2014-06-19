@@ -15,6 +15,15 @@ public class ResourceImpl implements Resource {
     Map<String, URL> actions = new LinkedHashMap<String, URL>();
     Map<String, Object> fields = new LinkedHashMap<String, Object>();
 
+    public ResourceImpl() {
+    }
+
+    public ResourceImpl(String id, String type, Map<String,Object> fields) {
+        this.id = id;
+        this.type = type;
+        this.fields = fields;
+    }
+
     @Override
     public String getId() {
         return id;
