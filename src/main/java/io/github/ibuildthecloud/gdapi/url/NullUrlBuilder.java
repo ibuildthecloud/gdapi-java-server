@@ -58,6 +58,11 @@ public class NullUrlBuilder implements UrlBuilder {
     }
 
     @Override
+    public URL resourceReferenceLink(String type, String id) {
+        return null;
+    }
+
+    @Override
     public URL actionLink(Resource resource, String name) {
         return null;
     }

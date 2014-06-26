@@ -15,6 +15,8 @@ public interface UrlBuilder {
 
     URL resourceReferenceLink(Class<?> type, String id);
 
+    URL resourceReferenceLink(String type, String id);
+
     URL resourceLink(Resource resource, String name);
 
     URL actionLink(Resource resource, String name);

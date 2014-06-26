@@ -39,6 +39,17 @@ public final class DefaultUrlBuilder implements UrlBuilder {
                 formatter.formatId(schema.getId(), id).toString());
     }
 
+    @Override
+    public URL resourceReferenceLink(String type, String id) {
+        IdFormatter formatter = ApiContext.getContext().getIdFormatter();
+
+        Schema schema = schemaFactory.getSchema(type);
+        if ( schema == null ) {
+            return constructBasicUrl(false, type, formatter.formatId(type, id).toString());
+        } else {
+            return constructBasicUrl(schema.getPluralName(), formatter.formatId(schema.getId(), id).toString());
+        }
+    }
 
     protected String getPluralName(Resource resource) {
         return getPluralName(resource.getType());
@@ -48,7 +59,7 @@ public final class DefaultUrlBuilder implements UrlBuilder {
         return schemaFactory.getPluralName(type);
     }
 
-    protected URL constructBasicUrl(String... parts) {
+    protected URL constructBasicUrl(boolean lowercase, String... parts) {
         StringBuilder builder = new StringBuilder()
             .append(apiRequest.getResponseUrlBase())
             .append("/")
@@ -60,7 +71,15 @@ public final class DefaultUrlBuilder implements UrlBuilder {
             builder.append("/").append(part);
         }
 
-        return toURL(builder.toString().toLowerCase());
+        if ( lowercase ) {
+            return toURL(builder.toString().toLowerCase());
+        } else {
+            return toURL(builder.toString());
+        }
+    }
+
+    protected URL constructBasicUrl(String... parts) {
+        return constructBasicUrl(true, parts);
     }
 
     @Override
@@ -172,6 +191,7 @@ public final class DefaultUrlBuilder implements UrlBuilder {
         return toURL(apiRequest.getRequestUrl());
     }
 
+    @Override
     public URL staticResource(String... parts) {
         StringBuilder builder = new StringBuilder()
             .append(apiRequest.getResponseUrlBase())
