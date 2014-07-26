@@ -23,7 +23,11 @@ public class ProxyUtils {
 
                         if (method.getName().startsWith("get")) {
                             String name = StringUtils.uncapitalize(method.getName().substring(3));
-                            return map.get(name);
+                            Object val = map.get(name);
+                            if ( val instanceof Long && Integer.class.equals(method.getReturnType()) ) {
+                                return ((Long)val).intValue();
+                            }
+                            return val;
                         }
 
                         if (method.getName().startsWith("set") && args.length == 1) {
