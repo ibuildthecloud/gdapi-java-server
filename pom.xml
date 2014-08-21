@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.ibuildthecloud</groupId>
     <artifactId>gdapi-java-server</artifactId>
-    <version>0.4.2-SNAPSHOT</version>
+    <version>0.4.2</version>
     <packaging>jar</packaging>
     <name>Java Server GD-API Spec Implementation</name>
     <description>Java Server GD-API Spec Implementation</description>
@@ -18,7 +18,7 @@
         <connection>scm:git:git@github.com:ibuildthecloud/gdapi-java-server.git</connection>
         <developerConnection>scm:git:git@github.com:ibuildthecloud/gdapi-java-server.git</developerConnection>
         <url>git@github.com:ibuildthecloud/gdapi-java-server.git</url>
-      <tag>HEAD</tag>
+      <tag>v0.4.2</tag>
   </scm>
     <distributionManagement>
         <snapshotRepository>
