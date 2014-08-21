@@ -156,6 +156,9 @@ public class ValidationHandler extends AbstractApiRequestHandler {
             if ( value != null || wasNull ) {
                 if ( value instanceof List ) {
                     for ( Object individualValue : (List<?>)value ) {
+                        if ( individualValue == null ) {
+                            error(NOT_NULLABLE, fieldName);
+                        }
                         checkFieldCriteria(type, fieldName, field, individualValue);
                     }
                 } else {
