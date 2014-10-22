@@ -44,6 +44,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
     String overrideUrlHeader = DEFAULT_OVERRIDE_URL_HEADER;
     String overrideClientIpHeader = DEFAULT_OVERRIDE_CLIENT_IP_HEADER;
     Set<String> allowedFormats;
+    String trimPrefix;
 
     @Override
     public boolean parse(ApiRequest apiRequest) throws IOException {
@@ -199,12 +200,20 @@ public class DefaultApiRequestParser implements ApiRequestParser {
 
     protected String parseRequestVersion(ApiRequest apiRequest, HttpServletRequest request) {
         String servletPath = request.getServletPath();
-        servletPath = servletPath.replaceAll("//+", "/");
+        servletPath = trimPrefix(servletPath.replaceAll("//+", "/"));
 
         if ( ! servletPath.startsWith("/") || servletPath.length() < 2 )
             return null;
 
         return servletPath.split("/")[1];
+    }
+
+    protected String trimPrefix(String path) {
+        if ( trimPrefix != null && path.startsWith(trimPrefix) ) {
+            return path.substring(trimPrefix.length());
+        }
+
+        return path;
     }
 
     protected String parseResponseType(ApiRequest apiRequest, HttpServletRequest request) {
@@ -232,7 +241,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
             return;
 
         String servletPath = request.getServletPath();
-        servletPath = servletPath.replaceAll("//+", "/");
+        servletPath = trimPrefix(servletPath.replaceAll("//+", "/"));
 
         String versionPrefix = "/" + apiRequest.getRequestVersion();
         if ( ! servletPath.startsWith(versionPrefix) ) {
@@ -306,6 +315,14 @@ public class DefaultApiRequestParser implements ApiRequestParser {
 
     public void setAllowClientOverrideHeaders(boolean allowClientOverrideHeaders) {
         this.allowClientOverrideHeaders = allowClientOverrideHeaders;
+    }
+
+    public String getTrimPrefix() {
+        return trimPrefix;
+    }
+
+    public void setTrimPrefix(String trimPrefix) {
+        this.trimPrefix = trimPrefix;
     }
 
 }

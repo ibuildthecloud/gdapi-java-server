@@ -99,6 +99,34 @@ public class ApiRequest {
         this.schemaFactory = schemaFactory;
     }
 
+    public ApiRequest reset() {
+        type = null;
+        id = null;
+        link = null;
+        action = null;
+        method = null;
+        queryString = null;
+        committed = false;
+        responseCode = HttpServletResponse.SC_OK;
+        responseObject = null;
+        requestObject = null;
+        requestBodyObject = null;
+        requestParams = null;
+        requestVersion = null;
+        apiVersion = null;
+        startTime = System.currentTimeMillis();
+        conditions = new LinkedHashMap<String, List<Condition>>();
+        sort = null;
+        pagination = null;
+        include = null;
+        attributes = new HashMap<Object, Object>();
+        options = new HashMap<String, String>();
+        createDefaults = new HashMap<String, Object>();
+        exceptions = new ArrayList<Throwable>();
+
+        return this;
+    }
+
     public InputStream getInputStream() throws IOException {
         if ( apiServletContext == null ) {
             return null;
