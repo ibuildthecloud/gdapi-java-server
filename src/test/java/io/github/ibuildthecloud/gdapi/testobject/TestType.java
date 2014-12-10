@@ -50,6 +50,15 @@ public class TestType {
     IdRef<TestTypeCRUD> testTypeCrudId;
     TestTypeCRUD testTypeCrud;
     Map<String,Object> typeMapObject;
+    List<TestEnum> testEnumList;
+
+    public List<TestEnum> getTestEnumList() {
+        return testEnumList;
+    }
+
+    public void setTestEnumList(List<TestEnum> testEnumList) {
+        this.testEnumList = testEnumList;
+    }
 
     public void setOnlyWriteable(String onlyWriteable) {
         this.onlyWriteable = onlyWriteable;

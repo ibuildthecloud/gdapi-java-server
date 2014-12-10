@@ -95,7 +95,7 @@ public class ApiRequest {
         super();
         this.apiVersion = apiVersion;
         this.apiServletContext = requestServletContext;
-        this.locale = requestServletContext.getRequest().getLocale();
+        this.locale = requestServletContext == null ? null : requestServletContext.getRequest().getLocale();
         this.schemaFactory = schemaFactory;
     }
 

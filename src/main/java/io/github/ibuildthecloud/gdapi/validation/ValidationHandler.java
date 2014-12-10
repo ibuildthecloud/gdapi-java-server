@@ -494,7 +494,7 @@ public class ValidationHandler extends AbstractApiRequestHandler {
         this.supportedMethods = supportedMethods;
     }
 
-    private static final class ValidationContext {
+    protected static final class ValidationContext {
         SchemaFactory schemaFactory;
         Schema schema;
         Schema actionSchema;

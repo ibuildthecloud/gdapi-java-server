@@ -111,6 +111,9 @@ public class SchemaFactoryImplTest {
         assertEquals(FieldType.REFERENCE, fields.get("typeReference").getTypeEnum());
         assertEquals(FieldType.ARRAY, fields.get("typeArray").getTypeEnum());
         assertEquals(FieldType.ARRAY, fields.get("typeList").getTypeEnum());
+
+        assertEquals(FieldType.ARRAY, fields.get("testEnumList").getTypeEnum());
+        assertEquals(FieldType.ENUM, fields.get("testEnumList").getSubTypeEnums().get(0));
     }
 
     @Test
