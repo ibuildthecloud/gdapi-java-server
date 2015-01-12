@@ -68,7 +68,7 @@ public class ValidationHandler extends AbstractApiRequestHandler {
         }
 
         Map<String,Action> actions = request.getId() == null ? context.schema.getCollectionActions() :
-                context.schema.getResourceActions();
+            context.schema.getResourceActions();
 
         if ( actions == null || ! actions.containsKey(action) ) {
             error(INVALID_ACTION, Resource.ACTION);
@@ -127,12 +127,18 @@ public class ValidationHandler extends AbstractApiRequestHandler {
     }
 
     protected void validateOperationField(Schema schema, ApiRequest request, boolean create, ValidationContext context) {
+        Map<String,Object> input = RequestUtils.toMap(request.getRequestObject());
+        Object obj = validateRawOperationField(schema, request.getType(), input, create, context);
+        if ( obj != null ) {
+            request.setRequestObject(obj);
+        }
+    }
+
+    protected Object validateRawOperationField(Schema schema, String type, Map<String,Object> input, boolean create, ValidationContext context) {
         if ( schema == null ) {
-            return;
+            return null;
         }
 
-        String type = request.getType();
-        Map<String,Object> input = RequestUtils.toMap(request.getRequestObject());
         Map<String,Object> sanitized = new LinkedHashMap<String, Object>();
         Map<String,Field> fields = schema.getResourceFields();
 
@@ -190,7 +196,7 @@ public class ValidationHandler extends AbstractApiRequestHandler {
             }
         }
 
-        request.setRequestObject(sanitized);
+        return sanitized;
     }
 
     protected boolean isOperation(Field field, boolean create) {
@@ -198,10 +204,10 @@ public class ValidationHandler extends AbstractApiRequestHandler {
     }
 
     protected Object convert(String fieldName, Field field, Object value, ValidationContext context) {
-        return convert(fieldName, field.getTypeEnum(), field.getSubTypeEnums(), field.getSubTypes(), value, context);
+        return convert(fieldName, field, field.getTypeEnum(), field.getSubTypeEnums(), field.getSubTypes(), value, context);
     }
 
-    protected Object convert(String fieldName, FieldType type, List<FieldType> subTypes, List<String> subTypeNames,
+    protected Object convert(String fieldName, Field field, FieldType type, List<FieldType> subTypes, List<String> subTypeNames,
             Object value, ValidationContext context) {
 
         if ( value == null ) {
@@ -238,6 +244,18 @@ public class ValidationHandler extends AbstractApiRequestHandler {
             return convertReference(subTypeNames.get(0), fieldName, value, context);
         case NONE:
         case TYPE:
+            if ( field != null ) {
+                String subType = field.getType();
+                Map<String,Object> mapValue = RequestUtils.toMap(value);
+                Schema schema = context.schemaFactory.getSchema(subType);
+                if ( schema != null ) {
+                    ValidationContext validationContext = new ValidationContext();
+                    validationContext.idFormatter = context.idFormatter;
+                    validationContext.schema = schema;
+                    validationContext.schemaFactory = context.schemaFactory;
+                    return validateRawOperationField(schema, subType, mapValue, true, validationContext);
+                }
+            }
         default:
             throw new IllegalStateException("Do not know how to convert type [" + type + "]");
         }
@@ -295,7 +313,7 @@ public class ValidationHandler extends AbstractApiRequestHandler {
 
         FieldType type = subTypes.get(0);
         for ( Map.Entry<String, Object> entry : value.entrySet() ) {
-            Object item = convert(fieldName, type, subTypes.subList(1, subTypes.size()),
+            Object item = convert(fieldName, null, type, subTypes.subList(1, subTypes.size()),
                     subTypesNames.subList(1, subTypesNames.size()), entry.getValue(), context);
             result.put(entry.getKey(), item);
         }
@@ -323,7 +341,7 @@ public class ValidationHandler extends AbstractApiRequestHandler {
 
         FieldType type = subTypes.get(0);
         for ( Object item : items ) {
-            item = convert(fieldName, type, subTypes.subList(1, subTypes.size()),
+            item = convert(fieldName, null, type, subTypes.subList(1, subTypes.size()),
                     subTypesNames.subList(1, subTypesNames.size()), item, context);
             result.add(item);
         }

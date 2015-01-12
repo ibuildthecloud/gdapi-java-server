@@ -2,9 +2,11 @@ package io.github.ibuildthecloud.gdapi.validation;
 
 import static org.junit.Assert.*;
 import io.github.ibuildthecloud.gdapi.exception.ClientVisibleException;
+import io.github.ibuildthecloud.gdapi.factory.impl.SchemaFactoryImpl;
 import io.github.ibuildthecloud.gdapi.model.impl.FieldImpl;
 import io.github.ibuildthecloud.gdapi.model.impl.SchemaImpl;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
+import io.github.ibuildthecloud.gdapi.util.RequestUtils;
 import io.github.ibuildthecloud.gdapi.validation.ValidationHandler.ValidationContext;
 
 import java.util.Arrays;
@@ -42,6 +44,39 @@ public class ValidationHandlerTest {
 
         input.put("test", "one");
         handler.validateOperationField(schema, request, true, context);
+    }
+
+    @Test
+    public void testCreateSubtype() {
+        SchemaFactoryImpl factory = new SchemaFactoryImpl();
+        factory.getTypes().add(ParentType.class);
+        factory.getTypes().add(SubType.class);
+        factory.init();
+
+
+        ApiRequest request = new ApiRequest(null, null, null);
+        ValidationContext context = new ValidationContext();
+        ValidationHandler handler = new ValidationHandler();
+
+        context.schemaFactory = factory;
+
+        Map<String,Object> childType = new HashMap<String, Object>();
+        childType.put("testField", "abc");
+        childType.put("notWrite", "xyz");
+
+        Map<String,Object> input = new HashMap<String, Object>();
+        input.put("subType", childType);
+
+        request.setRequestObject(input);
+
+        handler.validateOperationField(factory.getSchema(ParentType.class), request, true, context);
+
+        Map<String,Object> result = RequestUtils.toMap(request.getRequestObject());
+        @SuppressWarnings("unchecked")
+        Map<String,Object> childData = (Map<String,Object>)result.get("subType");
+
+        assertTrue(childData != null);
+
     }
 
 }
