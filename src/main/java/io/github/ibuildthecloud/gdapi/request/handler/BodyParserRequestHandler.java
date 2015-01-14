@@ -29,10 +29,6 @@ public class BodyParserRequestHandler extends AbstractApiRequestHandler implemen
     @Override
     public void handle(ApiRequest request) throws IOException {
         Object obj = getObject(request);
-        if ( obj != null ) {
-            request.setRequestBodyObject(obj);
-        }
-
         request.setRequestObject(merge(obj, request));
     }
 

@@ -38,7 +38,6 @@ public class ApiRequest {
     ApiServletContext apiServletContext;
     Object responseObject;
     Object requestObject;
-    Object requestBodyObject;
     Map<String,Object> requestParams;
     String requestUrl;
     String requestVersion;
@@ -70,7 +69,6 @@ public class ApiRequest {
         this.committed = request.isCommitted();
         this.responseCode = request.getResponseCode();
         this.requestObject = request.getRequestObject();
-        this.requestBodyObject = request.getRequestBodyObject();
         this.requestParams = request.getRequestParams();
         this.requestUrl = request.getRequestUrl();
         this.requestVersion = request.getRequestVersion();
@@ -110,7 +108,6 @@ public class ApiRequest {
         responseCode = HttpServletResponse.SC_OK;
         responseObject = null;
         requestObject = null;
-        requestBodyObject = null;
         requestParams = null;
         requestVersion = null;
         apiVersion = null;
@@ -290,14 +287,6 @@ public class ApiRequest {
 
     public long getStartTime() {
         return startTime;
-    }
-
-    public Object getRequestBodyObject() {
-        return requestBodyObject;
-    }
-
-    public void setRequestBodyObject(Object requestBodyObject) {
-        this.requestBodyObject = requestBodyObject;
     }
 
     public void commit() {
