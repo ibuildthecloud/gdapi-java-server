@@ -26,4 +26,7 @@ public interface ResourceManagerFilter {
 
     Object delete(String type, String id, ApiRequest request, ResourceManager next);
 
+    Object resourceAction(String type, ApiRequest request, ResourceManager next);
+
+    Object collectionAction(String type, ApiRequest request, ResourceManager next);
 }

@@ -53,4 +53,14 @@ public abstract class AbstractResourceManagerFilter implements ResourceManagerFi
         return next.delete(type, id, request);
     }
 
+    @Override
+    public Object resourceAction(String type, ApiRequest request, ResourceManager next) {
+        return next.resourceAction(type, request);
+    }
+
+    @Override
+    public Object collectionAction(String type, ApiRequest request, ResourceManager next) {
+        return next.collectionAction(type, request);
+    }
+
 }
