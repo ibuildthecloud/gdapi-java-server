@@ -41,6 +41,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public abstract class AbstractBaseResourceManager implements ResourceManager {
 
+    private static final String DEFAULT_CRITERIA = " _defaultCriteria";
+
     Map<String,Map<String,String>> linksCache = Collections.synchronizedMap(new WeakHashMap<String,Map<String,String>>());
     Set<Class<?>> resourcesToCreate = new HashSet<Class<?>>();
     protected ResourceManagerLocator locator;
@@ -60,7 +62,7 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
     }
 
     protected Object getByIdInternal(String type, String id, ListOptions options) {
-        Map<Object,Object> criteria = getDefaultCriteria(true, type);
+        Map<Object,Object> criteria = getDefaultCriteria(true, false, type);
         criteria.put(TypeUtils.ID_FIELD, id);
 
         return getFirstFromList(listInternal(ApiContext.getSchemaFactory(), type, criteria, options));
@@ -73,7 +75,9 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
 
     @Override
     public final List<?> list(String type, Map<Object, Object> criteria, ListOptions options) {
-        criteria = mergeCriteria(criteria, getDefaultCriteria(false, type));
+        if ( ! isDefaultCriteria(criteria) ) {
+            criteria = mergeCriteria(criteria, getDefaultCriteria(false, false, type));
+        }
 
         Object result = authorize(listInternal(ApiContext.getSchemaFactory(), type, criteria, options));
         return RequestUtils.toList(result);
@@ -145,8 +149,14 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
 
     protected abstract Object getLinkInternal(String type, String id, String link, ApiRequest request);
 
-    protected Map<Object,Object> getDefaultCriteria(boolean byId, String type) {
-        return new HashMap<Object, Object>();
+    protected Map<Object,Object> getDefaultCriteria(boolean byId, boolean byLink, String type) {
+        Map<Object, Object> result = new HashMap<Object, Object>();
+        result.put(DEFAULT_CRITERIA, true);
+        return result;
+    }
+
+    protected boolean isDefaultCriteria(Map<Object,Object> criteria) {
+        return criteria != null && criteria.containsKey(DEFAULT_CRITERIA);
     }
 
     protected Object getMarker(Pagination pagination) {
