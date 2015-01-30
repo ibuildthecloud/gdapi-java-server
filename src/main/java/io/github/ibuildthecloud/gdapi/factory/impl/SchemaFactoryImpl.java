@@ -467,10 +467,17 @@ public class SchemaFactoryImpl extends AbstractSchemaFactory implements SchemaFa
     protected void assignType(PropertyDescriptor prop, FieldImpl field, io.github.ibuildthecloud.gdapi.annotation.Field f) {
         if ( f.type() != FieldType.NONE ) {
             field.setTypeEnum(f.type());
+            return;
         }
 
         if ( ! StringUtils.isEmpty(f.typeString()) ) {
             field.setType(f.typeString());
+            return;
+        }
+
+        if ( f.password() ) {
+            field.setTypeEnum(FieldType.PASSWORD);
+            return;
         }
 
         assignSimpleType(prop.getPropertyType(), field);
@@ -487,9 +494,6 @@ public class SchemaFactoryImpl extends AbstractSchemaFactory implements SchemaFa
             types.remove(0);
             field.setSubTypesList(types);
         }
-
-        if ( f.password() )
-            field.setTypeEnum(FieldType.PASSWORD);
     }
 
     protected void getTypes(java.lang.reflect.Type type, List<TypeAndName> types) {
