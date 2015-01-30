@@ -95,6 +95,20 @@ public final class DefaultUrlBuilder implements UrlBuilder {
     }
 
     @Override
+    public URL resourceLink(Class<?> type, String id, String name) {
+        if ( name == null )
+            return null;
+
+        IdFormatter formatter = ApiContext.getContext().getIdFormatter();
+
+        String typeName = schemaFactory.getSchemaName(type);
+        String pluralName = schemaFactory.getPluralName(typeName);
+
+        return constructBasicUrl(pluralName, id == null ? null : formatter.formatId(typeName, id).toString(),
+                name.toLowerCase());
+    }
+
+    @Override
     public URL resourceLink(Resource resource, String name) {
         if ( name == null )
             return null;

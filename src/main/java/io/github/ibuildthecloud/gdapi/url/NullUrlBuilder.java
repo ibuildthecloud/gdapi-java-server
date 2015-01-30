@@ -72,4 +72,9 @@ public class NullUrlBuilder implements UrlBuilder {
         return null;
     }
 
+    @Override
+    public URL resourceLink(Class<?> type, String id, String name) {
+        return null;
+    }
+
 }
