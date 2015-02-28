@@ -14,15 +14,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-
 import javax.xml.bind.annotation.XmlTransient;
 
 public class WrappedResource extends ResourceImpl implements Resource {
 
     Schema schema;
     Object obj;
-    Map<String, Object> fields = new TreeMap<String, Object>();
     Map<String, Object> priorityFields = new LinkedHashMap<String, Object>();
     Map<String, Object> additionalFields;
     Map<String, Field> resourceFields;
@@ -90,6 +87,12 @@ public class WrappedResource extends ResourceImpl implements Resource {
         if ( id != null ) {
             setId(id.toString());
         }
+
+        if ( priorityFields.size() > 0 ) {
+            Map<String,Object> sorted = new LinkedHashMap<String, Object>(priorityFields);
+            sorted.putAll(fields);
+            fields = sorted;
+        }
     }
 
     protected boolean isResource(Object obj) {
@@ -119,13 +122,7 @@ public class WrappedResource extends ResourceImpl implements Resource {
 
     @Override
     public Map<String, Object> getFields() {
-        if ( priorityFields.size() == 0 ) {
-            return fields;
-        } else {
-            Map<String,Object> result = new LinkedHashMap<String, Object>(priorityFields);
-            result.putAll(fields);
-            return result;
-        }
+        return fields;
     }
 
     @XmlTransient

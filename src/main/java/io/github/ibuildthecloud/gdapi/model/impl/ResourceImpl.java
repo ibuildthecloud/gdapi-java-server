@@ -7,13 +7,14 @@ import io.github.ibuildthecloud.gdapi.url.UrlBuilder;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class ResourceImpl implements Resource {
 
     String id, type;
     Map<String, URL> links = new LinkedHashMap<String, URL>();
     Map<String, URL> actions = new LinkedHashMap<String, URL>();
-    Map<String, Object> fields = new LinkedHashMap<String, Object>();
+    Map<String, Object> fields = new TreeMap<String, Object>();
 
     public ResourceImpl() {
     }
