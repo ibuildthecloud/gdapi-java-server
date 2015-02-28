@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -20,24 +22,39 @@ public class WrappedResource extends ResourceImpl implements Resource {
 
     Schema schema;
     Object obj;
-    Map<String, Object> fields = new LinkedHashMap<String, Object>();
+    Map<String, Object> fields = new TreeMap<String, Object>();
+    Map<String, Object> priorityFields = new LinkedHashMap<String, Object>();
     Map<String, Object> additionalFields;
     Map<String, Field> resourceFields;
     boolean createTsFields = true;
+    Set<String> priorityFieldNames = null;
     IdFormatter idFormatter;
 
     public WrappedResource(IdFormatter idFormatter, Schema schema, Object obj, Map<String, Object> additionalFields) {
+        this(idFormatter, schema, obj, additionalFields, null);
+    }
+
+    public WrappedResource(IdFormatter idFormatter, Schema schema, Object obj, Map<String, Object> additionalFields, Set<String> priorityFieldNames) {
         super();
         this.schema = schema;
         this.resourceFields = schema.getResourceFields();
         this.obj = obj;
         this.idFormatter = idFormatter;
         this.additionalFields = additionalFields;
+        this.priorityFieldNames = priorityFieldNames;
         init();
     }
 
     public WrappedResource(IdFormatter idFormatter, Schema schema, Object obj) {
         this(idFormatter, schema, obj, new HashMap<String,Object>());
+    }
+
+    protected void addField(String key, Object value) {
+        if ( priorityFieldNames != null && priorityFieldNames.contains(key) ) {
+            priorityFields.put(key, value);
+        } else {
+            fields.put(key, value);
+        }
     }
 
     protected void init() {
@@ -54,9 +71,9 @@ public class WrappedResource extends ResourceImpl implements Resource {
             if ( value == null ) {
                 value = field.getValue(obj);
             }
-            fields.put(name, IdFormatterUtils.formatReference(field, idFormatter, value));
+            addField(name, IdFormatterUtils.formatReference(field, idFormatter, value));
             if ( createTsFields && field.getTypeEnum() == FieldType.DATE && value instanceof Date ) {
-                fields.put(name + "TS", ((Date)value).getTime());
+                addField(name + "TS", ((Date)value).getTime());
             }
         }
 
@@ -65,7 +82,7 @@ public class WrappedResource extends ResourceImpl implements Resource {
             String key = entry.getKey();
             Field field = resourceFields.get(key);
             if ( (field != null && field.isIncludeInList()) || isResource(value) ) {
-                fields.put(key, value);
+                addField(key, value);
             }
         }
 
@@ -102,7 +119,13 @@ public class WrappedResource extends ResourceImpl implements Resource {
 
     @Override
     public Map<String, Object> getFields() {
-        return fields;
+        if ( priorityFields.size() == 0 ) {
+            return fields;
+        } else {
+            Map<String,Object> result = new LinkedHashMap<String, Object>(priorityFields);
+            result.putAll(fields);
+            return result;
+        }
     }
 
     @XmlTransient
@@ -112,6 +135,15 @@ public class WrappedResource extends ResourceImpl implements Resource {
 
     public void setCreateTsFields(boolean createTsFields) {
         this.createTsFields = createTsFields;
+    }
+
+    public Set<String> getPriorityFieldNames() {
+        return priorityFieldNames;
+    }
+
+    @XmlTransient
+    public void setPriorityFieldNames(Set<String> priorityFieldNames) {
+        this.priorityFieldNames = priorityFieldNames;
     }
 
 }
