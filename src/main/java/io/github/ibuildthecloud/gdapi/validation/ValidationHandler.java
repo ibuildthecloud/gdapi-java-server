@@ -213,7 +213,7 @@ public class ValidationHandler extends AbstractApiRequestHandler {
         if ( value == null ) {
             return value;
         }
-
+        
         switch(type) {
         case MAP:
             @SuppressWarnings("unchecked")
@@ -244,18 +244,25 @@ public class ValidationHandler extends AbstractApiRequestHandler {
             return convertReference(subTypeNames.get(0), fieldName, value, context);
         case NONE:
         case TYPE:
+        	String subType = null;
             if ( field != null ) {
-                String subType = field.getType();
-                Map<String,Object> mapValue = RequestUtils.toMap(value);
-                Schema schema = context.schemaFactory.getSchema(subType);
-                if ( schema != null ) {
-                    ValidationContext validationContext = new ValidationContext();
-                    validationContext.idFormatter = context.idFormatter;
-                    validationContext.schema = schema;
-                    validationContext.schemaFactory = context.schemaFactory;
-                    return validateRawOperationField(schema, subType, mapValue, true, validationContext);
-                }
+                subType = field.getType();
+            } else if ( subTypeNames != null && subTypeNames.size() > 0 ) {
+            	subType = subTypeNames.get(0);
             }
+         
+            if ( subType != null ) {
+	            Map<String,Object> mapValue = RequestUtils.toMap(value);
+	            Schema schema = context.schemaFactory.getSchema(subType);
+	            if ( schema != null ) {
+	            	ValidationContext validationContext = new ValidationContext();
+	            	validationContext.idFormatter = context.idFormatter;
+	            	validationContext.schema = schema;
+	            	validationContext.schemaFactory = context.schemaFactory;
+	            	return validateRawOperationField(schema, subType, mapValue, true, validationContext);
+	            }
+            }
+            
         default:
             throw new IllegalStateException("Do not know how to convert type [" + type + "]");
         }
@@ -338,11 +345,10 @@ public class ValidationHandler extends AbstractApiRequestHandler {
             result.addAll(items);
             return result;
         }
-
         FieldType type = subTypes.get(0);
         for ( Object item : items ) {
-            item = convert(fieldName, null, type, subTypes.subList(1, subTypes.size()),
-                    subTypesNames.subList(1, subTypesNames.size()), item, context);
+            item = convert(fieldName, null, type, subTypes.subList(0, subTypes.size()),
+                    subTypesNames.subList(0, subTypesNames.size()), item, context);
             result.add(item);
         }
 
