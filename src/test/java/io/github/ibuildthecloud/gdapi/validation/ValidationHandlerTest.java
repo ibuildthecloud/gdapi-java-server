@@ -11,6 +11,7 @@ import io.github.ibuildthecloud.gdapi.validation.ValidationHandler.ValidationCon
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -76,7 +77,45 @@ public class ValidationHandlerTest {
         Map<String,Object> childData = (Map<String,Object>)result.get("subType");
 
         assertTrue(childData != null);
+    }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testCreateArraySubtype() {
+        SchemaFactoryImpl factory = new SchemaFactoryImpl();
+        factory.getTypes().add(ParentType.class);
+        factory.getTypes().add(SubType.class);
+        factory.init();
+
+
+        ApiRequest request = new ApiRequest(null, null, null);
+        ValidationContext context = new ValidationContext();
+        ValidationHandler handler = new ValidationHandler();
+
+        context.schemaFactory = factory;
+
+        Map<String,Object> childType = new HashMap<String, Object>();
+        childType.put("testField", "abc");
+        childType.put("notWrite", "xyz");
+
+        Map<String,Object> childType2 = new HashMap<String, Object>();
+        childType2.put("testField", "abc2");
+        childType2.put("notWrite", "xyz");
+
+        Map<String,Object> input = new HashMap<String, Object>();
+        input.put("subTypes", Arrays.asList(childType, childType2));
+
+        request.setRequestObject(input);
+
+        handler.validateOperationField(factory.getSchema(ParentType.class), request, true, context);
+
+        Map<String,Object> result = RequestUtils.toMap(request.getRequestObject());
+        @SuppressWarnings("unchecked")
+        List<Object> childData = (List<Object>)result.get("subTypes");
+
+        assertTrue(childData != null);
+        assertEquals("abc", ((Map<String,Object>)childData.get(0)).get("testField"));
+        assertEquals("abc2", ((Map<String,Object>)childData.get(1)).get("testField"));
     }
 
 }
