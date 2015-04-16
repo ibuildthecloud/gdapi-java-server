@@ -14,6 +14,7 @@ import io.github.ibuildthecloud.gdapi.model.Schema.Method;
 import io.github.ibuildthecloud.gdapi.model.impl.ValidationErrorImpl;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 import io.github.ibuildthecloud.gdapi.request.handler.AbstractApiRequestHandler;
+import io.github.ibuildthecloud.gdapi.request.handler.AbstractResponseGenerator;
 import io.github.ibuildthecloud.gdapi.util.DateUtils;
 import io.github.ibuildthecloud.gdapi.util.RequestUtils;
 import io.github.ibuildthecloud.gdapi.util.ResponseCodes;
@@ -39,7 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ValidationHandler extends AbstractApiRequestHandler {
+public class ValidationHandler extends AbstractResponseGenerator {
 
     private static final Logger log = LoggerFactory.getLogger(ValidationHandler.class);
 
@@ -47,7 +48,7 @@ public class ValidationHandler extends AbstractApiRequestHandler {
     Set<String> supportedMethods;
 
     @Override
-    public void handle(ApiRequest request) throws IOException {
+    public void generate(ApiRequest request) throws IOException {
         ValidationContext context = new ValidationContext();
         context.schemaFactory = request.getSchemaFactory();
         context.idFormatter = ApiContext.getContext().getIdFormatter();
