@@ -43,7 +43,13 @@ public class ApiContext {
         if ( context != null ) {
             UrlBuilder writer = context.getApiRequest().getUrlBuilder();
             if ( writer == null ) {
-                writer = new DefaultUrlBuilder(context.getApiRequest(), ApiContext.getSchemaFactory());
+                DefaultUrlBuilder urlWriter = new DefaultUrlBuilder(context.getApiRequest(), ApiContext.getSchemaFactory());
+                String subContext = context.getApiRequest().getSubContext();
+                if ( subContext != null ) {
+                    urlWriter.setSubContext(subContext);
+                }
+
+                writer = urlWriter;
                 context.getApiRequest().setUrlBuilder(writer);
             }
             return writer;

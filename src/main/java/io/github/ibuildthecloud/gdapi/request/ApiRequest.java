@@ -45,6 +45,8 @@ public class ApiRequest {
     String responseUrlBase;
     String responseFormat;
     String responseContentType;
+    String subContext = "";
+
     long startTime = System.currentTimeMillis();
     UrlBuilder urlBuilder;
     Map<String,List<Condition>> conditions = new LinkedHashMap<String, List<Condition>>();
@@ -87,6 +89,7 @@ public class ApiRequest {
         this.exceptions = request.getExceptions();
         this.options = request.getOptions();
         this.staticResourceBase = request.getStaticResourceBase();
+        this.subContext = request.getSubContext();
     }
 
     public ApiRequest(String apiVersion, ApiServletContext requestServletContext, SchemaFactory schemaFactory) {
@@ -120,6 +123,7 @@ public class ApiRequest {
         options = new HashMap<String, String>();
         createDefaults = new HashMap<String, Object>();
         exceptions = new ArrayList<Throwable>();
+        subContext = "";
 
         return this;
     }
@@ -394,6 +398,14 @@ public class ApiRequest {
 
     public void setStaticResourceBase(String staticResourceBase) {
         this.staticResourceBase = staticResourceBase;
+    }
+
+    public String getSubContext() {
+        return subContext;
+    }
+
+    public void setSubContext(String subContext) {
+        this.subContext = subContext;
     }
 
 }

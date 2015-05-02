@@ -19,6 +19,7 @@ public final class DefaultUrlBuilder implements UrlBuilder {
 
     ApiRequest apiRequest;
     SchemaFactory schemaFactory;
+    String subContext = "";
 
     public DefaultUrlBuilder(ApiRequest apiRequest, SchemaFactory schemaFactory) {
         this.apiRequest = apiRequest;
@@ -63,7 +64,8 @@ public final class DefaultUrlBuilder implements UrlBuilder {
         StringBuilder builder = new StringBuilder()
             .append(apiRequest.getResponseUrlBase())
             .append("/")
-            .append(apiRequest.getApiVersion());
+            .append(apiRequest.getApiVersion())
+            .append(subContext);
 
         for ( String part : parts ) {
             if ( part == null )
@@ -219,6 +221,14 @@ public final class DefaultUrlBuilder implements UrlBuilder {
         }
 
         return toURL(builder.toString().toLowerCase());
+    }
+
+    public String getSubContext() {
+        return subContext;
+    }
+
+    public void setSubContext(String subContext) {
+        this.subContext = subContext;
     }
 
 }
