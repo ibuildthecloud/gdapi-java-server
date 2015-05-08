@@ -183,7 +183,7 @@ public class ValidationHandler extends AbstractResponseGenerator {
                 sanitized.put(fieldName, field.getDefault());
             }
 
-            if ( isOperation(field, create) && field.isRequired() ) {
+            if ( create && isOperation(field, create) && field.isRequired() ) {
                 if ( ! sanitized.containsKey(fieldName) ) {
                     error(MISSING_REQUIRED, fieldName);
                 }
