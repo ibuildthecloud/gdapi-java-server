@@ -1,6 +1,9 @@
 package io.github.ibuildthecloud.gdapi.util;
 
 import static io.github.ibuildthecloud.gdapi.model.Schema.Method.*;
+
+import io.github.ibuildthecloud.gdapi.condition.Condition;
+import io.github.ibuildthecloud.gdapi.condition.ConditionType;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
 
 import java.util.Arrays;
@@ -64,11 +67,12 @@ public class RequestUtils {
 
         return input;
     }
+
     public static Object makeSingularIfCan(Object input) {
         if ( input instanceof List ) {
             List<?> list = (List<?>)input;
             if ( list.size() == 1 )
-                return list.get(0);
+                return makeSingularIfCan(list.get(0));
             if ( list.size() == 0 )
                 return null;
         }
@@ -76,12 +80,16 @@ public class RequestUtils {
         if ( input instanceof String[] ) {
             String[] array = (String[])input;
             if ( array.length == 1 ) {
-                return array[0];
+                return makeSingularIfCan(array[0]);
             }
             if ( array.length == 0 ) {
                 return null;
             }
             return Arrays.asList(array);
+        }
+
+        if ( input instanceof Condition && ((Condition) input).getConditionType() == ConditionType.EQ ) {
+            return makeSingularIfCan(((Condition) input).getValue());
         }
 
         return input;
