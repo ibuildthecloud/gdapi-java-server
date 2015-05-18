@@ -36,6 +36,10 @@ public class BodyParserRequestHandler extends AbstractApiRequestHandler implemen
         if ( ! RequestUtils.mayHaveBody(request.getMethod()) )
             return null;
 
+        if (! shouldBeParsed(request)) {
+            return null;
+        }
+       
         InputStream is = request.getInputStream();
         if ( is == null ) {
             return null;
@@ -71,6 +75,10 @@ public class BodyParserRequestHandler extends AbstractApiRequestHandler implemen
         return accepted;
     }
 
+    protected boolean shouldBeParsed(ApiRequest request) {
+        return true;
+    }
+    
     protected Object merge(Object body, ApiRequest request) {
         if ( body instanceof Map ) {
             @SuppressWarnings("unchecked")
