@@ -64,6 +64,10 @@ public class BodyParserRequestHandler extends AbstractApiRequestHandler implemen
     }
 
     protected boolean isAllowedType(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
         boolean accepted = false;
         for ( Class<?> type : allowedTypes ) {
             if ( type.isAssignableFrom(obj.getClass()) ) {
