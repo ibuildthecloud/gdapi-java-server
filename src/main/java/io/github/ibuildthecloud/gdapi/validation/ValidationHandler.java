@@ -418,8 +418,10 @@ public class ValidationHandler extends AbstractResponseGenerator {
         }
 
         if ( options != null && options.size() > 0 ) {
-            if ( ! options.contains(stringValue) ) {
-                error(INVALID_OPTION, fieldName);
+            if ( stringValue != null || !field.isNullable() ) {
+                if (!options.contains(stringValue)) {
+                    error(INVALID_OPTION, fieldName);
+                }
             }
         }
 

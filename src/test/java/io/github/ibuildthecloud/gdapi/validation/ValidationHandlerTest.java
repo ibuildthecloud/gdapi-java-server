@@ -19,6 +19,28 @@ import org.junit.Test;
 public class ValidationHandlerTest {
 
     @Test
+    public void testNullableOption() {
+        SchemaImpl schema = new SchemaImpl();
+        FieldImpl field = new FieldImpl();
+        field.setType("array[enum]");
+        field.setOptions(Arrays.asList("one", "two"));
+        field.setCreate(true);
+        field.setNullable(true);
+
+        schema.getResourceFields().put("test", field);
+
+        ApiRequest request = new ApiRequest(null, null, null);
+        ValidationContext context = new ValidationContext();
+        ValidationHandler handler = new ValidationHandler();
+
+        Map<String,Object> input = new HashMap<String, Object>();
+        input.put("test", null);
+        request.setRequestObject(input);
+
+        handler.validateOperationField(schema, request, true, context);
+    }
+
+    @Test
     public void testListEnum() {
         SchemaImpl schema = new SchemaImpl();
         FieldImpl field = new FieldImpl();
