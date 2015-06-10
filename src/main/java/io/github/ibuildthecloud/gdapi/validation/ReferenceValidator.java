@@ -8,6 +8,6 @@ public interface ReferenceValidator {
 
     Resource getResourceId(String type, String id);
 
-    Object getByField(String type, String fieldName, Object value);
+    Object getByField(String type, String fieldName, Object value, String id);
 
 }
