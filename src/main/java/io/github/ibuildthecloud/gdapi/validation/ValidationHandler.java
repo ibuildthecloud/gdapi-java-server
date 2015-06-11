@@ -1,6 +1,7 @@
 package io.github.ibuildthecloud.gdapi.validation;
 
 import static io.github.ibuildthecloud.gdapi.validation.ValidationErrorCodes.*;
+
 import io.github.ibuildthecloud.gdapi.context.ApiContext;
 import io.github.ibuildthecloud.gdapi.exception.ClientVisibleException;
 import io.github.ibuildthecloud.gdapi.factory.SchemaFactory;
@@ -13,7 +14,6 @@ import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.model.Schema.Method;
 import io.github.ibuildthecloud.gdapi.model.impl.ValidationErrorImpl;
 import io.github.ibuildthecloud.gdapi.request.ApiRequest;
-import io.github.ibuildthecloud.gdapi.request.handler.AbstractApiRequestHandler;
 import io.github.ibuildthecloud.gdapi.request.handler.AbstractResponseGenerator;
 import io.github.ibuildthecloud.gdapi.util.DateUtils;
 import io.github.ibuildthecloud.gdapi.util.RequestUtils;
@@ -129,13 +129,14 @@ public class ValidationHandler extends AbstractResponseGenerator {
 
     protected void validateOperationField(Schema schema, ApiRequest request, boolean create, ValidationContext context) {
         Map<String,Object> input = RequestUtils.toMap(request.getRequestObject());
-        Object obj = validateRawOperationField(schema, request.getType(), input, create, context);
+        Object obj = validateRawOperationField(schema, request.getType(), input, create, context, request.getId());
         if ( obj != null ) {
             request.setRequestObject(obj);
         }
     }
 
-    protected Object validateRawOperationField(Schema schema, String type, Map<String,Object> input, boolean create, ValidationContext context) {
+    protected Object validateRawOperationField(Schema schema, String type, Map<String,Object> input, boolean create, ValidationContext context, String
+            id) {
         if ( schema == null ) {
             return null;
         }
@@ -166,10 +167,10 @@ public class ValidationHandler extends AbstractResponseGenerator {
                         if ( individualValue == null ) {
                             error(NOT_NULLABLE, fieldName);
                         }
-                        checkFieldCriteria(type, fieldName, field, individualValue);
+                        checkFieldCriteria(type, fieldName, field, individualValue, id);
                     }
                 } else {
-                    checkFieldCriteria(type, fieldName, field, value);
+                    checkFieldCriteria(type, fieldName, field, value, id);
                 }
                 sanitized.put(fieldName, value);
             }
@@ -255,7 +256,7 @@ public class ValidationHandler extends AbstractResponseGenerator {
                 validationContext.idFormatter = context.idFormatter;
                 validationContext.schema = schema;
                 validationContext.schemaFactory = context.schemaFactory;
-                return validateRawOperationField(schema, lastSubTypeName, mapValue, true, validationContext);
+                return validateRawOperationField(schema, lastSubTypeName, mapValue, true, validationContext, null);
             }
         default:
             throw new IllegalStateException("Do not know how to convert type [" + type + "]");
@@ -364,7 +365,7 @@ public class ValidationHandler extends AbstractResponseGenerator {
         }
     }
 
-    protected void checkFieldCriteria(String type, String fieldName, Field field, Object inputValue) {
+    protected void checkFieldCriteria(String type, String fieldName, Field field, Object inputValue, String id) {
         Object value = inputValue;
         Number numVal = null;
         String stringValue = null;
@@ -394,7 +395,7 @@ public class ValidationHandler extends AbstractResponseGenerator {
         }
 
         if ( value != null && field.isUnique() && referenceValidator != null) {
-            if ( referenceValidator.getByField(type, fieldName, value) != null ) {
+            if ( referenceValidator.getByField(type, fieldName, value, id) != null ) {
                 error(NOT_UNIQUE, fieldName);
             }
         }
