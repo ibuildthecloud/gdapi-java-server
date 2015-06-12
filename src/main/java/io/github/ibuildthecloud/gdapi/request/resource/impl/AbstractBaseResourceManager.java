@@ -361,7 +361,7 @@ public abstract class AbstractBaseResourceManager implements ResourceManager {
 
     protected Resource constructResource(IdFormatter idFormatter, SchemaFactory schemaFactory, Schema schema, Object obj,
             ApiRequest apiRequest) {
-        return new WrappedResource(idFormatter, schema, obj);
+        return new WrappedResource(idFormatter, schema, obj, apiRequest.getMethod());
     }
 
     protected void addLinks(Object obj, SchemaFactory schemaFactory, Schema schema, Resource resource) {

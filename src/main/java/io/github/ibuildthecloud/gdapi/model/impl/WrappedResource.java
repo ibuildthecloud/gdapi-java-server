@@ -7,6 +7,7 @@ import io.github.ibuildthecloud.gdapi.model.FieldType;
 import io.github.ibuildthecloud.gdapi.model.Resource;
 import io.github.ibuildthecloud.gdapi.model.Schema;
 import io.github.ibuildthecloud.gdapi.util.TypeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -24,14 +25,16 @@ public class WrappedResource extends ResourceImpl implements Resource {
     Map<String, Object> additionalFields;
     Map<String, Field> resourceFields;
     boolean createTsFields = true;
+    String method;
     Set<String> priorityFieldNames = null;
     IdFormatter idFormatter;
 
-    public WrappedResource(IdFormatter idFormatter, Schema schema, Object obj, Map<String, Object> additionalFields) {
-        this(idFormatter, schema, obj, additionalFields, null);
+    public WrappedResource(IdFormatter idFormatter, Schema schema, Object obj, Map<String, Object> additionalFields, String method) {
+        this(idFormatter, schema, obj, additionalFields, null, method);
     }
 
-    public WrappedResource(IdFormatter idFormatter, Schema schema, Object obj, Map<String, Object> additionalFields, Set<String> priorityFieldNames) {
+    public WrappedResource(IdFormatter idFormatter, Schema schema, Object obj, Map<String, Object> additionalFields, Set<String> priorityFieldNames, String
+     method) {
         super();
         this.schema = schema;
         this.resourceFields = schema.getResourceFields();
@@ -39,11 +42,12 @@ public class WrappedResource extends ResourceImpl implements Resource {
         this.idFormatter = idFormatter;
         this.additionalFields = additionalFields;
         this.priorityFieldNames = priorityFieldNames;
+        this.method = method;
         init();
     }
 
-    public WrappedResource(IdFormatter idFormatter, Schema schema, Object obj) {
-        this(idFormatter, schema, obj, new HashMap<String,Object>());
+    public WrappedResource(IdFormatter idFormatter, Schema schema, Object obj, String method) {
+        this(idFormatter, schema, obj, new HashMap<String,Object>(), method);
     }
 
     protected void addField(String key, Object value) {
@@ -61,7 +65,7 @@ public class WrappedResource extends ResourceImpl implements Resource {
                 continue;
             }
             Field field = entry.getValue();
-            if ( ! field.isIncludeInList() ) {
+            if ( ! field.isIncludeInList() || (!StringUtils.equalsIgnoreCase(method, "post") && field.isReadOnCreateOnly())) {
                 continue;
             }
             Object value = additionalFields.remove(name);

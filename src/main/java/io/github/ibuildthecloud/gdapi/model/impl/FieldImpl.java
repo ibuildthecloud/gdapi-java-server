@@ -18,7 +18,7 @@ public class FieldImpl implements Field {
 
     String name, type, validChars, invalidChars;
     Integer displayIndex;
-    boolean create, update, includeInList = true, nullable, unique, required, defaultIsNull = false;
+    boolean create, update, includeInList = true, nullable, unique, required, defaultIsNull, readOnCreateOnly = false;
     FieldType typeEnum;
     List<FieldType> subTypeEnums;
     List<String> subTypes;
@@ -36,6 +36,7 @@ public class FieldImpl implements Field {
         this.validChars = field.getValidChars();
         this.invalidChars = field.getInvalidChars();
         this.create = field.isCreate();
+        this.readOnCreateOnly = field.isReadOnCreateOnly();
         this.update = field.isUpdate();
         this.includeInList = field.isIncludeInList();
         this.nullable = field.isNullable();
@@ -92,6 +93,14 @@ public class FieldImpl implements Field {
         this.create = create;
     }
 
+    @Override
+    public boolean isReadOnCreateOnly() {
+        return readOnCreateOnly;
+    }
+
+    public void setReadOnCreateOnly(boolean readOnCreateOnly) {
+        this.readOnCreateOnly = readOnCreateOnly;
+    }
     @Override
     public boolean isUpdate() {
         return update;
