@@ -29,6 +29,8 @@ public interface Field {
 
     boolean isCreate();
 
+    boolean isReadOnCreateOnly();
+
     boolean isRequired();
 
     boolean isUpdate();
