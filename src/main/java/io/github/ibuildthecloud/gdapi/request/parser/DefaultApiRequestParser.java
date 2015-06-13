@@ -145,8 +145,15 @@ public class DefaultApiRequestParser implements ApiRequestParser {
             return defaultValue;
         }
 
+        // Need to handle comma separated hosts in X-Forwarded-For
         String value = request.getHeader(header);
-        return value == null ? defaultValue : value;
+        if (value != null) {
+            String[] ips = StringUtils.split(value, ",");
+            if (ips.length > 0) {
+                return StringUtils.trim(ips[0]);
+            }
+        }
+        return defaultValue;
     }
 
     protected String parseClientIp(ApiRequest apiRequest, HttpServletRequest request) {
