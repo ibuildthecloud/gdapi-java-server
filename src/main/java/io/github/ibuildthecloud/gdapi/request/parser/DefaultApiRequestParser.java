@@ -33,7 +33,10 @@ public class DefaultApiRequestParser implements ApiRequestParser {
 
     public static final String DEFAULT_OVERRIDE_URL_HEADER = "X-API-request-url";
     public static final String DEFAULT_OVERRIDE_CLIENT_IP_HEADER = "X-API-client-ip";
-    public static final String FORWARDED_HEADER = "X-Forwarded-For";
+    public static final String FORWARDED_FOR_HEADER = "X-Forwarded-For";
+    private static final String FORWARDED_HOST_HEADER = "X-Forwarded-Host";
+    private static final String FORWARDED_PROTO_HEADER = "X-Forwarded-Proto";
+    private static final String FORWARDED_PORT_HEADER = "X-Forwarded-Port";
 
     public static final String HTML = "html";
     public static final String JSON = "json";
@@ -41,6 +44,7 @@ public class DefaultApiRequestParser implements ApiRequestParser {
     ServletFileUpload servletFileUpload;
     int maxUploadSize = 100 * 1024;
     boolean allowClientOverrideHeaders = false;
+    boolean allowXForwardedHost = false;
     String overrideUrlHeader = DEFAULT_OVERRIDE_URL_HEADER;
     String overrideClientIpHeader = DEFAULT_OVERRIDE_CLIENT_IP_HEADER;
     Set<String> allowedFormats;
@@ -160,12 +164,30 @@ public class DefaultApiRequestParser implements ApiRequestParser {
         String clientIp = request.getRemoteAddr();
 
         clientIp = getOverrideHeader(request, overrideClientIpHeader, clientIp);
-        clientIp = getOverrideHeader(request, FORWARDED_HEADER, clientIp, false);
+        clientIp = getOverrideHeader(request, FORWARDED_FOR_HEADER, clientIp, false);
 
         return clientIp;
     }
 
     protected String parseRequestUrl(ApiRequest apiRequest, HttpServletRequest request) {
+        if (isAllowXForwardedHost()) {
+            String xForwardedProto = getOverrideHeader(request, FORWARDED_PROTO_HEADER, null, false);
+            String xForwardedHost = getOverrideHeader(request, FORWARDED_HOST_HEADER, null, false);
+            String xForwardedPort = getOverrideHeader(request, FORWARDED_PORT_HEADER, null, false);
+            if (StringUtils.isNotEmpty(xForwardedProto) && StringUtils.isNotEmpty(xForwardedHost)) {
+                try {
+                    StringBuilder buffer = new StringBuilder(xForwardedProto).append("://").append(xForwardedHost);
+                    if (StringUtils.isNotEmpty(xForwardedPort)) {
+                        buffer.append(":").append(xForwardedPort);
+                    }
+                    buffer.append(URLDecoder.decode(request.getRequestURI(), "UTF-8")).toString();
+                    return buffer.toString();
+                } catch (UnsupportedEncodingException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        }
+
         String requestUrl = null;
         try {
             requestUrl = URLDecoder.decode(request.getRequestURL().toString(), "UTF-8");
@@ -322,6 +344,14 @@ public class DefaultApiRequestParser implements ApiRequestParser {
 
     public void setAllowClientOverrideHeaders(boolean allowClientOverrideHeaders) {
         this.allowClientOverrideHeaders = allowClientOverrideHeaders;
+    }
+
+    public boolean isAllowXForwardedHost() {
+        return allowXForwardedHost;
+    }
+
+    public void setAllowXForwardedHost(boolean allowXForwardedHost) {
+        this.allowXForwardedHost = allowXForwardedHost;
     }
 
     public String getTrimPrefix() {
